@@ -82,8 +82,15 @@ var (
 )
 
 // MeasureEBUR128 measures integrated loudness, true peak and LRA with ffmpeg ebur128.
-func MeasureEBUR128(path string) (Loudness, error) {
-	s, err := Run("-nostats", "-i", path, "-filter_complex", "ebur128=peak=true", "-f", "null", "-")
+func MeasureEBUR128(path string) (Loudness, error) { return measureEBUR128(path, "") }
+
+// measurePad is trailing silence added before measuring short speech: EBU R128
+// gates 400 ms blocks, so a 0.3 s word alone reads as −inf, while a block of
+// word + silence measures close to the word's loudness.
+const measurePad = "apad=pad_dur=0.5,"
+
+func measureEBUR128(path, pre string) (Loudness, error) {
+	s, err := Run("-nostats", "-i", path, "-filter_complex", pre+"ebur128=peak=true", "-f", "null", "-")
 	if err != nil {
 		return Loudness{}, err
 	}
@@ -181,13 +188,14 @@ func EncodeClip(parts []string, gapS, tempo float64, out string, o ClipOpts) (fl
 	if tempo > 0 && tempo != 1 {
 		fmt.Fprintf(&g, ",atempo=%g", tempo)
 	}
+	// Measure with trailing silence (see measurePad) so one short word is
+	// measurable; the clip itself is not padded.
+	st, err := loudnormFirstPass(g.String()+","+strings.TrimSuffix(measurePad, ",")+"[pre]", parts[0], "ln", extra, o.LUFS, o.TruePeak, o.LRA)
 	g.WriteString("[pre]")
-	st, err := loudnormFirstPass(g.String(), parts[0], "ln", extra, o.LUFS, o.TruePeak, o.LRA)
 	if err != nil {
 		return 0, err
 	}
-	// Less than 400 ms above the −70 LUFS gate: loudness is −inf and the
-	// second pass would reject it.
+	// Silence measures −inf, which the second pass would reject.
 	if i, err := strconv.ParseFloat(st.InputI, 64); err != nil || i < -70 {
 		return 0, fmt.Errorf("encode: silent input (integrated %s LUFS)", st.InputI)
 	}
@@ -213,7 +221,7 @@ func MeasureTake(path string) (durS, lufs float64, err error) {
 	if err != nil {
 		return 0, 0, err
 	}
-	l, err := MeasureEBUR128(path)
+	l, err := measureEBUR128(path, measurePad)
 	if err != nil {
 		return 0, 0, err
 	}

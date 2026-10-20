@@ -78,13 +78,13 @@ type Worker struct {
 	// Each sentence of an utterance is a separate TTS take (chatterbox-cs often
 	// stops after a short first sentence); takes are joined with this gap.
 	SentenceGapS float64 `yaml:"sentence_gap_s"`
-	// A take is redone (new seed) when it is too short/long for its word count
-	// or near silent; after TakeAttempts the clip is skipped (app falls back to
-	// the phone voice).
-	TakeAttempts int     `yaml:"take_attempts"`
-	MinSPerWord  float64 `yaml:"min_s_per_word"`
-	MaxSPerWord  float64 `yaml:"max_s_per_word"`
-	MinTakeLUFS  float64 `yaml:"min_take_lufs"`
+	// A take is redone (new seed) when it is too short/long for its letter
+	// count or near silent; after TakeAttempts the clip is skipped (app falls
+	// back to the phone voice). Letters, not words: Czech has many one-letter words.
+	TakeAttempts  int     `yaml:"take_attempts"`
+	MinSPerLetter float64 `yaml:"min_s_per_letter"`
+	MaxSPerLetter float64 `yaml:"max_s_per_letter"`
+	MinTakeLUFS   float64 `yaml:"min_take_lufs"`
 }
 
 // Default returns the built-in configuration (mirrors config.yaml).
@@ -126,7 +126,7 @@ func Default() *Config {
 		Kinds: []string{"voice_create", "voice_delete", "render"},
 		IdleS: 60, HeartbeatS: 60, PollS: 1, TTSTimeoutS: 900,
 		ClipLUFS: -23, ClipTruePeak: -3, ClipLRA: 20, ClipBitrate: "64k", ClipSampleRate: 48000,
-		SentenceGapS: 0.35, TakeAttempts: 3, MinSPerWord: 0.24, MaxSPerWord: 1.2, MinTakeLUFS: -45,
+		SentenceGapS: 0.35, TakeAttempts: 3, MinSPerLetter: 0.055, MaxSPerLetter: 0.25, MinTakeLUFS: -45,
 	}
 	return c
 }

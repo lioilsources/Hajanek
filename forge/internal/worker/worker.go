@@ -388,7 +388,7 @@ func (w *Worker) take(ctx context.Context, voiceID, text, dst string) error {
 		if err != nil {
 			return fmt.Errorf("measure take: %w", err)
 		}
-		why := w.badTake(d, lufs, len(strings.Fields(text)))
+		why := w.badTake(d, lufs, letters(text))
 		if why == "" {
 			return nil
 		}
@@ -398,17 +398,27 @@ func (w *Worker) take(ctx context.Context, voiceID, text, dst string) error {
 	return bad
 }
 
-func (w *Worker) badTake(d, lufs float64, words int) string {
+func (w *Worker) badTake(d, lufs float64, n int) string {
 	c := w.Cfg
 	switch {
 	case lufs < c.MinTakeLUFS:
 		return fmt.Sprintf("near silent (%.1f LUFS)", lufs)
-	case d < c.MinSPerWord*float64(words):
-		return fmt.Sprintf("truncated (%.2f s for %d words)", d, words)
-	case d > c.MaxSPerWord*float64(words)+1.5:
-		return fmt.Sprintf("too long (%.2f s for %d words)", d, words)
+	case d < c.MinSPerLetter*float64(n):
+		return fmt.Sprintf("truncated (%.2f s for %d letters)", d, n)
+	case d > c.MaxSPerLetter*float64(n)+1.5:
+		return fmt.Sprintf("too long (%.2f s for %d letters)", d, n)
 	}
 	return ""
+}
+
+func letters(s string) int {
+	n := 0
+	for _, r := range s {
+		if unicode.IsLetter(r) {
+			n++
+		}
+	}
+	return n
 }
 
 // ttsText drops quotation marks: they are not read and a lone closing quote

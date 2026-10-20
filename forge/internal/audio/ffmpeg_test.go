@@ -50,16 +50,27 @@ func TestEncodeClipSilent(t *testing.T) {
 		t.Skip("ffmpeg not installed")
 	}
 	dir := t.TempDir()
-	in := filepath.Join(dir, "click.wav")
-	// 0.3 s of tone: below the 400 ms loudness gate → −inf.
-	if _, err := Run("-f", "lavfi", "-i", "sine=f=220:d=0.3", in); err != nil {
+	o := ClipOpts{LUFS: -23, TruePeak: -3, LRA: 20, Bitrate: "64k", SampleRate: 48000}
+	// A 0.3 s word is shorter than the 400 ms EBU R128 block, still measurable.
+	word := filepath.Join(dir, "word.wav")
+	if _, err := Run("-f", "lavfi", "-i", "sine=f=220:d=0.3", word); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := EncodeClip([]string{in}, 0, 1, filepath.Join(dir, "c.m4a"), ClipOpts{LUFS: -23, TruePeak: -3, LRA: 20, Bitrate: "64k", SampleRate: 48000}); err == nil {
-		t.Fatal("want error for unmeasurable loudness")
+	d, l, err := MeasureTake(word)
+	if err != nil || math.Abs(d-0.3) > 0.05 || l < -30 {
+		t.Errorf("MeasureTake(word) = %.2f s, %.1f LUFS, %v", d, l, err)
 	}
-	d, l, err := MeasureTake(in)
-	if err != nil || math.Abs(d-0.3) > 0.05 || l > -70 {
-		t.Errorf("MeasureTake = %.2f s, %.1f LUFS, %v", d, l, err)
+	if d, err := EncodeClip([]string{word}, 0, 1, filepath.Join(dir, "w.m4a"), o); err != nil || d > 0.45 {
+		t.Errorf("EncodeClip(word) = %.2f s, %v (must not be padded)", d, err)
+	}
+	silent := filepath.Join(dir, "silent.wav")
+	if _, err := Run("-f", "lavfi", "-i", "anullsrc=r=24000:cl=mono", "-t", "1", silent); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := EncodeClip([]string{silent}, 0, 1, filepath.Join(dir, "s.m4a"), o); err == nil {
+		t.Error("want error for silence")
+	}
+	if _, l, _ := MeasureTake(silent); l > -70 {
+		t.Errorf("MeasureTake(silent) = %.1f LUFS", l)
 	}
 }
