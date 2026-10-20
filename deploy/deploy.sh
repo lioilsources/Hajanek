@@ -31,15 +31,17 @@ if [ ! -f .env ]; then
   echo "created .env"
 fi
 if [ ! -f cloudflared/config.yml ]; then
-  CERT=~/.cloudflared/cert.pem
-  cloudflared tunnel --origincert "$CERT" info hajanek >/dev/null 2>&1 \
-    || cloudflared tunnel --origincert "$CERT" create hajanek
-  ID=$(cloudflared tunnel --origincert "$CERT" list -o json | python3 -c \
-    'import sys,json;print(next(t["id"] for t in json.load(sys.stdin) if t["name"]=="hajanek"))')
+  # --config /dev/null: never fall back to ~/.cloudflared/config.yml (another tunnel).
+  cf() { cloudflared tunnel --config /dev/null --origincert ~/.cloudflared/cert.pem "$@" 2>/dev/null; }
+  tunnel_id() { cf list -o json | python3 -c \
+    'import sys,json;print(next((t["id"] for t in json.load(sys.stdin) if t["name"]=="hajanek"),""))'; }
+  ID=$(tunnel_id)
+  [ -n "$ID" ] || { cf create hajanek >/dev/null; ID=$(tunnel_id); }
+  [ -n "$ID" ] || { echo "tunnel hajanek not created" >&2; exit 1; }
   # cloudflared runs as nonroot in the container: creds must be readable.
   install -m 644 ~/.cloudflared/"$ID".json cloudflared/"$ID".json
   sed "s/<TUNNEL-ID>/$ID/g" cloudflared/config.yml.example > cloudflared/config.yml
-  cloudflared tunnel --origincert "$CERT" route dns hajanek "$HOSTNAME_API"
+  cf route dns "$ID" "$HOSTNAME_API"
   echo "tunnel hajanek = $ID"
 fi
 docker compose up -d --build
