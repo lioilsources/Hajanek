@@ -1,0 +1,17 @@
+.DS_Store
+*.log
+.env
+# Go
+/api/bin/
+/forge/bin/
+# Python
+__pycache__/
+.venv/
+*.pyc
+# build outputs
+/build/
+/out/
+/forge/work/
+# raw audio sources (large); only mastered loops are committed
+/content/ambient/raw/
+/forge/deploy/forge.env

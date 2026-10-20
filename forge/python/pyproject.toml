@@ -1,0 +1,22 @@
+[project]
+name = "hajanek-forge-workers"
+version = "0.1.0"
+description = "Python workers for hajanek-forge (TTS adapters, QA)"
+requires-python = ">=3.10"
+# Core workers run on stdlib only (dummy engine, ffmpeg-based QA fallback).
+dependencies = []
+
+[project.optional-dependencies]
+signal = ["numpy>=2.1"]
+whisper = ["faster-whisper>=1.1", "numpy>=2.1"]
+# Engine extras (ADR-001 shortlist). Engines pin conflicting torch/transformers,
+# so install one per venv; on GB10 install the cu130 torch wheel first
+# (see forge/python/bench/README.md).
+dots = ["numpy>=2.1", "dots-tts @ git+https://github.com/studio-dots-ai/dots.tts.git"]
+moss = ["numpy>=2.1", "torch==2.9.1", "torchaudio==2.9.1", "transformers==5.0.0"]
+pocket = ["numpy>=2.1", "pocket-tts"]
+dev = ["pytest>=8"]
+
+[tool.uv]
+package = false
+conflicts = [[{ extra = "dots" }, { extra = "moss" }, { extra = "pocket" }]]

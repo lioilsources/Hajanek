@@ -1,0 +1,17 @@
+[
+  {"id": "plaz-vecer", "title": "Pláž večer",
+   "layers": [{"ambient": "sea", "volume": 0.8},
+              {"ambient": "night-meadow", "volume": 0.25}]},
+  {"id": "les-v-noci", "title": "Les v noci",
+   "layers": [{"ambient": "wind", "volume": 0.7},
+              {"ambient": "night-meadow", "volume": 0.4},
+              {"ambient": "stream", "volume": 0.2}]},
+  {"id": "destivy-vecer", "title": "Deštivý večer",
+   "layers": [{"ambient": "rain", "volume": 0.75},
+              {"ambient": "fireplace", "volume": 0.35}]},
+  {"id": "u-krbu", "title": "U krbu",
+   "layers": [{"ambient": "fireplace", "volume": 0.7},
+              {"ambient": "brown-noise", "volume": 0.2}]},
+  {"id": "tichy-sum", "title": "Tichý šum",
+   "layers": [{"ambient": "pink-noise", "volume": 0.6}]}
+]

@@ -1,0 +1,4 @@
+# Alternative to the systemd timer (crontab -e on Spark). CRON_TZ keeps 22:00 local
+# across DST changes; forge itself stops claiming new jobs after 07:00 Europe/Prague.
+CRON_TZ=Europe/Prague
+0 22 * * * cd $HOME/dev/Hajanek/forge && set -a && . deploy/forge.env && set +a && ./bin/forge nightly --until 07:00 --commit >> work/nightly.log 2>&1

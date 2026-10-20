@@ -1,0 +1,10 @@
+[
+  {"id": "sea", "title": "Moře", "license": "CC0", "source": "https://freesound.org/people/pulswelle/sounds/339517/", "free": true},
+  {"id": "rain", "title": "Déšť na střechu", "license": "CC0", "source": "https://freesound.org/people/Metadex/sounds/235827/", "free": true},
+  {"id": "stream", "title": "Potůček", "license": "CC0", "source": "https://freesound.org/people/turbostream/sounds/220528/", "free": false},
+  {"id": "fireplace", "title": "Krb", "license": "CC0", "source": "https://freesound.org/people/BonnyOrbit/sounds/484338/", "free": false},
+  {"id": "wind", "title": "Vítr v korunách", "license": "CC0", "source": "https://freesound.org/people/Anya_Media/sounds/523389/", "free": true},
+  {"id": "night-meadow", "title": "Noční louka", "license": "CC0", "source": "https://freesound.org/people/hdfreema/sounds/333221/", "free": false},
+  {"id": "pink-noise", "title": "Růžový šum", "license": "vlastní syntéza", "source": "ffmpeg anoisesrc", "free": true},
+  {"id": "brown-noise", "title": "Hnědý šum", "license": "vlastní syntéza", "source": "ffmpeg anoisesrc", "free": false}
+]

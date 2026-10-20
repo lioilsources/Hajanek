@@ -1,0 +1,442 @@
+{
+  "schema": 1,
+  "version": 1,
+  "generated_at": "2026-10-20T03:12:00Z",
+  "base_url": "https://lioilsources.github.io/hajanek-content/",
+  "voices": [
+    {
+      "id": "mama",
+      "label": "Měkký",
+      "free": true
+    },
+    {
+      "id": "tata",
+      "label": "Hluboký",
+      "free": true
+    }
+  ],
+  "tales": [
+    {
+      "id": "cervena-karkulka",
+      "title": "Červená Karkulka",
+      "age": "3+",
+      "setting": "les",
+      "ambient": "wind",
+      "free": true,
+      "tracks": [
+        {
+          "voice": "mama",
+          "length_min": 10,
+          "path": "audio/cervena-karkulka/mama/10.opus",
+          "duration_s": 8.0,
+          "bytes": 50276,
+          "sha256": "09867aa14f717a9d8908d60e32d082023ca501748985d7eac0cd7f2849f5ce8e"
+        },
+        {
+          "voice": "tata",
+          "length_min": 10,
+          "path": "audio/cervena-karkulka/tata/10.opus",
+          "duration_s": 601.3,
+          "bytes": 3607799,
+          "sha256": "d6d9034920d64dca11e4e22e6ec9da89bf282abab7f616835b01be60aeb72f33"
+        }
+      ]
+    },
+    {
+      "id": "zlatovlaska",
+      "title": "Zlatovláska",
+      "age": "5+",
+      "setting": "hrad",
+      "ambient": "stream",
+      "free": true,
+      "tracks": [
+        {
+          "voice": "mama",
+          "length_min": 10,
+          "path": "audio/zlatovlaska/mama/10.opus",
+          "duration_s": 627.3,
+          "bytes": 3763799,
+          "sha256": "95970e6bc4c109b5f5a16f1f35c673b373c21ee621c9c96e7db87b21571318e5"
+        },
+        {
+          "voice": "tata",
+          "length_min": 10,
+          "path": "audio/zlatovlaska/tata/10.opus",
+          "duration_s": 598.3,
+          "bytes": 3589799,
+          "sha256": "d4213ae13c4b1b55848bb693559de370cc76e6aa526611c3da0ba8352d8ddb58"
+        }
+      ]
+    },
+    {
+      "id": "pernikova-chaloupka",
+      "title": "Perníková chaloupka",
+      "age": "3+",
+      "setting": "les",
+      "ambient": "fireplace",
+      "free": true,
+      "tracks": [
+        {
+          "voice": "mama",
+          "length_min": 10,
+          "path": "audio/pernikova-chaloupka/mama/10.opus",
+          "duration_s": 624.3,
+          "bytes": 3745799,
+          "sha256": "a9824ddc6f7bf713518b5c50c0abd4eb2e3179a241a36096cc663185e9337d35"
+        },
+        {
+          "voice": "tata",
+          "length_min": 10,
+          "path": "audio/pernikova-chaloupka/tata/10.opus",
+          "duration_s": 595.3,
+          "bytes": 3571799,
+          "sha256": "9034512ffb5f29fef50653268474ff7c94761c8cad6e19ac2aa3e45ffc7548fa"
+        }
+      ]
+    },
+    {
+      "id": "sipkova-ruzenka",
+      "title": "Šípková Růženka",
+      "age": "5+",
+      "setting": "hrad",
+      "ambient": "wind",
+      "free": true,
+      "tracks": [
+        {
+          "voice": "mama",
+          "length_min": 10,
+          "path": "audio/sipkova-ruzenka/mama/10.opus",
+          "duration_s": 621.3,
+          "bytes": 3727799,
+          "sha256": "09aac23d5e5637e5cff451cf552d4ded88dfadb7ac33c4456dfbf25fdf3854e9"
+        },
+        {
+          "voice": "tata",
+          "length_min": 10,
+          "path": "audio/sipkova-ruzenka/tata/10.opus",
+          "duration_s": 592.3,
+          "bytes": 3553799,
+          "sha256": "869e75c2dbaa60a9296ecc411761da26a322596a8de131d87cec3676203d5863"
+        }
+      ]
+    },
+    {
+      "id": "tri-prasatka",
+      "title": "Tři prasátka",
+      "age": "3+",
+      "setting": "louka",
+      "ambient": "night-meadow",
+      "free": true,
+      "tracks": [
+        {
+          "voice": "mama",
+          "length_min": 10,
+          "path": "audio/tri-prasatka/mama/10.opus",
+          "duration_s": 618.3,
+          "bytes": 3709799,
+          "sha256": "5c83dfa15d6f8a2f51e0c8f22c8ef9a0f2fbb666e257b40b263e694fc2e8d06e"
+        },
+        {
+          "voice": "tata",
+          "length_min": 10,
+          "path": "audio/tri-prasatka/tata/10.opus",
+          "duration_s": 629.3,
+          "bytes": 3775799,
+          "sha256": "a8880e78bfae86f6dd42f5415a8e14004626af170c01a0c8e863eefc529d9c3f"
+        }
+      ]
+    },
+    {
+      "id": "hrnecku-var",
+      "title": "Hrnečku, vař!",
+      "age": "3+",
+      "setting": "vesnice",
+      "ambient": "fireplace",
+      "free": true,
+      "tracks": [
+        {
+          "voice": "mama",
+          "length_min": 10,
+          "path": "audio/hrnecku-var/mama/10.opus",
+          "duration_s": 615.3,
+          "bytes": 3691799,
+          "sha256": "90d580df9b5e3d5bcf07c95899dc8dd55d010f978b0c639cbe72544b33075cbe"
+        },
+        {
+          "voice": "tata",
+          "length_min": 10,
+          "path": "audio/hrnecku-var/tata/10.opus",
+          "duration_s": 626.3,
+          "bytes": 3757799,
+          "sha256": "8b0c3e11ade3171f989b5c22dc4eac13a9d6315b38129e1f4e07e1e63de04940"
+        }
+      ]
+    },
+    {
+      "id": "dlouhy-siroky-bystrozraky",
+      "title": "Dlouhý, Široký a Bystrozraký",
+      "age": "7+",
+      "setting": "hory",
+      "ambient": "wind",
+      "free": true,
+      "tracks": [
+        {
+          "voice": "mama",
+          "length_min": 10,
+          "path": "audio/dlouhy-siroky-bystrozraky/mama/10.opus",
+          "duration_s": 612.3,
+          "bytes": 3673799,
+          "sha256": "fa3aa2497d92328c9e37fb1e4d45d672f99f57cd0296800ef2a4a8a8f5776409"
+        },
+        {
+          "voice": "tata",
+          "length_min": 10,
+          "path": "audio/dlouhy-siroky-bystrozraky/tata/10.opus",
+          "duration_s": 623.3,
+          "bytes": 3739799,
+          "sha256": "fc727574e8efbbf653fe57b6f335309d0a3a80292b1137c9db934d21db763929"
+        }
+      ]
+    },
+    {
+      "id": "o-smolickovi",
+      "title": "O Smolíčkovi",
+      "age": "3+",
+      "setting": "les",
+      "ambient": "stream",
+      "free": true,
+      "tracks": [
+        {
+          "voice": "mama",
+          "length_min": 10,
+          "path": "audio/o-smolickovi/mama/10.opus",
+          "duration_s": 609.3,
+          "bytes": 3655799,
+          "sha256": "48e27d1f2e9e8dab8507f1d8512ecbfbd24b1faa99b67fa3a6c2a513a4f7ca34"
+        },
+        {
+          "voice": "tata",
+          "length_min": 10,
+          "path": "audio/o-smolickovi/tata/10.opus",
+          "duration_s": 620.3,
+          "bytes": 3721799,
+          "sha256": "4b81a2dd1c98bf6964dd666fd50b57a43ccf46ff19fadc24490bf808184d1ff7"
+        }
+      ]
+    },
+    {
+      "id": "budulinek",
+      "title": "Budulínek",
+      "age": "3+",
+      "setting": "vesnice",
+      "ambient": "rain",
+      "free": true,
+      "tracks": [
+        {
+          "voice": "mama",
+          "length_min": 10,
+          "path": "audio/budulinek/mama/10.opus",
+          "duration_s": 606.3,
+          "bytes": 3637799,
+          "sha256": "4490d4712e60ce6bef8cc34ab7b2ae1a21f24b2f8118e2f697ca229b9b4e432a"
+        },
+        {
+          "voice": "tata",
+          "length_min": 10,
+          "path": "audio/budulinek/tata/10.opus",
+          "duration_s": 617.3,
+          "bytes": 3703799,
+          "sha256": "9b8a588ef40f57bae7b6076ba5ae3ccfb4b01f962d12cc333225c6c55c77fc6f"
+        }
+      ]
+    },
+    {
+      "id": "snehurka",
+      "title": "Sněhurka",
+      "age": "5+",
+      "setting": "les",
+      "ambient": "night-meadow",
+      "free": true,
+      "tracks": [
+        {
+          "voice": "mama",
+          "length_min": 10,
+          "path": "audio/snehurka/mama/10.opus",
+          "duration_s": 603.3,
+          "bytes": 3619799,
+          "sha256": "8977addda1ee0ad890a247b4218632fea490feabde4f17c4ffc52af0b2ef70dd"
+        },
+        {
+          "voice": "tata",
+          "length_min": 10,
+          "path": "audio/snehurka/tata/10.opus",
+          "duration_s": 614.3,
+          "bytes": 3685799,
+          "sha256": "069bf5f362cfddcbbdb7a26014d3ea0fec4688078f8151f27017d7bd98c30a15"
+        }
+      ]
+    }
+  ],
+  "ambient": [
+    {
+      "id": "sea",
+      "title": "Moře",
+      "path": "ambient/sea.opus",
+      "duration_s": 100.0,
+      "bytes": 1025510,
+      "sha256": "e4436178e18f453e6dc7daa1e2530181a01d83040e6951e3bd1f7cd4bf0dcf33",
+      "free": true,
+      "license": "CC0",
+      "source": "pulswelle: Waves at Baltic Sea shore (CC0)"
+    },
+    {
+      "id": "rain",
+      "title": "Déšť na střechu",
+      "path": "ambient/rain.opus",
+      "duration_s": 90.0,
+      "bytes": 1042948,
+      "sha256": "ab0e733e7c7c1fcda3a59c22cf89908babbd2e232e91a4bac0e021dc0b9ecaec",
+      "free": true,
+      "license": "CC0",
+      "source": "Metadex: Soft rain on roof window (CC0)"
+    },
+    {
+      "id": "stream",
+      "title": "Potůček",
+      "path": "ambient/stream.opus",
+      "duration_s": 100.0,
+      "bytes": 1189322,
+      "sha256": "8d792dc7a6dd0b6a07e482d5a8b1dc0b36b18c12380e9455897e9592c4edfd7f",
+      "free": true,
+      "license": "CC0",
+      "source": "turbostream: Stream Wyre forest (CC0)"
+    },
+    {
+      "id": "fireplace",
+      "title": "Krb",
+      "path": "ambient/fireplace.opus",
+      "duration_s": 100.0,
+      "bytes": 1223971,
+      "sha256": "497e05e0715dc07dceb0c6f0b3186893a20ed2fc881b5c9ebdb99de0060f11a9",
+      "free": true,
+      "license": "CC0",
+      "source": "BonnyOrbit: Fireplace crackling wood little flame (CC0)"
+    },
+    {
+      "id": "wind",
+      "title": "Vítr v korunách",
+      "path": "ambient/wind.opus",
+      "duration_s": 100.0,
+      "bytes": 1037375,
+      "sha256": "1ed7cf87576cbd2c28eff20aece8be28f69d219b44f983f99cb6ae6d264136fc",
+      "free": true,
+      "license": "CC0",
+      "source": "Anya_Media: Forest, trees rustling in the wind (CC0)"
+    },
+    {
+      "id": "night-meadow",
+      "title": "Noční louka",
+      "path": "ambient/night-meadow.opus",
+      "duration_s": 100.0,
+      "bytes": 1137057,
+      "sha256": "1fbf2294caf6cacd19754753d25f96b1e1af08baf03b96688e7b192e4e1d65e4",
+      "free": true,
+      "license": "CC0",
+      "source": "hdfreema: Night Crickets Back Porch (CC0)"
+    },
+    {
+      "id": "pink-noise",
+      "title": "Růžový šum",
+      "path": "ambient/pink-noise.opus",
+      "duration_s": 60.0,
+      "bytes": 644247,
+      "sha256": "d3bbbc80881ed127bcdecdb6c21081707064661e3ac8048ba19ad6da1831dc6f",
+      "free": true,
+      "license": "own",
+      "source": "anoisesrc pink, 2 seeds -> decorrelated stereo"
+    },
+    {
+      "id": "brown-noise",
+      "title": "Hnědý šum",
+      "path": "ambient/brown-noise.opus",
+      "duration_s": 60.0,
+      "bytes": 641249,
+      "sha256": "b73ea1589935ce77cd637b29ed92951b2b96f20c858925dfc388321e77712591",
+      "free": true,
+      "license": "own",
+      "source": "anoisesrc brown, 2 seeds -> decorrelated stereo"
+    }
+  ],
+  "presets": [
+    {
+      "id": "plaz-vecer",
+      "title": "Pláž večer",
+      "layers": [
+        {
+          "ambient": "sea",
+          "volume": 0.8
+        },
+        {
+          "ambient": "night-meadow",
+          "volume": 0.25
+        }
+      ]
+    },
+    {
+      "id": "les-v-noci",
+      "title": "Les v noci",
+      "layers": [
+        {
+          "ambient": "wind",
+          "volume": 0.7
+        },
+        {
+          "ambient": "night-meadow",
+          "volume": 0.4
+        },
+        {
+          "ambient": "stream",
+          "volume": 0.2
+        }
+      ]
+    },
+    {
+      "id": "destivy-vecer",
+      "title": "Deštivý večer",
+      "layers": [
+        {
+          "ambient": "rain",
+          "volume": 0.75
+        },
+        {
+          "ambient": "fireplace",
+          "volume": 0.35
+        }
+      ]
+    },
+    {
+      "id": "u-krbu",
+      "title": "U krbu",
+      "layers": [
+        {
+          "ambient": "fireplace",
+          "volume": 0.7
+        },
+        {
+          "ambient": "brown-noise",
+          "volume": 0.2
+        }
+      ]
+    },
+    {
+      "id": "tichy-sum",
+      "title": "Tichý šum",
+      "layers": [
+        {
+          "ambient": "pink-noise",
+          "volume": 0.6
+        }
+      ]
+    }
+  ]
+}

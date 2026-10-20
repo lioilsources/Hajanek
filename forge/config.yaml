@@ -1,0 +1,96 @@
+# hajanek-forge configuration. Paths are relative to forge/ unless absolute.
+# Env overrides: LLM_BASE_URL, LLM_API_KEY, LLM_MODEL, FORGE_PYTHON, FORGE_TTS_ENGINE,
+# FORGE_API_URL, WORKER_TOKEN, DISCORD_WEBHOOK, HAJANEK_PAGES_DIR.
+
+work_dir: work
+
+python:
+  # Command prefix for python workers. On Spark e.g.
+  # ["uv", "run", "--project", "python", "--extra", "xtts", "--extra", "whisper", "python"]
+  cmd: ["python3"]
+  tts_worker: python/tts_worker.py
+  qa_worker: python/qa_worker.py
+
+llm:
+  temperature: 0.7
+  max_tokens: 8000
+  timeout_s: 600
+  attempts: 2            # regenerate with judge feedback when deterministic checks fail
+  gold_dir: scripts/gold # relative to content dir
+  template: prompts/script_template.md
+  judge_checklist: prompts/judge_checklist.md
+
+tts:
+  engine: dummy          # dummy | dots | moss | pocket (docs/adr/ADR-001-tts-engine.md)
+  sample_rate: 48000     # assembly sample rate
+  gap_s: 0.6             # silence between consecutive utterances (on top of [pause])
+  tones:                 # CONTRACTS §2
+    soft:    {speed: 0.85, gain_db: 0}
+    slow:    {speed: 0.78, gain_db: -3}
+    whisper: {speed: 0.75, gain_db: -10, fallback_lowpass_hz: 3500}
+  ramp:                  # dojezd: speed falls linearly to speed_to, gain to gain_to_db
+    section: dojezd
+    speed_to: 0.75
+    gain_to_db: -6
+
+# ref: reference recording (relative to forge/); sidecars ref.txt, ref.whisper.wav are
+# picked up by the engine adapters (see forge/python/bench/engines/__init__.py).
+voices:
+  - {id: mama,    label: "Měkký",   free: true,  ref: voices/mama/ref.wav}
+  - {id: tata,    label: "Hluboký", free: true,  ref: voices/tata/ref.wav}
+  - {id: babicka, label: "Vlídný",  free: false, ref: voices/babicka/ref.wav}
+
+judge:
+  wpm: 95                # words/min of speech at ref_speed
+  ref_speed: 0.85
+  length_tolerance: 0.15
+  max_sentence_words: 18
+  forbidden_words_file: prompts/forbidden_words.txt   # relative to content dir
+  llm: auto              # auto (when LLM_BASE_URL set) | on | off
+  llm_min_score: 4       # 1–5 scale; content/prompts/judge_checklist.md requires >= 4
+  # Section budgets in seconds for a 10-minute script (plan §1.1); scaled linearly for other lengths.
+  section_budgets_10min:
+    uvod:   [50, 100]
+    vstup:  [40, 80]
+    pribeh: [270, 450]
+    dojezd: [70, 130]
+
+master:
+  highpass_hz: 70
+  lowpass_hz: 8000
+  deesser: "deesser=i=0.4:m=0.5:f=0.5"
+  reverb: aecho          # aecho | afir | none
+  aecho: "aecho=0.9:0.85:19|31|47:0.10|0.07|0.04"
+  afir_ir_s: 0.25
+  afir_wet: 0.12
+  lufs: -23
+  true_peak: -3
+  lra: 20               # high so loudnorm stays linear (keeps whisper/dojezd ramp)
+  bitrate: 48k
+
+ambient:
+  crossfade_s: 4
+  lufs: -30
+  true_peak: -3
+  lra: 11
+  bitrate: 96k
+
+qa:
+  wer_max: 0.05
+  whisper_model: large-v3
+  language: cs
+  silence_max_s: 15
+  silence_db: -50
+  clip_dbfs: -0.1
+  hf_cutoff_hz: 10000
+  hf_max_rel_db: -35     # energy above cutoff relative to full band
+  long_pause_slack_s: 3  # intended pause may be extended by gaps/tails
+
+publish:
+  base_url: https://lioilsources.github.io/hajanek-content/
+  default_free: false
+
+nightly:
+  queue_file: queue.txt  # lines: "tale voice length"
+  until: "07:00"
+  timezone: Europe/Prague

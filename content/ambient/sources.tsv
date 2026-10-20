@@ -1,0 +1,9 @@
+# id	file	start_s	len_s	xfade_s	lowpass_hz	note
+sea	freesound-339517-hq.ogg	445	100	8	11000	pulswelle: Waves at Baltic Sea shore (CC0)
+rain	freesound-235827-hq.ogg	5	90	8	10000	Metadex: Soft rain on roof window (CC0)
+stream	freesound-220528-hq.ogg	10	100	8	10000	turbostream: Stream Wyre forest (CC0)
+fireplace	freesound-484338-hq.ogg	5	100	10	12000	BonnyOrbit: Fireplace crackling wood little flame (CC0)
+wind	freesound-523389-hq.ogg	20	100	10	9000	Anya_Media: Forest, trees rustling in the wind (CC0)
+night-meadow	freesound-333221-hq.ogg	110	100	8	12000	hdfreema: Night Crickets Back Porch (CC0)
+pink-noise	synth:pink	0	60	5	7000	anoisesrc pink, 2 seeds -> decorrelated stereo
+brown-noise	synth:brown	0	60	5	3500	anoisesrc brown, 2 seeds -> decorrelated stereo

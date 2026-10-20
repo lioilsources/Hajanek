@@ -1,0 +1,78 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  go:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        module: [api, forge]
+    defaults:
+      run:
+        working-directory: ${{ matrix.module }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: ${{ matrix.module }}/go.mod
+          cache-dependency-path: ${{ matrix.module }}/go.sum
+      - name: Install ffmpeg (forge tests)
+        if: matrix.module == 'forge'
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: go vet ./...
+      - run: go test -race ./...
+      - uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.15.0
+          working-directory: ${{ matrix.module }}
+
+  sqlc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: sqlc-dev/setup-sqlc@v4
+        with:
+          sqlc-version: '1.31.1'
+      - run: sqlc diff
+        working-directory: api/sqlc
+
+  content:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: forge/go.mod
+          cache-dependency-path: forge/go.sum
+      - name: Judge all scripts (deterministic checks)
+        run: |
+          cd forge && go build -o bin/forge ./cmd/forge
+          for f in ../content/scripts/*.md ../content/scripts/gold/*.md; do
+            ./bin/forge judge --no-llm --content ../content "$f" > /dev/null || { echo "FAIL: $f"; exit 1; }
+          done
+
+  flutter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # app/pubspec.yaml has a path dependency on ../../CuteKidFonts (sibling repo).
+      - uses: actions/checkout@v4
+        with:
+          repository: lioilsources/CuteKidFonts
+          path: _deps/CuteKidFonts
+          token: ${{ secrets.CUTE_KID_FONTS_TOKEN || github.token }}
+      - run: mv _deps/CuteKidFonts "$GITHUB_WORKSPACE/../CuteKidFonts"
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+        working-directory: app
+      - run: flutter analyze
+        working-directory: app
+      - run: flutter test
+        working-directory: app

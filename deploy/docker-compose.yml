@@ -1,0 +1,68 @@
+# Hajánek backend (JODA): hajanek-api behind Caddy, exposed via Cloudflare Tunnel
+# as https://hajanek-api.ol1n.com. No ports are published on the host.
+#
+#   cp .env.example .env            # fill in tokens
+#   cp cloudflared/config.yml.example cloudflared/config.yml   # fill in tunnel id
+#   docker compose up -d --build
+name: hajanek
+
+services:
+  hajanek-api:
+    build:
+      context: ../api
+    image: hajanek-api:latest
+    container_name: hajanek-api
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PORT: "8080"
+      DB_PATH: /data/hajanek.db
+    volumes:
+      - hajanek-data:/data
+    networks:
+      - hajanek
+    healthcheck:
+      test: ["CMD", "/hajanek-api", "healthcheck"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: hajanek-caddy
+    restart: unless-stopped
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      - hajanek
+    depends_on:
+      hajanek-api:
+        condition: service_healthy
+
+  # Credentials (<tunnel-id>.json) + config.yml live in ./cloudflared/ and are
+  # never committed. Create once with:
+  #   cloudflared tunnel create hajanek
+  #   cloudflared tunnel route dns hajanek hajanek-api.ol1n.com
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: hajanek-cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./cloudflared:/etc/cloudflared:ro
+    networks:
+      - hajanek
+    depends_on:
+      - caddy
+
+networks:
+  hajanek:
+    name: hajanek
+
+volumes:
+  hajanek-data:   # SQLite (catalog cache + job queue)
+  caddy-data:
+  caddy-config:

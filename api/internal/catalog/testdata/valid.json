@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "version": 3,
+  "generated_at": "2026-10-20T03:12:00Z",
+  "base_url": "https://lioilsources.github.io/hajanek-content/",
+  "voices": [
+    {"id": "mama", "label": "Měkký", "free": true},
+    {"id": "tata", "label": "Hluboký", "free": false}
+  ],
+  "tales": [
+    {
+      "id": "cervena-karkulka",
+      "title": "Červená Karkulka",
+      "age": "3+",
+      "setting": "les",
+      "ambient": "wind",
+      "free": true,
+      "tracks": [
+        {"voice": "mama", "length_min": 10,
+         "path": "audio/cervena-karkulka/mama/10.opus",
+         "duration_s": 604.2, "bytes": 3625000,
+         "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"}
+      ]
+    }
+  ],
+  "ambient": [
+    {"id": "sea", "title": "Moře", "path": "ambient/sea.opus",
+     "duration_s": 90.0, "bytes": 1080000,
+     "sha256": "60303ae22b998861bce3b28f33eec1be758a213c86c93c076dbe9f558c11c752",
+     "free": true, "license": "CC0", "source": "freesound"},
+    {"id": "wind", "title": "Vítr v korunách", "path": "ambient/wind.opus",
+     "duration_s": 100.0, "bytes": 1200000,
+     "sha256": "fd61a03af4f77d870fc21e05e7e80678095c92d808cfb3b5c279ee04c74aca13",
+     "free": true, "license": "CC0", "source": "freesound"},
+    {"id": "night-meadow", "title": "Noční louka", "path": "ambient/night-meadow.opus",
+     "duration_s": 120.0, "bytes": 1440000,
+     "sha256": "a4e624d686e03ed2767c0abd85c14426b0b1157d2ce81d27bb4fe4f6f01d688a",
+     "free": true, "license": "CC0", "source": "freesound"}
+  ],
+  "presets": [
+    {"id": "plaz-vecer", "title": "Pláž večer",
+     "layers": [{"ambient": "sea", "volume": 0.8},
+                {"ambient": "night-meadow", "volume": 0.3}]}
+  ]
+}

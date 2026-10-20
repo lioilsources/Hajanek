@@ -1,0 +1,10 @@
+[Unit]
+Description=Hajánek forge nightly window 22:00–07:00 Europe/Prague
+
+[Timer]
+OnCalendar=*-*-* 22:00:00 Europe/Prague
+Persistent=false
+RandomizedDelaySec=2min
+
+[Install]
+WantedBy=timers.target

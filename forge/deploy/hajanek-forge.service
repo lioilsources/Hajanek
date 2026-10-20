@@ -1,0 +1,18 @@
+# systemd user unit for the nightly forge run on Spark.
+# Install: cp deploy/hajanek-forge.{service,timer} ~/.config/systemd/user/
+#          systemctl --user daemon-reload && systemctl --user enable --now hajanek-forge.timer
+#          loginctl enable-linger $USER   # run without an open session
+[Unit]
+Description=Hajánek forge nightly generation
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/dev/Hajanek/forge
+# LLM_BASE_URL, LLM_API_KEY, LLM_MODEL, FORGE_API_URL, WORKER_TOKEN, DISCORD_WEBHOOK,
+# HAJANEK_PAGES_DIR, FORGE_PYTHON, FORGE_TTS_ENGINE
+EnvironmentFile=%h/dev/Hajanek/forge/deploy/forge.env
+ExecStart=%h/dev/Hajanek/forge/bin/forge nightly --until 07:00 --commit
+# Never start new work after 07:00; hard stop shortly after.
+RuntimeMaxSec=9h30min
+Nice=5
