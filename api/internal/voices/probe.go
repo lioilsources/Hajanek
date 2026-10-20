@@ -14,7 +14,7 @@ import (
 type Prober func(ctx context.Context, path string) (seconds float64, ok bool, err error)
 
 // FFProbe returns a Prober backed by ffprobe, or nil when ffprobe is not
-// on PATH (the distroless image has none; samples are then accepted
+// on PATH (e.g. a local run without ffmpeg; samples are then accepted
 // unchecked and the worker/audio service validates them).
 func FFProbe() Prober {
 	bin, err := exec.LookPath("ffprobe")

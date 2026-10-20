@@ -67,7 +67,7 @@ migrations/          SQL migrace (embed)
 
 IP klienta se bere z `X-Real-IP` (Caddy ho nastavuje z `CF-Connecting-IP`),
 jinak z TCP spojení. Délku vzorku (5–30 s) kontroluje `ffprobe`, pokud je
-v `PATH`; v distroless image není, vzorek se pak přijme a jen se zaloguje.
+v `PATH` (v image je); bez něj (lokální běh) se vzorek přijme a jen se zaloguje.
 
 Logy jdou na stdout jako JSON (`slog`).
 
@@ -226,10 +226,10 @@ po `JOB_MAX_ATTEMPTS` pokusech skončí jako `failed` s chybou `lease expired`.
 docker buildx build --platform linux/arm64,linux/amd64 -t hajanek-api .   # z adresáře api/
 ```
 
-Image je `distroless/static` (nonroot), DB i `DATA_DIR` (`/data/files`)
+Image je Alpine s `ffmpeg` (uživatel 65532), DB i `DATA_DIR` (`/data/files`)
 ve volume `/data` — obsahuje hlasy rodičů, zálohovat a mazat s rozmyslem.
 Caddy pouští těla do 6 MB (vzorky). Kompletní
 nasazení (hajanek-api + Caddy + Cloudflare Tunnel na `hajanek-api.ol1n.com`)
-je v [`deploy/`](../deploy): `cp .env.example .env`,
-`cp cloudflared/config.yml.example cloudflared/config.yml`, doplnit tunel
-a `docker compose up -d --build`.
+je v [`deploy/`](../deploy); z Macu `deploy/deploy.sh api` (synchronizuje na
+JODA, poprvé vygeneruje tokeny do `.env`, založí tunel `hajanek` + DNS
+a spustí `docker compose up -d --build`).

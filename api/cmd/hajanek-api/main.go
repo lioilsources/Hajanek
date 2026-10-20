@@ -127,7 +127,7 @@ func run(log *slog.Logger) (retErr error) {
 	return nil
 }
 
-// healthcheck probes the local /healthz; used by Docker (distroless has no curl).
+// healthcheck probes the local /healthz; used by Docker (no curl in the image).
 func healthcheck() int {
 	port := os.Getenv("PORT")
 	if port == "" {

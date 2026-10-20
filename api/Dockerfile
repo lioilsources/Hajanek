@@ -10,11 +10,14 @@ RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
     go build -trimpath -ldflags="-s -w" -o /out/hajanek-api ./cmd/hajanek-api \
  && mkdir -p /out/data
 
-FROM gcr.io/distroless/static-debian12:nonroot
+# Alpine (not distroless) for ffprobe: voice samples must be 5–30 s.
+FROM alpine:3.22
+RUN apk add --no-cache ffmpeg ca-certificates tzdata \
+ && adduser -D -H -u 65532 nonroot
 COPY --from=build /out/hajanek-api /hajanek-api
 COPY --from=build --chown=65532:65532 /out/data /data
+USER 65532:65532
 # DATA_DIR holds voice samples, clips and the script cache (same volume as the DB).
-# No ffprobe in distroless: sample durations are not checked here (the app enforces 5–30 s).
 ENV PORT=8080 DB_PATH=/data/hajanek.db DATA_DIR=/data/files
 EXPOSE 8080
 VOLUME ["/data"]

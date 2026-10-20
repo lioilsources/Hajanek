@@ -1,0 +1,20 @@
+# forge voice worker on Spark: hajanek-api job queue → AiStack audio (localhost:8093).
+# Spark has rootful Docker and no user linger, so this replaces the systemd --user unit.
+#
+#   cp forge.env.example forge.env        # FORGE_API_URL, WORKER_TOKEN, AUDIO_URL
+#   docker compose -f docker-compose.worker.yml up -d --build
+#   docker logs -f hajanek-forge-worker
+name: hajanek-worker
+
+services:
+  worker:
+    build:
+      context: ..
+    image: hajanek-forge:latest
+    container_name: hajanek-forge-worker
+    restart: unless-stopped
+    env_file: forge.env
+    # The audio service publishes 8093 on the host; host networking keeps AUDIO_URL=http://localhost:8093.
+    network_mode: host
+    tmpfs:
+      - /hajanek/forge/work:uid=65532,gid=65532

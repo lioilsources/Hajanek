@@ -111,8 +111,11 @@ Chyby: audio služba **503** (GPU engine v tomhle okně neběží), 5xx, 429, s�
 počká). **403** (licence) a ostatní 4xx → job selže bez opakování. Klonující
 enginy jsou nekomerční/neověřené (ADR-003) — proto `commercial_only=false`.
 
-Nasazení: `deploy/hajanek-forge-worker.service` (systemd user service, běží
-pořád, `Restart=always`). Volitelně `AUDIO_API_KEY`, pokud má audio služba klíč.
+Nasazení: Docker na Sparku (`Dockerfile` + `deploy/docker-compose.worker.yml`,
+`network_mode: host`, `restart: unless-stopped`) — z Macu `deploy/deploy.sh worker`.
+Spark nemá linger, takže `deploy/hajanek-forge-worker.service` (systemd user)
+je jen alternativa pro stroj, kde linger je. Volitelně `AUDIO_API_KEY`, pokud
+má audio služba klíč.
 
 ## Noční běh na Sparku
 
