@@ -18,21 +18,28 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/lioilsources/hajanek/forge/internal/config"
 	"github.com/lioilsources/hajanek/forge/internal/jobs"
 	"github.com/lioilsources/hajanek/forge/internal/script"
 )
 
-// Encoder turns a TTS output into a clip (.m4a) and returns its duration in seconds.
-type Encoder func(in, out string) (float64, error)
+// Encoder joins the TTS takes of one utterance, applies tempo and writes a
+// clip (.m4a); it returns the clip duration in seconds.
+type Encoder func(parts []string, tempo float64, out string) (float64, error)
+
+// Measurer returns the duration and integrated loudness of one TTS take.
+type Measurer func(path string) (durS, lufs float64, err error)
 
 type Worker struct {
 	API     *jobs.Client
 	Audio   *AudioClient
 	Cfg     config.Worker
-	Prosody script.Prosody // tone → speed sent to the engine
+	Prosody script.Prosody // tone → tempo applied by Encode (engines get speed 1)
 	Encode  Encoder
+	Measure Measurer // nil: takes are not checked
 	TmpDir  string
 	Log     *log.Logger
 }
@@ -258,6 +265,7 @@ func (w *Worker) render(ctx context.Context, j jobs.Job) Result {
 		return fail(err, p)
 	}
 	defer func() { _ = os.RemoveAll(dir) }()
+	var skipped []error
 	for i, c := range todo {
 		if i > 0 {
 			if err := w.API.Heartbeat(ctx, j.ID); err != nil {
@@ -265,9 +273,19 @@ func (w *Worker) render(ctx context.Context, j jobs.Job) Result {
 			}
 		}
 		if err := w.voiceClip(ctx, j.VoiceID, c, dir); err != nil {
-			return fail(err, p)
+			if retryable(err) {
+				return fail(err, p)
+			}
+			// A bad clip must not cost the other utterances: skip it, the app
+			// reads it with the phone voice. A new render request retries it.
+			w.Log.Printf("worker: render %s/%s.%d: skip clip: %v", j.VoiceID, j.Tale, j.LengthMin, err)
+			skipped = append(skipped, err)
+			continue
 		}
 		p.Done++
+	}
+	if len(skipped) > 0 {
+		return Result{Err: fmt.Errorf("%d of %d clips failed, first: %w", len(skipped), p.Total, skipped[0]), Output: p}
 	}
 	return Result{OK: true, Output: p}
 }
@@ -312,27 +330,18 @@ func (w *Worker) existingClips(ctx context.Context, voiceID string) (map[string]
 }
 
 func (w *Worker) voiceClip(ctx context.Context, voiceID string, c clip, dir string) error {
-	speed := min(max(w.Prosody.Speed(c.tone), 0.5), 2.0)
-	id, err := w.Audio.SubmitTTS(ctx, TTSRequest{Text: c.text, Language: w.Cfg.Language, Voice: w.audioVoice(voiceID),
-		CommercialOnly: false, Speed: speed, Format: "wav"})
-	if err != nil {
-		return err
+	var parts []string
+	for i, sent := range sentences(ttsText(c.text)) {
+		wav := filepath.Join(dir, fmt.Sprintf("%s.%d.wav", c.key, i))
+		if err := w.take(ctx, voiceID, sent, wav); err != nil {
+			return err
+		}
+		parts = append(parts, wav)
 	}
-	st, err := w.await(ctx, id)
-	if err != nil {
-		return err
-	}
-	if len(st.Outputs) == 0 {
-		return fmt.Errorf("audio job %s: no outputs", id)
-	}
-	wav := filepath.Join(dir, c.key+".wav")
 	out := filepath.Join(dir, c.key+".m4a")
-	if err := w.Audio.Download(ctx, st.Outputs[0].URL, wav); err != nil {
-		return err
-	}
-	d, err := w.Encode(wav, out)
+	d, err := w.Encode(parts, min(max(w.Prosody.Speed(c.tone), 0.5), 2.0), out)
 	if err != nil {
-		return fmt.Errorf("encode: %w", err)
+		return fmt.Errorf("encode %q: %w", c.text, err)
 	}
 	b, err := os.ReadFile(out)
 	if err != nil {
@@ -345,6 +354,88 @@ func (w *Worker) voiceClip(ctx context.Context, voiceID string, c clip, dir stri
 		return fmt.Errorf("upload clip: %w", err)
 	}
 	return nil
+}
+
+// take voices one sentence into dst, redoing it with another seed while it
+// does not look like the whole sentence (truncated, runaway or near silent).
+func (w *Worker) take(ctx context.Context, voiceID, text, dst string) error {
+	var bad error
+	for a := range max(w.Cfg.TakeAttempts, 1) {
+		req := TTSRequest{Text: text, Language: w.Cfg.Language, Voice: w.audioVoice(voiceID),
+			CommercialOnly: false, Speed: 1, Format: "wav"}
+		if a > 0 {
+			seed := a
+			req.Seed = &seed
+		}
+		id, err := w.Audio.SubmitTTS(ctx, req)
+		if err != nil {
+			return err
+		}
+		st, err := w.await(ctx, id)
+		if err != nil {
+			return err
+		}
+		if len(st.Outputs) == 0 {
+			return fmt.Errorf("audio job %s: no outputs", id)
+		}
+		if err := w.Audio.Download(ctx, st.Outputs[0].URL, dst); err != nil {
+			return err
+		}
+		if w.Measure == nil {
+			return nil
+		}
+		d, lufs, err := w.Measure(dst)
+		if err != nil {
+			return fmt.Errorf("measure take: %w", err)
+		}
+		why := w.badTake(d, lufs, len(strings.Fields(text)))
+		if why == "" {
+			return nil
+		}
+		bad = fmt.Errorf("take %q: %s", text, why)
+		w.Log.Printf("worker: attempt %d: %v", a+1, bad)
+	}
+	return bad
+}
+
+func (w *Worker) badTake(d, lufs float64, words int) string {
+	c := w.Cfg
+	switch {
+	case lufs < c.MinTakeLUFS:
+		return fmt.Sprintf("near silent (%.1f LUFS)", lufs)
+	case d < c.MinSPerWord*float64(words):
+		return fmt.Sprintf("truncated (%.2f s for %d words)", d, words)
+	case d > c.MaxSPerWord*float64(words)+1.5:
+		return fmt.Sprintf("too long (%.2f s for %d words)", d, words)
+	}
+	return ""
+}
+
+// ttsText drops quotation marks: they are not read and a lone closing quote
+// (dialogue spanning lines) makes engines stop early. The utterance key still
+// uses the script text.
+func ttsText(s string) string {
+	return strings.Join(strings.Fields(strings.NewReplacer("„", "", "“", "", "”", "", "\"", "", "‚", "", "‘", "").Replace(s)), " ")
+}
+
+// sentences splits an utterance after . ? ! or … when the next word starts
+// with a capital letter ("Nahoru… a dolů." stays whole).
+func sentences(s string) []string {
+	var out []string
+	words := strings.Fields(s)
+	start := 0
+	for i := 0; i < len(words)-1; i++ {
+		last, _ := utf8.DecodeLastRuneInString(strings.TrimRight(words[i], ")"))
+		next, _ := utf8.DecodeRuneInString(words[i+1])
+		if strings.ContainsRune(".?!…", last) && unicode.IsUpper(next) {
+			out = append(out, strings.Join(words[start:i+1], " "))
+			start = i + 1
+		}
+	}
+	if start < len(words) {
+		out = append(out, strings.Join(words[start:], " "))
+	}
+	return out
 }
 
 func (w *Worker) await(ctx context.Context, id string) (*JobStatus, error) {

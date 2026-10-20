@@ -47,6 +47,7 @@ type TTSRequest struct {
 	Voice          string  `json:"voice"`
 	CommercialOnly bool    `json:"commercial_only"`
 	Speed          float64 `json:"speed"`
+	Seed           *int    `json:"seed,omitempty"`
 	Format         string  `json:"format"`
 }
 

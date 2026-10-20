@@ -109,7 +109,10 @@ func newWorker(e *pipeline.Env) (*worker.Worker, error) {
 		Audio:   &worker.AudioClient{BaseURL: wc.AudioURL, Key: os.Getenv("AUDIO_API_KEY"), HTTP: &http.Client{Timeout: 2 * time.Minute}},
 		Cfg:     wc,
 		Prosody: e.Prosody(),
-		Encode:  func(in, out string) (float64, error) { return audio.EncodeClip(in, out, clip) },
+		Encode: func(parts []string, tempo float64, out string) (float64, error) {
+			return audio.EncodeClip(parts, wc.SentenceGapS, tempo, out, clip)
+		},
+		Measure: audio.MeasureTake,
 		TmpDir:  tmp,
 		Log:     e.Log,
 	}, nil

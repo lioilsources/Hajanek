@@ -57,8 +57,9 @@ kopii stejného id.
 
 Rychlosti tónů (`speech.tones` v `config.yaml`): soft 0.85×, slow 0.78×,
 whisper 0.75×; v `dojezd` rychlost lineárně klesá k 0.75× (`speech.ramp`).
-Slouží pro odhady délky (judge, `est_duration_s`) a jako `speed` pro klonující
-engine. Hlasitost řídí přehrávač v appce.
+Slouží pro odhady délky (judge, `est_duration_s`) a jako tempo klipů hlasu
+rodiče (ffmpeg `atempo`; engine dostává `speed: 1`, Chatterbox ji stejně
+ignoruje). Hlasitost řídí přehrávač v appce.
 
 ## Judge — deterministické kontroly
 
@@ -104,7 +105,7 @@ error, retry}`. Ztracená lease (404/409 na heartbeat) job přeruší.
 |---|---|
 | `voice_create {voice_id}` | `GET /v1/worker/voices/{id}/sample` → `POST {AUDIO_URL}/v1/audio/voices` (multipart `voice_id=hajanek-{id}`, `sample`, `rights=own`, `source=hajanek-app`, `language=cs`, `replace=true`) → `POST /v1/worker/voices/{id}/status {status:"ready"}`. Odmítnutý vzorek (4xx, např. 422 krátký) → `status: failed` + `error`. |
 | `voice_delete {voice_id}` | `DELETE {AUDIO_URL}/v1/audio/voices/hajanek-{id}`; 404 = v pořádku. |
-| `render {voice_id, tale, length_min}` | `GET /v1/worker/scripts/{tale}/{len}` → parser → unikátní `utterance_key` → `GET /v1/worker/clips/{voice_id}` (`{keys}` — hotové se přeskočí) → pro každý chybějící po jednom: `POST /v1/audio/tts {text, language:"cs", voice:"hajanek-{id}", commercial_only:false, speed, format:"wav"}` → `202 {job_id}` → poll `GET /v1/audio/jobs/{id}` do `done` → `GET` výstupu (`outputs[0].url`) → ffmpeg: dvouprůchodový `loudnorm` −23 LUFS, AAC 64 kbps mono 48 kHz `.m4a` → `PUT /v1/worker/clips/{voice_id}/{key}` s `X-Duration-S`. Výsledek `{done, total}`. |
+| `render {voice_id, tale, length_min}` | `GET /v1/worker/scripts/{tale}/{len}` → parser → unikátní `utterance_key` → `GET /v1/worker/clips/{voice_id}` (`{keys}` — hotové se přeskočí) → pro každý chybějící: promluva bez uvozovek se rozdělí na věty (chatterbox-cs u víc vět často skončí po první) → každá věta `POST /v1/audio/tts {text, language:"cs", voice:"hajanek-{id}", commercial_only:false, speed:1, format:"wav"}` → `202 {job_id}` → poll `GET /v1/audio/jobs/{id}` do `done` → `GET` výstupu (`outputs[0].url`) → kontrola záběru (délka 0.24–1.2 s/slovo, ne ticho; jinak znovu s jiným `seed`, max 3×) → ffmpeg: věty spojit s pauzou 0.35 s, `atempo` podle tónu, dvouprůchodový `loudnorm` −23 LUFS, AAC 64 kbps mono 48 kHz `.m4a` → `PUT /v1/worker/clips/{voice_id}/{key}` s `X-Duration-S`. Klip, který ani na 3 pokusy nevyjde, se přeskočí (app ho přečte hlasem telefonu) a job skončí chybou s počtem přeskočených; ostatní klipy zůstanou. Výsledek `{done, total}`. |
 
 Chyby: audio služba **503** (GPU engine v tomhle okně neběží), 5xx, 429, síť a
 `status: error` audio jobu → `retry: true` (job se vrátí do fronty, worker chvíli

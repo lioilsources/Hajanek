@@ -25,11 +25,10 @@ p, base = sys.argv[1:]
 c = json.load(open(p)); c["base_url"] = base
 json.dump(c, open(p, "w"), ensure_ascii=False)
 PY
-ffmpeg -v error -y -f lavfi -i "sine=f=220:d=1.2" -ar 48000 -ac 1 "$W/tone.wav"
 ffmpeg -v error -y -f lavfi -i "sine=f=180:d=12" -ar 48000 -ac 1 "$W/sample.wav"
 
 (cd "$W/pages" && exec python3 -m http.server $P_PAGES --bind 127.0.0.1 > /dev/null 2>&1) &
-python3 "$ROOT/tools/e2e/fake_audio.py" $P_AUDIO "$W/tone.wav" "$W/audio.log" &
+python3 "$ROOT/tools/e2e/fake_audio.py" $P_AUDIO "$W/audio.log" &
 PORT=$P_API DB_PATH="$W/data/api.db" DATA_DIR="$W/data/files" \
   CATALOG_URL=http://127.0.0.1:$P_PAGES/catalog.json CATALOG_POLL=2s \
   ADMIN_TOKEN=adm WORKER_TOKEN=wrk DEVICE_RATE_LIMIT=off \
@@ -39,6 +38,7 @@ for _ in $(seq 50); do curl -sf $A/v1/catalog/version > /dev/null && break; slee
 export FORGE_API_URL=$A WORKER_TOKEN=wrk AUDIO_URL=http://127.0.0.1:$P_AUDIO
 worker() { "$FORGE" worker --once --repo "$ROOT" > /dev/null 2>&1; }
 tts_calls() { grep -c '^TTS' "$W/audio.log" || true; }
+clip_keys() { curl -sf $A/v1/worker/clips/"$VID" -H "Authorization: Bearer wrk" | json 'len(d["keys"])'; }
 code() { curl -s -o /dev/null -w '%{http_code}' "$@"; }
 
 TOK=$(curl -sf -X POST $A/v1/devices | json 'd["token"]'); H="Authorization: Bearer $TOK"
@@ -53,8 +53,10 @@ worker
 M=$(curl -sf $A/v1/voices/"$VID"/renders/cervena-karkulka/10 -H "$H")
 read -r ST DONE TOTAL < <(echo "$M" | json 'd["status"],d["done"],d["total"]' | tr -d "(),'")
 [ "$ST" = done ] && [ "$DONE" = "$TOTAL" ] || fail "render: $ST $DONE/$TOTAL"
-[ "$(tts_calls)" = "$TOTAL" ] || fail "expected $TOTAL TTS calls, got $(tts_calls)"
-echo "ok  render cervena-karkulka: $DONE/$TOTAL clips, worker and api agree on utterance keys"
+[ "$(clip_keys)" = "$TOTAL" ] || fail "expected $TOTAL stored clips, got $(clip_keys)"
+[ "$(tts_calls)" -ge "$TOTAL" ] || fail "expected ≥ $TOTAL TTS calls (one per sentence), got $(tts_calls)"
+grep -q '^TTS .*speed=1 ' "$W/audio.log" && ! grep -q '^TTS .*speed=0' "$W/audio.log" || fail "engine must get speed 1 (tempo is applied by ffmpeg)"
+echo "ok  render cervena-karkulka: $DONE/$TOTAL clips from $(tts_calls) sentence takes, worker and api agree on utterance keys"
 
 U=$(echo "$M" | json 'list(d["clips"].values())[0]["url"]')
 curl -sf -o "$W/clip.m4a" $A"$U" -H "$H"
@@ -66,12 +68,12 @@ TOK2=$(curl -sf -X POST $A/v1/devices | json 'd["token"]'); H2="Authorization: B
   || fail "another device can see the voice"
 echo "ok  other device gets 404 everywhere"
 
-B=$(tts_calls)
+K=$(clip_keys)
 curl -sf -X POST $A/v1/voices/"$VID"/renders -H "$H" -d '{"tale":"zlatovlaska","length_min":10}' > /dev/null
 worker
 read -r DONE TOTAL < <(curl -sf $A/v1/voices/"$VID"/renders/zlatovlaska/10 -H "$H" | json 'd["done"],d["total"]' | tr -d "(),'")
-NEW=$(( $(tts_calls) - B ))
-[ "$DONE" = "$TOTAL" ] && [ "$NEW" -lt "$TOTAL" ] || fail "zlatovlaska: $DONE/$TOTAL, $NEW new calls"
+NEW=$(( $(clip_keys) - K ))
+[ "$DONE" = "$TOTAL" ] && [ "$NEW" -lt "$TOTAL" ] || fail "zlatovlaska: $DONE/$TOTAL, $NEW new clips"
 echo "ok  render zlatovlaska: $TOTAL clips, $((TOTAL - NEW)) reused from cervena-karkulka"
 
 [ "$(code -X DELETE $A/v1/voices/"$VID" -H "$H")" = 204 ] || fail "delete"

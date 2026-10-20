@@ -155,18 +155,48 @@ type ClipOpts struct {
 	SampleRate int
 }
 
-// EncodeClip normalizes a TTS output with two-pass linear loudnorm and encodes
-// it as AAC in an .m4a container. Returns the output duration in seconds.
-func EncodeClip(in, out string, o ClipOpts) (float64, error) {
-	g := fmt.Sprintf("[0:a]aresample=%d,aformat=channel_layouts=mono[pre]", o.SampleRate)
-	st, err := loudnormFirstPass(g, in, "ln", nil, o.LUFS, o.TruePeak, o.LRA)
+// EncodeClip joins the TTS takes of one utterance (gapS of silence between
+// them), applies tempo (atempo; 1 = unchanged), normalizes with two-pass linear
+// loudnorm and encodes AAC in an .m4a container. Returns the duration in seconds.
+func EncodeClip(parts []string, gapS, tempo float64, out string, o ClipOpts) (float64, error) {
+	if len(parts) == 0 {
+		return 0, fmt.Errorf("encode: no input")
+	}
+	var g strings.Builder
+	var extra []string
+	for i, p := range parts {
+		if i > 0 {
+			extra = append(extra, "-i", p)
+		}
+		fmt.Fprintf(&g, "[%d:a]aresample=%d,aformat=sample_fmts=flt:channel_layouts=mono", i, o.SampleRate)
+		if i < len(parts)-1 && gapS > 0 {
+			fmt.Fprintf(&g, ",apad=pad_dur=%g", gapS)
+		}
+		fmt.Fprintf(&g, "[s%d];", i)
+	}
+	for i := range parts {
+		fmt.Fprintf(&g, "[s%d]", i)
+	}
+	fmt.Fprintf(&g, "concat=n=%d:v=0:a=1", len(parts))
+	if tempo > 0 && tempo != 1 {
+		fmt.Fprintf(&g, ",atempo=%g", tempo)
+	}
+	g.WriteString("[pre]")
+	st, err := loudnormFirstPass(g.String(), parts[0], "ln", extra, o.LUFS, o.TruePeak, o.LRA)
 	if err != nil {
 		return 0, err
 	}
-	fc := g + ";[pre]" + loudnormSecond(st, o.LUFS, o.TruePeak, o.LRA) + fmt.Sprintf(",aresample=%d[out]", o.SampleRate)
-	if _, err := Run("-i", in, "-filter_complex", fc, "-map", "[out]",
+	// Less than 400 ms above the −70 LUFS gate: loudness is −inf and the
+	// second pass would reject it.
+	if i, err := strconv.ParseFloat(st.InputI, 64); err != nil || i < -70 {
+		return 0, fmt.Errorf("encode: silent input (integrated %s LUFS)", st.InputI)
+	}
+	fc := g.String() + ";[pre]" + loudnormSecond(st, o.LUFS, o.TruePeak, o.LRA) + fmt.Sprintf(",aresample=%d[out]", o.SampleRate)
+	args := append([]string{"-i", parts[0]}, extra...)
+	args = append(args, "-filter_complex", fc, "-map", "[out]",
 		"-c:a", "aac", "-b:a", o.Bitrate, "-ac", "1", "-ar", strconv.Itoa(o.SampleRate),
-		"-map_metadata", "-1", "-movflags", "+faststart", "-f", "mp4", out); err != nil {
+		"-map_metadata", "-1", "-movflags", "+faststart", "-f", "mp4", out)
+	if _, err := Run(args...); err != nil {
 		return 0, err
 	}
 	p, err := Probe(out)
@@ -174,4 +204,18 @@ func EncodeClip(in, out string, o ClipOpts) (float64, error) {
 		return 0, err
 	}
 	return p.DurationS, nil
+}
+
+// MeasureTake returns the duration and integrated loudness of one TTS take
+// (loudness −999 when it cannot be measured, e.g. silence).
+func MeasureTake(path string) (durS, lufs float64, err error) {
+	p, err := Probe(path)
+	if err != nil {
+		return 0, 0, err
+	}
+	l, err := MeasureEBUR128(path)
+	if err != nil {
+		return 0, 0, err
+	}
+	return p.DurationS, l.IntegratedLUFS, nil
 }

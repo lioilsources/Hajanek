@@ -1,11 +1,19 @@
 # Minimal fake of the AiStack audio service for tools/e2e/voice_e2e.sh
-# (shapes per forge/internal/worker/audio.go). Args: port tone.wav log.
-import json, sys, subprocess, itertools
+# (shapes per forge/internal/worker/audio.go). Args: port log.
+# TTS output is a tone of 0.4 s per word, so the worker's take checks pass.
+import io, json, math, struct, sys, itertools, wave
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-WAV = sys.argv[2]
 ids = itertools.count(1)
 jobs = {}
-log = open(sys.argv[3], 'a')
+log = open(sys.argv[2], 'a')
+
+def tone(words):
+    rate, n = 24000, int(24000 * 0.4 * max(words, 1))
+    b = io.BytesIO()
+    with wave.open(b, 'wb') as w:
+        w.setnchannels(1); w.setsampwidth(2); w.setframerate(rate)
+        w.writeframes(b''.join(struct.pack('<h', int(8000 * math.sin(2 * math.pi * 220 * i / rate))) for i in range(n)))
+    return b.getvalue()
 class H(BaseHTTPRequestHandler):
     def _send(self, code, body=b'', ctype='application/json'):
         self.send_response(code); self.send_header('content-type', ctype)
@@ -25,7 +33,7 @@ class H(BaseHTTPRequestHandler):
         if self.path.startswith('/v1/audio/jobs/') and len(p) == 5:
             return self._send(200, json.dumps({"job_id": p[4], "status": "done", "outputs": [{"url": f"/v1/audio/jobs/{p[4]}/outputs/a.wav", "filename": "a.wav", "duration": 1.0}]}).encode())
         if '/outputs/' in self.path:
-            return self._send(200, open(WAV, 'rb').read(), 'audio/wav')
+            return self._send(200, tone(len(jobs[p[4]]['text'].split())), 'audio/wav')
         self._send(404)
     def do_DELETE(self):
         log.write(f"VOICE_DELETE {self.path}\n"); log.flush(); self._send(200, b'{}')

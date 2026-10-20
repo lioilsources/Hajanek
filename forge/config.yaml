@@ -71,3 +71,9 @@ worker:
   clip_lra: 20           # high so loudnorm stays linear (no dynamic compression)
   clip_bitrate: 64k      # AAC, mono
   clip_sample_rate: 48000
+  # Tempo (tone speed) is applied by ffmpeg atempo, not the engine: chatterbox ignores `speed`.
+  sentence_gap_s: 0.35   # each sentence is its own TTS take, joined with this gap
+  take_attempts: 3       # redo a bad take with a new seed; then skip the clip (phone voice)
+  min_s_per_word: 0.24   # shorter = truncated take (chatterbox-cs stops early)
+  max_s_per_word: 1.2    # longer (+1.5 s) = hallucinated tail
+  min_take_lufs: -45     # quieter = near-silent take

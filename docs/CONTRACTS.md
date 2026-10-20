@@ -80,8 +80,10 @@ Hlasitost je násobek hlasitosti hlasové stopy.
 | whisper | 0.75× | 0.4 | pitch 0.95 |
 
 V `dojezd` rychlost lineárně klesá k 0.75× a hlasitost k 0.5 (podle pořadí
-promluvy v sekci). U klonovaného hlasu se rychlost posílá enginu jako `speed`
-(Chatterbox ji ignoruje), hlasitost řeší přehrávač.
+promluvy v sekci). U klonovaného hlasu engine dostává vždy `speed: 1`
+(Chatterbox `speed` ignoruje) a tempo tónu aplikuje worker přes ffmpeg
+`atempo`; dojezd ramp do klipu nejde (rychlost není součástí klíče) a
+hlasitost řeší přehrávač.
 
 ## 3. Katalog (`catalog.json`, publikováno na GitHub Pages)
 

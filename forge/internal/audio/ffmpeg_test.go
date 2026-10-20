@@ -16,13 +16,18 @@ func TestEncodeClip(t *testing.T) {
 	if _, err := Run("-f", "lavfi", "-i", "sine=f=220:d=2:r=24000", "-af", "volume=-12dB", in); err != nil {
 		t.Fatal(err)
 	}
+	in2 := filepath.Join(dir, "in2.wav")
+	if _, err := Run("-f", "lavfi", "-i", "sine=f=330:d=1:r=24000", in2); err != nil {
+		t.Fatal(err)
+	}
 	out := filepath.Join(dir, "clip.m4a")
-	d, err := EncodeClip(in, out, ClipOpts{LUFS: -23, TruePeak: -3, LRA: 20, Bitrate: "64k", SampleRate: 48000})
+	// (2 s + 0.5 s gap + 1 s) / tempo 0.875 = 4 s
+	d, err := EncodeClip([]string{in, in2}, 0.5, 0.875, out, ClipOpts{LUFS: -23, TruePeak: -3, LRA: 20, Bitrate: "64k", SampleRate: 48000})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if math.Abs(d-2) > 0.1 {
-		t.Errorf("duration %.3f, want ≈2", d)
+	if math.Abs(d-4) > 0.1 {
+		t.Errorf("duration %.3f, want ≈4", d)
 	}
 	p, err := Probe(out)
 	if err != nil {
@@ -37,5 +42,24 @@ func TestEncodeClip(t *testing.T) {
 	}
 	if math.Abs(l.IntegratedLUFS+23) > 1.5 {
 		t.Errorf("loudness %.1f LUFS, want ≈ −23", l.IntegratedLUFS)
+	}
+}
+
+func TestEncodeClipSilent(t *testing.T) {
+	if _, err := exec.LookPath("ffmpeg"); err != nil {
+		t.Skip("ffmpeg not installed")
+	}
+	dir := t.TempDir()
+	in := filepath.Join(dir, "click.wav")
+	// 0.3 s of tone: below the 400 ms loudness gate → −inf.
+	if _, err := Run("-f", "lavfi", "-i", "sine=f=220:d=0.3", in); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := EncodeClip([]string{in}, 0, 1, filepath.Join(dir, "c.m4a"), ClipOpts{LUFS: -23, TruePeak: -3, LRA: 20, Bitrate: "64k", SampleRate: 48000}); err == nil {
+		t.Fatal("want error for unmeasurable loudness")
+	}
+	d, l, err := MeasureTake(in)
+	if err != nil || math.Abs(d-0.3) > 0.05 || l > -70 {
+		t.Errorf("MeasureTake = %.2f s, %.1f LUFS, %v", d, l, err)
 	}
 }

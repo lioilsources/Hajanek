@@ -112,6 +112,12 @@ type fakeAudio struct {
 	voices  map[string]string // voice_id → form summary
 	deleted []string
 	failJob bool
+	encodes []encodeCall
+}
+
+type encodeCall struct {
+	parts int
+	tempo float64
 }
 
 func (f *fakeAudio) handler(t *testing.T) http.Handler {
@@ -201,11 +207,16 @@ func setup(t *testing.T, api *fakeAPI, au *fakeAudio) *Worker {
 		Audio:   &AudioClient{BaseURL: us.URL, HTTP: us.Client()},
 		Cfg:     cfg,
 		Prosody: script.Prosody{Speeds: map[script.Tone]float64{script.Soft: 0.85, script.Slow: 0.78, script.Whisper: 0.75}},
-		Encode: func(in, out string) (float64, error) {
-			b, err := os.ReadFile(in)
-			if err != nil || string(b) != "RIFFwav" {
-				t.Errorf("encode input %q %v", b, err)
+		Encode: func(parts []string, tempo float64, out string) (float64, error) {
+			for _, in := range parts {
+				b, err := os.ReadFile(in)
+				if err != nil || string(b) != "RIFFwav" {
+					t.Errorf("encode input %q %v", b, err)
+				}
 			}
+			au.mu.Lock()
+			au.encodes = append(au.encodes, encodeCall{len(parts), tempo})
+			au.mu.Unlock()
 			return 1.25, os.WriteFile(out, []byte("m4a"), 0o644)
 		},
 		TmpDir: t.TempDir(),
@@ -241,14 +252,18 @@ func TestRenderSkipsExistingClips(t *testing.T) {
 	if len(au.tts) != 2 {
 		t.Fatalf("tts calls %d, want 2 (1 existing + 1 duplicate skipped)", len(au.tts))
 	}
+	// Engines get speed 1; the tone tempo is applied when encoding.
 	want := []TTSRequest{
-		{Text: "Spinkej.", Language: "cs", Voice: "hajanek-" + voice, Speed: 0.78, Format: "wav"},
-		{Text: "Dobrou noc.", Language: "cs", Voice: "hajanek-" + voice, Speed: 0.75, Format: "wav"},
+		{Text: "Spinkej.", Language: "cs", Voice: "hajanek-" + voice, Speed: 1, Format: "wav"},
+		{Text: "Dobrou noc.", Language: "cs", Voice: "hajanek-" + voice, Speed: 1, Format: "wav"},
 	}
 	for i := range want {
 		if au.tts[i] != want[i] {
 			t.Errorf("tts %d = %+v, want %+v", i, au.tts[i], want[i])
 		}
+	}
+	if len(au.encodes) != 2 || au.encodes[0] != (encodeCall{1, 0.78}) || au.encodes[1] != (encodeCall{1, 0.75}) {
+		t.Errorf("encodes %+v", au.encodes)
 	}
 	if len(api.puts) != 2 || api.puts[k[1]] != "1.250" || api.puts[k[3]] != "1.250" {
 		t.Errorf("uploads %v", api.puts)
@@ -357,5 +372,76 @@ func TestInvalidVoiceID(t *testing.T) {
 	}
 	if c := api.completes[0]; c["ok"] != false || c["retry"] != false {
 		t.Errorf("complete %v", c)
+	}
+}
+
+func TestSentences(t *testing.T) {
+	for in, want := range map[string][]string{
+		"Pomalu. Pramínek po pramínku.":   {"Pomalu.", "Pramínek po pramínku."},
+		"Nahoru… a dolů. Nahoru… a dolů.": {"Nahoru… a dolů.", "Nahoru… a dolů."},
+		"Kdo je tam? Já.":                 {"Kdo je tam?", "Já."},
+		"Spinkej.":                        {"Spinkej."},
+		"Jsou tři, tři prasátka.":         {"Jsou tři, tři prasátka."},
+	} {
+		if got := sentences(in); strings.Join(got, "|") != strings.Join(want, "|") {
+			t.Errorf("sentences(%q) = %q, want %q", in, got, want)
+		}
+	}
+	if got := ttsText("Dojdi za ní a pozvi ji k nám.“"); got != "Dojdi za ní a pozvi ji k nám." {
+		t.Errorf("ttsText = %q", got)
+	}
+	if got := ttsText("„Kdo to je?“ zeptal se."); got != "Kdo to je? zeptal se." {
+		t.Errorf("ttsText = %q", got)
+	}
+}
+
+// measureBy measures every take; bad[i] marks the i-th take (in call order) as truncated.
+func measureBy(bad map[int]bool) Measurer {
+	var mu sync.Mutex
+	n := 0
+	return func(string) (float64, float64, error) {
+		mu.Lock()
+		defer mu.Unlock()
+		n++
+		if bad[n] {
+			return 0.3, -20, nil
+		}
+		return 1.5, -20, nil
+	}
+}
+
+func TestRenderSplitsSentencesAndRedoesBadTakes(t *testing.T) {
+	api := &fakeAPI{queue: []string{renderJob}}
+	au := &fakeAudio{}
+	w := setup(t, api, au)
+	w.Measure = measureBy(map[int]bool{1: true}) // first take truncated → redo with a seed
+	if err := w.Run(context.Background(), true); err != nil {
+		t.Fatal(err)
+	}
+	// "Lehni si, broučku." twice (redo), "Spinkej.", "Dobrou noc."
+	if len(au.tts) != 4 || au.tts[0].Seed != nil || au.tts[1].Seed == nil || *au.tts[1].Seed != 1 {
+		t.Fatalf("tts %+v", au.tts)
+	}
+	if c := api.completes[0]; c["ok"] != true {
+		t.Errorf("complete %v", c)
+	}
+}
+
+func TestRenderSkipsHopelessClip(t *testing.T) {
+	api := &fakeAPI{queue: []string{renderJob}}
+	au := &fakeAudio{}
+	w := setup(t, api, au)
+	w.Measure = measureBy(map[int]bool{1: true, 2: true, 3: true}) // first clip: all 3 attempts bad
+	if err := w.Run(context.Background(), true); err != nil {
+		t.Fatal(err)
+	}
+	c := api.completes[0]
+	res := c["result"].(map[string]any)
+	if c["ok"] != false || c["retry"] != false || res["done"] != 2.0 || res["total"] != 3.0 ||
+		!strings.Contains(c["error"].(string), "truncated") {
+		t.Errorf("complete %v", c)
+	}
+	if len(api.puts) != 2 {
+		t.Errorf("other clips must still be uploaded: %v", api.puts)
 	}
 }
