@@ -97,10 +97,10 @@ func (e *Env) targets(length int, gold []*script.Script) (int, int) {
 	if ts > 0 {
 		ratio = ps / ts
 	}
-	// Leave room for inter-utterance gaps added by the mixer (≈ 1 gap per 9 words).
+	// Leave room for inter-utterance gaps added by the player (≈ 1 gap per 9 words).
 	pauses := total * ratio
 	speech := total - pauses
-	words := speech * e.Cfg.Judge.WPM / 60 / (1 + e.Cfg.TTS.GapS*e.Cfg.Judge.WPM/60/9)
+	words := speech * e.Cfg.Judge.WPM / 60 / (1 + e.Cfg.Speech.GapS*e.Cfg.Judge.WPM/60/9)
 	return int(math.Round(words/10) * 10), int(math.Round(pauses/5) * 5)
 }
 

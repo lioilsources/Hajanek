@@ -1,12 +1,8 @@
 {
-  "schema": 1,
+  "schema": 2,
   "version": 3,
   "generated_at": "2026-10-20T03:12:00Z",
   "base_url": "https://lioilsources.github.io/hajanek-content/",
-  "voices": [
-    {"id": "mama", "label": "Měkký", "free": true},
-    {"id": "tata", "label": "Hluboký", "free": false}
-  ],
   "tales": [
     {
       "id": "cervena-karkulka",
@@ -15,11 +11,11 @@
       "setting": "les",
       "ambient": "wind",
       "free": true,
-      "tracks": [
-        {"voice": "mama", "length_min": 10,
-         "path": "audio/cervena-karkulka/mama/10.opus",
-         "duration_s": 604.2, "bytes": 3625000,
-         "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"}
+      "scripts": [
+        {"length_min": 10,
+         "path": "scripts/cervena-karkulka.10.md",
+         "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+         "bytes": 5210, "est_duration_s": 583}
       ]
     }
   ],

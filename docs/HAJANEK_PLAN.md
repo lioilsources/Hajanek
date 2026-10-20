@@ -7,6 +7,13 @@
 > očka — může sloužit jako opakující se refrén v dojezdu každé meditace
 > („…a Hajánek už jde kolem…“).
 
+> **Aktualizace 20. 10. 2026 — změna architektury hlasu ([ADR-003](adr/ADR-003-voice-architecture.md)):**
+> výchozí hlas je **TTS telefonu** (app čte skript po promluvách), hlas rodiče se
+> nahrává v appce a klonuje přes existující AiStack audio službu na Sparku.
+> Odpadá benchmark TTS (§3.4), výchozí hlasy ze Sparku (§1.3, §4.2) a audio
+> pipeline hlas → mastering → QA (§3.3 body 2–4). Katalog nese texty skriptů.
+> Formáty: [`CONTRACTS.md`](CONTRACTS.md).
+
 > Handoff dokument pro Claude Code (Opus). Cíl: připravit repo, architekturu a MVP
 > mobilní appky, která dítěti pustí 10minutovou uklidňující meditaci na spaní
 > postavenou na známé pohádce, s příjemným (volitelně naklonovaným rodičovským)

@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Catalog sync + on-demand tale download (the only network use). -->
+    <!-- Catalog sync and the parent's voice (hajanek-api). -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Recording the parent's voice sample. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <!-- audio_service: background playback with lock screen controls. -->
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
@@ -62,6 +64,10 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- flutter_tts: find the system TTS engine on Android 11+. -->
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE"/>
         </intent>
     </queries>
 </manifest>

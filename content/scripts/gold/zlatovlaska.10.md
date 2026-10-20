@@ -7,6 +7,7 @@ setting: more
 ambient: sea
 length_min: 10
 status: gold
+free: true
 tension_original: 3
 characters: [Jiřík, Zlatovláska, mravenci, havrani, rybka, starý král]
 softening: Žádné hrozby ani trest smrti. Úkoly jsou klidná hledání, se kterými Jiříkovi pomáhají zvířátka. Živá a mrtvá voda je vynechaná, místo ní Jiřík nese ze studánky čistou vodu.

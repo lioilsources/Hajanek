@@ -1,3 +1,7 @@
+> **Nahrazeno [ADR-003](ADR-003-voice-architecture.md) (20. 10. 2026).** Výchozí hlas je TTS telefonu,
+> klonování běží na existující AiStack audio službě. Benchmark enginů se nedělá; text níže
+> zůstává jako rešerše licencí.
+
 # ADR-001: TTS engine a klonování hlasu
 
 - **Stav:** navrženo (provizorní rozhodnutí, finální po slepém testu)

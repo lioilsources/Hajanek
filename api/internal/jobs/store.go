@@ -26,7 +26,8 @@ type Job struct {
 	ID             string          `json:"id"`
 	Kind           Kind            `json:"kind"`
 	Tale           string          `json:"tale,omitempty"`
-	Voice          string          `json:"voice,omitempty"`
+	Voice          string          `json:"voice,omitempty"`    // legacy kinds
+	VoiceID        string          `json:"voice_id,omitempty"` // voice_create, voice_delete, render
 	LengthMin      int             `json:"length_min,omitempty"`
 	Priority       int             `json:"priority"`
 	Status         Status          `json:"status"`
@@ -49,6 +50,9 @@ type Store struct {
 	MaxAttempts int
 	Now         func() time.Time // injectable clock
 	Log         *slog.Logger
+	// OnFinish, when set, is called after a job reaches done or failed
+	// (worker completion or lease expiry with no attempts left).
+	OnFinish func(ctx context.Context, j Job)
 }
 
 func NewStore(sqldb *sql.DB, lease time.Duration, maxAttempts int) *Store {
@@ -71,34 +75,41 @@ func (s *Store) Enqueue(ctx context.Context, spec Spec) (job Job, created bool, 
 		return Job{}, false, err
 	}
 	err = s.inTx(ctx, func(q *db.Queries) error {
-		existing, err := q.GetActiveJobByKey(ctx, spec.IdemKey())
-		if err == nil {
-			job = toJob(existing)
-			return nil
-		}
-		if !errors.Is(err, sql.ErrNoRows) {
-			return err
-		}
-		now := s.nowMs()
-		row, err := q.InsertJob(ctx, db.InsertJobParams{
-			ID:          newID(),
-			Kind:        string(spec.Kind),
-			Tale:        spec.Tale,
-			Voice:       spec.Voice,
-			LengthMin:   int64(spec.LengthMin),
-			Priority:    int64(spec.Priority),
-			IdemKey:     spec.IdemKey(),
-			MaxAttempts: int64(s.MaxAttempts),
-			CreatedAt:   now,
-			UpdatedAt:   now,
-		})
-		if err != nil {
-			return err
-		}
-		job, created = toJob(row), true
-		return nil
+		job, created, err = s.EnqueueWith(ctx, q, spec)
+		return err
 	})
 	return job, created, err
+}
+
+// EnqueueWith is Enqueue inside the caller's transaction (q bound to it).
+func (s *Store) EnqueueWith(ctx context.Context, q *db.Queries, spec Spec) (job Job, created bool, err error) {
+	if err := spec.Normalize(); err != nil {
+		return Job{}, false, err
+	}
+	existing, err := q.GetActiveJobByKey(ctx, spec.IdemKey())
+	if err == nil {
+		return toJob(existing), false, nil
+	}
+	if !errors.Is(err, sql.ErrNoRows) {
+		return Job{}, false, err
+	}
+	now := s.nowMs()
+	row, err := q.InsertJob(ctx, db.InsertJobParams{
+		ID:          newID(),
+		Kind:        string(spec.Kind),
+		Tale:        spec.Tale,
+		Voice:       spec.Voice,
+		LengthMin:   int64(spec.LengthMin),
+		Priority:    int64(spec.Priority),
+		IdemKey:     spec.IdemKey(),
+		MaxAttempts: int64(s.MaxAttempts),
+		CreatedAt:   now,
+		UpdatedAt:   now,
+	})
+	if err != nil {
+		return Job{}, false, err
+	}
+	return toJob(row), true, nil
 }
 
 func (s *Store) Get(ctx context.Context, id string) (Job, error) {
@@ -145,8 +156,9 @@ func (s *Store) Claim(ctx context.Context, worker string, kinds []Kind) (job Job
 	for i, k := range kinds {
 		ks[i] = string(k)
 	}
+	var reaped []Job
 	err = s.inTx(ctx, func(q *db.Queries) error {
-		if err := s.reap(ctx, q); err != nil {
+		if reaped, err = s.reap(ctx, q); err != nil {
 			return err
 		}
 		now := s.nowMs()
@@ -165,6 +177,9 @@ func (s *Store) Claim(ctx context.Context, worker string, kinds []Kind) (job Job
 		job, ok = toJob(row), true
 		return nil
 	})
+	if err == nil {
+		s.finished(ctx, reaped)
+	}
 	return job, ok, err
 }
 
@@ -224,7 +239,23 @@ func (s *Store) Complete(ctx context.Context, id, worker string, c Completion) (
 		})
 		return err
 	})
-	return s.leaseResult(ctx, id, row, err)
+	job, err := s.leaseResult(ctx, id, row, err)
+	if err == nil {
+		s.finished(ctx, []Job{job})
+	}
+	return job, err
+}
+
+// finished runs the OnFinish hook for jobs that reached a final status.
+func (s *Store) finished(ctx context.Context, js []Job) {
+	if s.OnFinish == nil {
+		return
+	}
+	for _, j := range js {
+		if j.Status == StatusDone || j.Status == StatusFailed {
+			s.OnFinish(ctx, j)
+		}
+	}
 }
 
 func (s *Store) leaseResult(ctx context.Context, id string, row db.Job, err error) (Job, error) {
@@ -243,26 +274,28 @@ func (s *Store) leaseResult(ctx context.Context, id string, row db.Job, err erro
 // Reap requeues (or fails, when out of attempts) running jobs whose lease
 // has expired. It returns the number of affected jobs.
 func (s *Store) Reap(ctx context.Context) (int, error) {
-	var n int
-	err := s.inTx(ctx, func(q *db.Queries) error {
-		rows, err := q.ReapExpiredLeases(ctx, s.nowMs())
-		if err != nil {
-			return err
-		}
-		s.logReaped(rows)
-		n = len(rows)
-		return nil
+	var reaped []Job
+	err := s.inTx(ctx, func(q *db.Queries) (err error) {
+		reaped, err = s.reap(ctx, q)
+		return err
 	})
-	return n, err
+	if err == nil {
+		s.finished(ctx, reaped)
+	}
+	return len(reaped), err
 }
 
-func (s *Store) reap(ctx context.Context, q *db.Queries) error {
+func (s *Store) reap(ctx context.Context, q *db.Queries) ([]Job, error) {
 	rows, err := q.ReapExpiredLeases(ctx, s.nowMs())
 	if err != nil {
-		return fmt.Errorf("reap: %w", err)
+		return nil, fmt.Errorf("reap: %w", err)
 	}
 	s.logReaped(rows)
-	return nil
+	out := make([]Job, len(rows))
+	for i, r := range rows {
+		out[i] = toJob(r)
+	}
+	return out, nil
 }
 
 func (s *Store) logReaped(rows []db.Job) {
@@ -316,6 +349,14 @@ func nullTime(n sql.NullInt64) *time.Time {
 }
 
 func toJob(r db.Job) Job {
+	j := toJobRow(r)
+	if IsVoiceKind(j.Kind) {
+		j.VoiceID, j.Voice = j.Voice, ""
+	}
+	return j
+}
+
+func toJobRow(r db.Job) Job {
 	return Job{
 		ID:             r.ID,
 		Kind:           Kind(r.Kind),

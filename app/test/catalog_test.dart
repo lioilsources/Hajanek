@@ -3,7 +3,8 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hajanek/core/audio_ref.dart';
+import 'package:hajanek/core/content_ref.dart';
+import 'package:hajanek/core/script/script.dart';
 import 'package:hajanek/features/catalog/catalog_models.dart';
 import 'package:hajanek/features/catalog/catalog_repository.dart';
 import 'package:hajanek/features/catalog/catalog_sync.dart';
@@ -15,32 +16,31 @@ Map<String, dynamic> bundledJson() =>
 
 String sha(String s) => sha256.convert(utf8.encode(s)).toString();
 
+const scriptV1 = '---\nid: budulinek\nstatus: draft\n---\n## uvod\nAhoj.\n';
+const scriptV2 = '---\nid: budulinek\nstatus: reviewed\n---\n## uvod\nDobrý večer.\n';
+
 Map<String, dynamic> miniJson({
   int version = 1,
   String seaSha = '',
-  String taleSha = '',
+  String script = scriptV1,
 }) =>
     {
-      'schema': 1,
+      'schema': 2,
       'version': version,
       'generated_at': '2026-10-20T03:12:00Z',
       'base_url': 'https://example.test/c',
-      'voices': [
-        {'id': 'mama', 'label': 'Měkký', 'free': true},
-      ],
       'tales': [
         {
           'id': 'budulinek',
           'title': 'Budulínek',
           'ambient': 'sea',
-          'tracks': [
+          'scripts': [
             {
-              'voice': 'mama',
               'length_min': 10,
-              'path': 'audio/budulinek/mama/10.opus',
-              'duration_s': 600.0,
-              'bytes': 4,
-              'sha256': taleSha.isEmpty ? sha('tale-v1') : taleSha,
+              'path': 'scripts/budulinek.10.md',
+              'sha256': sha(script),
+              'bytes': utf8.encode(script).length,
+              'est_duration_s': 583,
             },
           ],
         },
@@ -70,16 +70,16 @@ void main() {
   group('parsing', () {
     test('bundled catalog conforms to the contract', () {
       final c = Catalog.fromJson(bundledJson());
-      expect(c.schema, 1);
+      expect(c.schema, 2);
       expect(c.tales, hasLength(10));
       expect(c.ambient.map((a) => a.id), unorderedEquals([
         'sea', 'rain', 'stream', 'fireplace', 'wind', 'night-meadow', 'pink-noise', 'brown-noise', //
       ]));
-      expect(c.voice('mama')!.label, 'Měkký');
-      expect(c.voice('tata')!.label, 'Hluboký');
       for (final t in c.tales) {
-        expect(t.track('mama'), isNotNull, reason: t.id);
-        expect(t.track('tata'), isNotNull, reason: t.id);
+        final s = t.script();
+        expect(s.lengthMin, 10, reason: t.id);
+        expect(s.path, 'scripts/${t.id}.10.md');
+        expect(File('assets/${s.path}').existsSync(), isTrue, reason: s.path);
         expect(c.ambientById(t.ambient), isNotNull, reason: '${t.id} ambient');
       }
       for (final p in c.presets) {
@@ -92,20 +92,47 @@ void main() {
           'https://lioilsources.github.io/hajanek-content/ambient/sea.opus');
     });
 
-    test('bundled files match their hashes', () {
+    test('bundled files match their hashes, scripts their estimates', () {
       final c = Catalog.fromJson(bundledJson());
       for (final f in c.files) {
-        final file = File('assets/${f.path}');
-        if (!file.existsSync()) continue;
-        final bytes = file.readAsBytesSync();
+        final bytes = File('assets/${f.path}').readAsBytesSync();
         expect(sha256.convert(bytes).toString(), f.sha256, reason: f.path);
         expect(bytes.length, f.bytes, reason: f.path);
+      }
+      for (final t in c.tales) {
+        final s = t.script();
+        final parsed = parseScript(File('assets/${s.path}').readAsStringSync());
+        expect(s.estDurationS, parsed.estimatedSeconds.roundToDouble(), reason: s.path);
+        expect(parsed.meta['id'], t.id);
+      }
+    });
+
+    test('bundled scripts are copies of content/', () {
+      for (final f in Directory('assets/scripts').listSync().whereType<File>()) {
+        final name = f.uri.pathSegments.last;
+        final src = [File('../content/scripts/$name'), File('../content/scripts/gold/$name')]
+            .firstWhere((x) => x.existsSync());
+        expect(f.readAsStringSync(), src.readAsStringSync(),
+            reason: '$name is stale: run dart run tool/bundle_content.dart');
       }
     });
 
     test('rejects unknown schema, bad hash and oversized presets', () {
-      expect(() => Catalog.fromJson({...miniJson(), 'schema': 2}),
+      expect(() => Catalog.fromJson({...miniJson(), 'schema': 1}),
           throwsA(isA<CatalogFormatException>()));
+      final noScripts = miniJson()..['tales'] = [
+          {'id': 'x', 'title': 'X', 'scripts': []},
+        ];
+      expect(() => Catalog.fromJson(noScripts), throwsA(isA<CatalogFormatException>()));
+      final badAmbient = miniJson()..['tales'] = [
+          {
+            'id': 'x',
+            'title': 'X',
+            'ambient': 'nope',
+            'scripts': (miniJson()['tales'] as List).first['scripts'],
+          },
+        ];
+      expect(() => Catalog.fromJson(badAmbient), throwsA(isA<CatalogFormatException>()));
       expect(() => Catalog.fromJson(miniJson(seaSha: 'xyz')), throwsA(isA<CatalogFormatException>()));
       final tooMany = miniJson()
         ..['presets'] = [
@@ -146,7 +173,10 @@ void main() {
 
     test('changed ambient is downloaded, unchanged bundled one is not', () {
       final local = LocalContent(
-          bundled: {'ambient/sea.opus': sha('sea-v1')}, blobs: const {}, blobDir: blobDir);
+        bundled: {'ambient/sea.opus': sha('sea-v1'), 'scripts/budulinek.10.md': sha(scriptV1)},
+        blobs: const {},
+        blobDir: blobDir,
+      );
       final same = Catalog.fromJson(miniJson(version: 2));
       expect(planSync(current: v1, remote: same, local: local).downloads, isEmpty);
 
@@ -156,27 +186,40 @@ void main() {
       expect(plan.downloads.map((f) => f.path), ['ambient/sea.opus']);
     });
 
-    test('tale tracks: update only those the parent downloaded', () {
-      final remote = Catalog.fromJson(miniJson(version: 2, taleSha: sha('tale-v2')));
-      final notDownloaded = LocalContent(
-          bundled: {'ambient/sea.opus': sha('sea-v1')}, blobs: const {}, blobDir: blobDir);
-      expect(planSync(current: v1, remote: remote, local: notDownloaded).downloads, isEmpty);
+    test('changed script is always downloaded; old blob becomes garbage', () {
+      final remote = Catalog.fromJson(miniJson(version: 2, script: scriptV2));
+      final local = LocalContent(
+        bundled: {'ambient/sea.opus': sha('sea-v1'), 'scripts/budulinek.10.md': sha(scriptV1)},
+        blobs: {sha('old-script')},
+        blobDir: blobDir,
+      );
+      final plan = planSync(current: v1, remote: remote, local: local);
+      expect(plan.downloads.map((f) => f.path), ['scripts/budulinek.10.md']);
+      expect(plan.garbage, {sha('old-script')});
+    });
 
-      final downloaded = LocalContent(
-          bundled: {'ambient/sea.opus': sha('sea-v1')}, blobs: {sha('tale-v1')}, blobDir: blobDir);
-      final plan = planSync(current: v1, remote: remote, local: downloaded);
-      expect(plan.downloads.map((f) => f.path), ['audio/budulinek/mama/10.opus']);
-      expect(plan.garbage, {sha('tale-v1')});
+    test('a newer remote schema is ignored', () {
+      final local = LocalContent(bundled: const {}, blobs: const {}, blobDir: blobDir);
+      final future = Catalog(
+        schema: 3,
+        version: 9,
+        generatedAt: null,
+        baseUrl: '',
+        tales: const [],
+        ambient: const [],
+        presets: const [],
+      );
+      expect(planSync(current: v1, remote: future, local: local).apply, isFalse);
     });
 
     test('resolve prefers blob, then exact bundle, then stale bundle', () {
       final sea = v1.ambientById('sea')!;
-      final tale = v1.tale('budulinek')!.track('mama')!;
+      final script = v1.tale('budulinek')!.script();
       final local = LocalContent(
           bundled: {'ambient/sea.opus': sha('old')}, blobs: {sha('sea-v1')}, blobDir: blobDir);
       expect(local.resolve(sea), FileRef('/blobs/${sha('sea-v1')}.opus'));
       expect(local.withBlobs(const {}).resolve(sea), const AssetRef('assets/ambient/sea.opus'));
-      expect(local.resolve(tale), isNull);
+      expect(local.resolve(script), isNull);
     });
   });
 
@@ -185,12 +228,17 @@ void main() {
     setUp(() => tmp = Directory.systemTemp.createTempSync('hajanek'));
     tearDown(() => tmp.deleteSync(recursive: true));
 
-    CatalogRepository repo(http.Client client) => CatalogRepository(
-          loadBundledCatalog: () async => jsonEncode(miniJson()),
-          listBundledAssets: () async => {'assets/ambient/sea.opus'},
+    CatalogRepository repo(http.Client client, {bool drafts = true}) => CatalogRepository(
+          loadAsset: (a) async => switch (a) {
+            CatalogRepository.bundledCatalogAsset => jsonEncode(miniJson()),
+            'assets/scripts/budulinek.10.md' => scriptV1,
+            _ => throw StateError(a),
+          },
+          listBundledAssets: () async => {'assets/ambient/sea.opus', 'assets/scripts/budulinek.10.md'},
           docsDir: () async => tmp,
           client: client,
           remoteUrl: Uri.parse('https://example.test/c/catalog.json'),
+          drafts: drafts,
         );
 
     test('downloads verified files, then swaps catalog atomically', () async {
@@ -239,16 +287,39 @@ void main() {
       expect(snap.catalog.tales.single.title, 'Budulínek');
     });
 
-    test('on-demand download of a tale track', () async {
-      final client = MockClient((req) async => http.Response('tale-v1', 200));
+    test('updated script is downloaded and loadable', () async {
+      final v2 = miniJson(version: 2, script: scriptV2);
+      final client = MockClient((req) async => switch (req.url.path) {
+            '/c/catalog.json' => http.Response.bytes(utf8.encode(jsonEncode(v2)), 200),
+            '/c/scripts/budulinek.10.md' => http.Response.bytes(utf8.encode(scriptV2), 200),
+            _ => http.Response('', 404),
+          });
       final r = repo(client);
       final snap = await r.init();
-      final track = snap.catalog.tale('budulinek')!.track('mama')!;
-      expect(snap.local.resolve(track), isNull);
-      final progress = <double>[];
-      final local = await r.download(snap, track, onProgress: progress.add);
-      expect(local.resolve(track), isA<FileRef>());
-      expect(progress.last, 1.0);
+      final before = snap.local.resolve(snap.catalog.tale('budulinek')!.script())!;
+      expect(before, const AssetRef('assets/scripts/budulinek.10.md'));
+      expect(await r.loadText(before), scriptV1);
+
+      final (_, next) = await r.sync(snap);
+      final after = next.local.resolve(next.catalog.tale('budulinek')!.script())!;
+      expect(after, isA<FileRef>());
+      expect(await r.loadText(after), scriptV2);
+    });
+
+    test('a schema-1 remote catalog leaves everything as is', () async {
+      final old = {...miniJson(version: 5), 'schema': 1};
+      final client = MockClient((_) async => http.Response.bytes(utf8.encode(jsonEncode(old)), 200));
+      final r = repo(client);
+      final snap = await r.init();
+      final (result, next) = await r.sync(snap);
+      expect(result, SyncResult.upToDate);
+      expect(next.catalog.version, 1);
+    });
+
+    test('INCLUDE_DRAFTS=false hides bundled draft tales', () async {
+      final client = MockClient((_) async => http.Response('', 404));
+      expect((await repo(client).init()).catalog.tales, hasLength(1));
+      expect((await repo(client, drafts: false).init()).catalog.tales, isEmpty);
     });
   });
 }

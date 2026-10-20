@@ -1,12 +1,15 @@
 package pipeline
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"math"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -14,6 +17,7 @@ import (
 
 	"github.com/lioilsources/hajanek/forge/internal/audio"
 	"github.com/lioilsources/hajanek/forge/internal/catalog"
+	"github.com/lioilsources/hajanek/forge/internal/script"
 )
 
 // AmbientTitles are the UI names from CONTRACTS §4.
@@ -25,44 +29,32 @@ var AmbientTitles = map[string]string{
 type PublishOpts struct {
 	PagesDir string
 	Commit   bool
-	Only     *TrackID // publish only this track (still keeps the others in the catalog)
 	Now      time.Time
-}
-
-type TrackID struct {
-	Tale, Voice string
-	Length      int
 }
 
 type PublishResult struct {
 	Changed bool     `json:"changed"`
 	Version int      `json:"version"`
-	Tracks  []string `json:"tracks"`
+	Scripts []string `json:"scripts"`
 	Copied  []string `json:"copied"`
 	Skipped []string `json:"skipped"`
 	Notes   []string `json:"notes"`
 }
 
-// reconcile keeps the catalog acceptable for hajanek-api: no tales without
-// tracks, no references to ambient loops that are not published yet.
+// reconcile keeps the catalog acceptable for hajanek-api: no references to
+// ambient loops that are not published.
 func (e *Env) reconcile(cat *catalog.Catalog, res *PublishResult) {
 	amb := map[string]bool{}
 	for _, a := range cat.Ambient {
 		amb[a.ID] = true
 	}
-	tales := cat.Tales[:0]
-	for _, t := range cat.Tales {
-		if len(t.Tracks) == 0 {
-			res.Notes = append(res.Notes, "dropped tale without tracks: "+t.ID)
-			continue
-		}
+	for i := range cat.Tales {
+		t := &cat.Tales[i]
 		if t.Ambient != "" && !amb[t.Ambient] {
 			res.Notes = append(res.Notes, fmt.Sprintf("tale %s: ambient %q not published, left empty", t.ID, t.Ambient))
 			t.Ambient = ""
 		}
-		tales = append(tales, t)
 	}
-	cat.Tales = tales
 	presets := cat.Presets[:0]
 	for _, p := range cat.Presets {
 		ok := true
@@ -81,30 +73,43 @@ func (e *Env) reconcile(cat *catalog.Catalog, res *PublishResult) {
 	}
 }
 
-// readyTracks lists work dirs with master.opus and a passing qa.json.
-func (e *Env) readyTracks() ([]TrackID, []string) {
-	var ok []TrackID
-	var skipped []string
-	matches, _ := filepath.Glob(filepath.Join(e.Work, "*", "*", "*", "master.opus"))
-	sort.Strings(matches)
-	for _, m := range matches {
-		dir := filepath.Dir(m)
-		l, err := strconv.Atoi(filepath.Base(dir))
-		if err != nil {
-			continue
-		}
-		id := TrackID{Tale: filepath.Base(filepath.Dir(filepath.Dir(dir))), Voice: filepath.Base(filepath.Dir(dir)), Length: l}
-		var q QAReport
-		if readJSON(filepath.Join(dir, "qa.json"), &q) != nil || !q.OK {
-			skipped = append(skipped, fmt.Sprintf("%s/%s/%d (qa missing or failed)", id.Tale, id.Voice, id.Length))
-			continue
-		}
-		ok = append(ok, id)
-	}
-	return ok, skipped
+type scriptRef struct {
+	Tale   string
+	Length int
 }
 
-// Publish copies passing tracks into the pages repo and merges catalog.json.
+var reScriptName = regexp.MustCompile(`^([a-z0-9]+(?:-[a-z0-9]+)*)\.(\d+)\.md$`)
+
+// scriptRefs lists every {tale}.{len}.md in content/scripts and scripts/gold.
+func (e *Env) scriptRefs() []scriptRef {
+	seen := map[scriptRef]bool{}
+	var out []scriptRef
+	for _, dir := range []string{filepath.Join(e.Content, "scripts"), filepath.Join(e.Content, "scripts", "gold")} {
+		ents, _ := os.ReadDir(dir)
+		for _, en := range ents {
+			m := reScriptName.FindStringSubmatch(en.Name())
+			if en.IsDir() || m == nil {
+				continue
+			}
+			l, _ := strconv.Atoi(m[2])
+			r := scriptRef{m[1], l}
+			if !seen[r] {
+				seen[r] = true
+				out = append(out, r)
+			}
+		}
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].Tale != out[j].Tale {
+			return out[i].Tale < out[j].Tale
+		}
+		return out[i].Length < out[j].Length
+	})
+	return out
+}
+
+// Publish copies reviewed/gold scripts and ambient loops into the pages repo
+// and rebuilds catalog.json (schema 2, CONTRACTS §3).
 func (e *Env) Publish(o PublishOpts) (*PublishResult, error) {
 	if o.Now.IsZero() {
 		o.Now = time.Now()
@@ -121,57 +126,61 @@ func (e *Env) Publish(o PublishOpts) (*PublishResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	cat := prev.Clone()
+	cat := catalog.New(prev.BaseURL)
+	cat.Schema = catalog.Schema
 	if cat.BaseURL == "" {
 		cat.BaseURL = e.Cfg.Publish.BaseURL
 	}
-	res := &PublishResult{Tracks: []string{}, Copied: []string{}, Skipped: []string{}, Notes: []string{}}
+	res := &PublishResult{Scripts: []string{}, Copied: []string{}, Skipped: []string{}, Notes: []string{}}
 
-	cat.Voices = cat.Voices[:0]
-	for _, v := range e.Cfg.Voices {
-		cat.Voices = append(cat.Voices, catalog.Voice{ID: v.ID, Label: v.Label, Free: v.Free})
-	}
-
-	tracks, skipped := e.readyTracks()
-	res.Skipped = append(res.Skipped, skipped...)
-	for _, id := range tracks {
-		if o.Only != nil && *o.Only != id {
-			continue
-		}
-		dir := e.TrackDir(id.Tale, id.Voice, id.Length)
-		var vm VoiceManifest
-		if err := readJSON(filepath.Join(dir, "voice.json"), &vm); err != nil {
-			return nil, err
-		}
-		src := filepath.Join(dir, "master.opus")
-		sha, size, err := fileSHA256(src)
+	for _, ref := range e.scriptRefs() {
+		src, err := e.ScriptPath(ref.Tale, ref.Length)
 		if err != nil {
 			return nil, err
 		}
-		rel := fmt.Sprintf("audio/%s/%s/%d.opus", id.Tale, id.Voice, id.Length)
+		b, err := os.ReadFile(src)
+		if err != nil {
+			return nil, err
+		}
+		s, perr := script.Parse(b)
+		name := fmt.Sprintf("%s.%d.md", ref.Tale, ref.Length)
+		switch {
+		case perr != nil:
+			res.Skipped = append(res.Skipped, fmt.Sprintf("%s (parse: %v)", name, perr))
+			continue
+		case s.Meta.Status != "reviewed" && s.Meta.Status != "gold":
+			res.Skipped = append(res.Skipped, fmt.Sprintf("%s (status %q)", name, s.Meta.Status))
+			continue
+		case s.Meta.ID != ref.Tale || s.Meta.LengthMin != ref.Length:
+			res.Skipped = append(res.Skipped, fmt.Sprintf("%s (front matter id/length_min mismatch)", name))
+			continue
+		}
+		rel := "scripts/" + name
 		dst := filepath.Join(pages, filepath.FromSlash(rel))
+		sum := sha256.Sum256(b)
+		sha := hex.EncodeToString(sum[:])
 		if dsha, _, err := fileSHA256(dst); err != nil || dsha != sha {
 			if err := copyFile(src, dst); err != nil {
 				return nil, err
 			}
 			res.Copied = append(res.Copied, rel)
 		}
-		p, err := audio.Probe(dst)
-		if err != nil {
-			return nil, err
-		}
+		est := e.Prosody().Estimate(s, script.EstimateParams{WPM: e.Cfg.Judge.WPM, RefSpeed: e.Cfg.Judge.RefSpeed, GapS: e.Cfg.Speech.GapS})
 		free := e.Cfg.Publish.DefaultFree
-		if old := prev.Tale(id.Tale); old != nil {
+		if old := prev.Tale(ref.Tale); old != nil {
 			free = old.Free
 		}
-		if vm.Meta.Free != nil {
-			free = *vm.Meta.Free
+		if s.Meta.Free != nil {
+			free = *s.Meta.Free
 		}
-		t := cat.UpsertTale(catalog.Tale{ID: id.Tale, Title: vm.Meta.Title, Age: vm.Meta.Age, Setting: vm.Meta.Setting,
-			Ambient: vm.Meta.Ambient, Free: free})
-		t.UpsertTrack(catalog.Track{Voice: id.Voice, LengthMin: id.Length, Path: rel,
-			DurationS: math.Round(p.DurationS*10) / 10, Bytes: size, SHA256: sha})
-		res.Tracks = append(res.Tracks, rel)
+		t := cat.Tale(ref.Tale)
+		if t == nil {
+			t = cat.UpsertTale(catalog.Tale{ID: ref.Tale, Title: s.Meta.Title, Age: s.Meta.Age, Setting: s.Meta.Setting,
+				Ambient: s.Meta.Ambient, Free: free})
+		}
+		t.UpsertScript(catalog.Script{LengthMin: ref.Length, Path: rel, SHA256: sha, Bytes: int64(len(b)),
+			EstDurationS: int(math.Round(est.TotalS))})
+		res.Scripts = append(res.Scripts, rel)
 	}
 
 	if err := e.publishAmbient(cat, pages, res); err != nil {
@@ -184,19 +193,19 @@ func (e *Env) Publish(o PublishOpts) (*PublishResult, error) {
 
 	res.Changed = cat.Finalize(prev, o.Now)
 	res.Version = cat.Version
-	if errs := cat.Validate(pages); len(errs) > 0 {
+	if errs := cat.Validate(pages, prev); len(errs) > 0 {
 		return res, fmt.Errorf("catalog invalid: %s", strings.Join(errs, "; "))
 	}
 	if res.Changed || len(res.Copied) > 0 {
 		if err := cat.Save(catPath); err != nil {
 			return nil, err
 		}
-		e.Log.Printf("publish: catalog v%d (%d tracks, %d copied)", cat.Version, len(res.Tracks), len(res.Copied))
+		e.Log.Printf("publish: catalog v%d (%d tales, %d scripts, %d files copied)", cat.Version, len(cat.Tales), len(res.Scripts), len(res.Copied))
 	} else {
 		e.Log.Printf("publish: nothing changed (catalog v%d)", cat.Version)
 	}
 	if o.Commit && (res.Changed || len(res.Copied) > 0) {
-		if err := gitCommit(pages, fmt.Sprintf("catalog v%d: %d tracks", cat.Version, len(res.Tracks))); err != nil {
+		if err := gitCommit(pages, fmt.Sprintf("catalog v%d: %d scripts", cat.Version, len(res.Scripts))); err != nil {
 			return res, err
 		}
 	}
@@ -273,11 +282,12 @@ func gitCommit(dir, msg string) error {
 		cmd.Stdout, cmd.Stderr = os.Stderr, os.Stderr
 		return cmd.Run()
 	}
-	if err := run("add", "catalog.json", "audio", "ambient"); err != nil {
-		// ambient/ may not exist yet
-		if err := run("add", "catalog.json", "audio"); err != nil {
-			return err
-		}
+	args := []string{"add", "catalog.json", "scripts"}
+	if _, err := os.Stat(filepath.Join(dir, "ambient")); err == nil {
+		args = append(args, "ambient")
+	}
+	if err := run(args...); err != nil {
+		return err
 	}
 	return run("commit", "-m", msg)
 }

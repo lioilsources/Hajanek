@@ -1,54 +1,33 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/audio_ref.dart';
+import '../../core/content_ref.dart';
 import 'catalog_models.dart';
 import 'catalog_repository.dart';
 
 enum SyncStatus { idle, checking, upToDate, updated, offline }
 
 class CatalogState {
-  const CatalogState({
-    required this.snapshot,
-    this.sync = SyncStatus.idle,
-    this.downloads = const {},
-    this.failed = const {},
-  });
+  const CatalogState({required this.snapshot, this.sync = SyncStatus.idle});
 
   final CatalogSnapshot snapshot;
   final SyncStatus sync;
 
-  /// path → progress 0..1 for running downloads.
-  final Map<String, double> downloads;
-
-  /// Paths whose last download failed.
-  final Set<String> failed;
-
   Catalog get catalog => snapshot.catalog;
-  AudioRef? resolve(CatalogFile f) => snapshot.local.resolve(f);
-  AudioRef? ambientRef(String id) {
+  ContentRef? resolve(CatalogFile f) => snapshot.local.resolve(f);
+  ContentRef? ambientRef(String id) {
     final a = catalog.ambientById(id);
     return a == null ? null : resolve(a);
   }
 
-  CatalogState copyWith({
-    CatalogSnapshot? snapshot,
-    SyncStatus? sync,
-    Map<String, double>? downloads,
-    Set<String>? failed,
-  }) =>
-      CatalogState(
-        snapshot: snapshot ?? this.snapshot,
-        sync: sync ?? this.sync,
-        downloads: downloads ?? this.downloads,
-        failed: failed ?? this.failed,
-      );
+  CatalogState copyWith({CatalogSnapshot? snapshot, SyncStatus? sync}) =>
+      CatalogState(snapshot: snapshot ?? this.snapshot, sync: sync ?? this.sync);
 }
 
 /// Overridden in main() with the result of [CatalogRepository.init].
 final initialCatalogProvider =
     Provider<CatalogSnapshot>((ref) => throw UnimplementedError('catalog'));
 
-/// Null in tests: no sync, no downloads.
+/// Null in tests: no sync, scripts can't be loaded.
 final catalogRepositoryProvider = Provider<CatalogRepository?>((ref) => null);
 
 final catalogProvider = NotifierProvider<CatalogController, CatalogState>(CatalogController.new);
@@ -72,26 +51,11 @@ class CatalogController extends Notifier<CatalogState> {
     }
   }
 
-  Future<void> download(CatalogFile f) async {
+  /// Script text of [f]; null when it isn't available locally.
+  Future<String?> loadScript(ScriptFile f) async {
     final repo = ref.read(catalogRepositoryProvider);
-    if (repo == null || state.downloads.containsKey(f.path)) return;
-    state = state.copyWith(
-      downloads: {...state.downloads, f.path: 0},
-      failed: {...state.failed}..remove(f.path),
-    );
-    try {
-      final local = await repo.download(state.snapshot, f, onProgress: (p) {
-        state = state.copyWith(downloads: {...state.downloads, f.path: p});
-      });
-      state = state.copyWith(
-        snapshot: state.snapshot.copyWith(local: local),
-        downloads: {...state.downloads}..remove(f.path),
-      );
-    } on Object {
-      state = state.copyWith(
-        downloads: {...state.downloads}..remove(f.path),
-        failed: {...state.failed, f.path},
-      );
-    }
+    final r = state.resolve(f);
+    if (repo == null || r == null) return null;
+    return repo.loadText(r);
   }
 }

@@ -19,12 +19,12 @@ class HajanekAudioHandler extends BaseAudioHandler {
     await super.stop();
   }
 
-  void show({required String title, required bool playing, required bool active, Duration? duration}) {
+  void show({required String title, String? subtitle, required bool playing, required bool active}) {
     if (!active) {
       playbackState.add(PlaybackState(processingState: AudioProcessingState.idle));
       return;
     }
-    mediaItem.add(MediaItem(id: title, title: title, album: 'Hajánek', duration: duration));
+    mediaItem.add(MediaItem(id: title, title: title, artist: subtitle, album: 'Hajánek'));
     playbackState.add(PlaybackState(
       processingState: AudioProcessingState.ready,
       playing: playing,

@@ -1,0 +1,81 @@
+{
+  "voice_id": "test-voice",
+  "script": "---\nid: test\ntitle: Test\nstatus: gold\nlength_min: 1\n---\n\n## uvod\n[soft] Lehni si, {{osloveni|broučku}}.\n[pause 2s]\n<!-- komentář se ignoruje -->\nPřikrývka je  měkká.  \n\n## vstup\n[slow] Představ si les.\nŠššš…\n[pause 1.5s]\n\n## pribeh\nStromy spí.\n[whisper] Ticho.\nA všechno je v pořádku.\n\n## dojezd\n[slow] Hvězdy svítí.\n[whisper] Dobrou noc, {{osloveni|broučku}}.\n[pause 15s]\n",
+  "items": [
+    {
+      "type": "utterance",
+      "section": "uvod",
+      "tone": "soft",
+      "text": "Lehni si, broučku.",
+      "key": "694c72c502825de681e10e363aa591226e2d4b8a15b630f564426ffe7c98321b"
+    },
+    {
+      "type": "pause",
+      "seconds": 2.0
+    },
+    {
+      "type": "utterance",
+      "section": "uvod",
+      "tone": "soft",
+      "text": "Přikrývka je měkká.",
+      "key": "1a3a95b5a8d4fbd6d8180b0053db2bbbda5a794bc4643026f2ce8455d0a458ec"
+    },
+    {
+      "type": "utterance",
+      "section": "vstup",
+      "tone": "slow",
+      "text": "Představ si les.",
+      "key": "71678d961a7414e327aac2f0c480ee55177b6ece77483cdcf1215ee44725162e"
+    },
+    {
+      "type": "utterance",
+      "section": "vstup",
+      "tone": "slow",
+      "text": "Šššš…",
+      "key": "a0867f0ade92deb5720ca60a9b8e065dfe8fb209f76f5627158d7de01c3dacc3"
+    },
+    {
+      "type": "pause",
+      "seconds": 1.5
+    },
+    {
+      "type": "utterance",
+      "section": "pribeh",
+      "tone": "soft",
+      "text": "Stromy spí.",
+      "key": "871dc6ca1d33f1d21b7c7ea03212dbd40aa09a29dd4b8ee3b649f80bee5835c8"
+    },
+    {
+      "type": "utterance",
+      "section": "pribeh",
+      "tone": "whisper",
+      "text": "Ticho.",
+      "key": "9c98b42cd51b6d5d11b097756b2d9b3ca5c894dfcfa1c32b220e6e12e0991271"
+    },
+    {
+      "type": "utterance",
+      "section": "pribeh",
+      "tone": "whisper",
+      "text": "A všechno je v pořádku.",
+      "key": "964de2af27c927b9d9074d8b4aa7b8ac4f8136c1bcaee33c053cf84a157b73b0"
+    },
+    {
+      "type": "utterance",
+      "section": "dojezd",
+      "tone": "slow",
+      "text": "Hvězdy svítí.",
+      "key": "61c0d1dc15b9b0251ac2e3099bb7627d2f011a162b4d58546d38c05ad38b2a24"
+    },
+    {
+      "type": "utterance",
+      "section": "dojezd",
+      "tone": "whisper",
+      "text": "Dobrou noc, broučku.",
+      "key": "cd928cc84d81111440e95d6dbd7e7e68e1cd70b0416edbd2f8b299ef7332fd13"
+    },
+    {
+      "type": "pause",
+      "seconds": 15.0
+    }
+  ]
+}

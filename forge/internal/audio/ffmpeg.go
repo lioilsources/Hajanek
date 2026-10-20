@@ -1,4 +1,4 @@
-// Package audio wraps ffmpeg/ffprobe for preparation, mastering and measurement.
+// Package audio wraps ffmpeg/ffprobe for ambient loops, voice clips and measurement.
 package audio
 
 import (
@@ -67,16 +67,6 @@ func Probe(path string) (ProbeInfo, error) {
 		info.Channels = p.Streams[0].Channels
 	}
 	return info, nil
-}
-
-// PrepUtterance resamples a TTS output to mono s16 at rate and applies gain / optional low-pass.
-func PrepUtterance(in, out string, rate int, gainDB, lowpassHz float64) error {
-	af := fmt.Sprintf("aresample=%d,volume=%.2fdB", rate, gainDB)
-	if lowpassHz > 0 {
-		af += fmt.Sprintf(",lowpass=f=%.0f,lowpass=f=%.0f", lowpassHz, lowpassHz)
-	}
-	_, err := Run("-i", in, "-af", af, "-ac", "1", "-ar", strconv.Itoa(rate), "-c:a", "pcm_s16le", out)
-	return err
 }
 
 type Loudness struct {
@@ -154,4 +144,34 @@ func loudnormFirstPass(filterComplex, in, out string, extraInputs []string, lufs
 func loudnormSecond(st loudnormStats, lufs, tp, lra float64) string {
 	return fmt.Sprintf("loudnorm=I=%g:TP=%g:LRA=%g:measured_I=%s:measured_TP=%s:measured_LRA=%s:measured_thresh=%s:offset=%s:linear=true:print_format=json",
 		lufs, tp, lra, st.InputI, st.InputTP, st.InputLRA, st.InputThresh, st.TargetOffset)
+}
+
+// ClipOpts sets the voice clip format (CONTRACTS §8: AAC mono 48 kHz, −23 LUFS).
+type ClipOpts struct {
+	LUFS       float64
+	TruePeak   float64
+	LRA        float64
+	Bitrate    string
+	SampleRate int
+}
+
+// EncodeClip normalizes a TTS output with two-pass linear loudnorm and encodes
+// it as AAC in an .m4a container. Returns the output duration in seconds.
+func EncodeClip(in, out string, o ClipOpts) (float64, error) {
+	g := fmt.Sprintf("[0:a]aresample=%d,aformat=channel_layouts=mono[pre]", o.SampleRate)
+	st, err := loudnormFirstPass(g, in, "ln", nil, o.LUFS, o.TruePeak, o.LRA)
+	if err != nil {
+		return 0, err
+	}
+	fc := g + ";[pre]" + loudnormSecond(st, o.LUFS, o.TruePeak, o.LRA) + fmt.Sprintf(",aresample=%d[out]", o.SampleRate)
+	if _, err := Run("-i", in, "-filter_complex", fc, "-map", "[out]",
+		"-c:a", "aac", "-b:a", o.Bitrate, "-ac", "1", "-ar", strconv.Itoa(o.SampleRate),
+		"-map_metadata", "-1", "-movflags", "+faststart", "-f", "mp4", out); err != nil {
+		return 0, err
+	}
+	p, err := Probe(out)
+	if err != nil {
+		return 0, err
+	}
+	return p.DurationS, nil
 }

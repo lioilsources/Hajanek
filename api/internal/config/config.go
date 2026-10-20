@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -20,6 +21,30 @@ type Config struct {
 	JobLease       time.Duration // lease granted on claim / heartbeat
 	JobMaxAttempts int
 	ReaperInterval time.Duration
+
+	DataDir            string // samples, clips, script cache
+	MaxVoicesPerDevice int
+	// DeviceRate limits POST /v1/devices per client IP: DeviceRateN
+	// registrations per DeviceRatePer (token bucket). N = 0 disables it.
+	DeviceRateN   int
+	DeviceRatePer time.Duration
+}
+
+// ParseRate parses "N/duration" (e.g. "10/1h") or "off".
+func ParseRate(v string) (int, time.Duration, error) {
+	if v == "off" || v == "0" {
+		return 0, 0, nil
+	}
+	ns, ds, ok := strings.Cut(v, "/")
+	n, err := strconv.Atoi(ns)
+	if !ok || err != nil || n < 1 {
+		return 0, 0, fmt.Errorf("invalid rate %q (want N/duration, e.g. 10/1h, or off)", v)
+	}
+	d, err := time.ParseDuration(ds)
+	if err != nil || d <= 0 {
+		return 0, 0, fmt.Errorf("invalid rate %q (want N/duration, e.g. 10/1h, or off)", v)
+	}
+	return n, d, nil
 }
 
 const DefaultCatalogURL = "https://lioilsources.github.io/hajanek-content/catalog.json"
@@ -59,15 +84,27 @@ func Load(getenv func(string) string) (Config, error) {
 		JobLease:       dur("JOB_LEASE", 10*time.Minute),
 		ReaperInterval: dur("REAPER_INTERVAL", 30*time.Second),
 		JobMaxAttempts: 3,
+		DataDir:        str("DATA_DIR", "data"),
 	}
-	if v := getenv("JOB_MAX_ATTEMPTS"); v != "" {
+	posInt := func(key string, def int) int {
+		v := getenv(key)
+		if v == "" {
+			return def
+		}
 		n, err := strconv.Atoi(v)
 		if err != nil || n < 1 {
-			errs = append(errs, fmt.Errorf("JOB_MAX_ATTEMPTS: invalid value %q", v))
-		} else {
-			c.JobMaxAttempts = n
+			errs = append(errs, fmt.Errorf("%s: invalid value %q", key, v))
+			return def
 		}
+		return n
 	}
+	c.JobMaxAttempts = posInt("JOB_MAX_ATTEMPTS", 3)
+	c.MaxVoicesPerDevice = posInt("MAX_VOICES_PER_DEVICE", 3)
+	n, per, err := ParseRate(str("DEVICE_RATE_LIMIT", "10/1h"))
+	if err != nil {
+		errs = append(errs, fmt.Errorf("DEVICE_RATE_LIMIT: %w", err))
+	}
+	c.DeviceRateN, c.DeviceRatePer = n, per
 	if c.AdminToken == "" {
 		errs = append(errs, errors.New("ADMIN_TOKEN is required"))
 	}

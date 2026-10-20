@@ -2,14 +2,14 @@
 // content-addressed as `blobs/{sha256}{ext}`, so a new catalog never overwrites
 // a file the current one points at; the swap is just renaming catalog.json.
 
-import '../../core/audio_ref.dart';
+import '../../core/content_ref.dart';
 import 'catalog_models.dart';
 
-/// Single place mapping a catalog audio path to the file actually played on
-/// this platform. Identity today (Ogg Opus everywhere). If iOS can't play
-/// Ogg Opus, swap the extension here (e.g. `.opus` → `.m4a` on iOS); the
-/// catalog would then also need per-variant sha256/bytes (contract change).
-String platformAudioPath(String path) => path;
+/// Single place mapping a catalog path to the file actually used on this
+/// platform. Identity today (Ogg Opus everywhere). If iOS can't play Ogg
+/// Opus, swap the extension here (e.g. `.opus` → `.m4a` on iOS); the catalog
+/// would then also need per-variant sha256/bytes (contract change).
+String platformPath(String path) => path;
 
 /// Snapshot of what is playable locally.
 class LocalContent {
@@ -36,17 +36,17 @@ class LocalContent {
   bool hasExact(CatalogFile f) => blobs.contains(f.sha256) || bundled[f.path] == f.sha256;
 
   /// Exact match first; then a stale bundled file at the same path
-  /// (an older loop beats silence); null = needs download.
-  AudioRef? resolve(CatalogFile f) {
+  /// (an older loop or script beats nothing); null = not available.
+  ContentRef? resolve(CatalogFile f) {
     if (blobs.contains(f.sha256)) return FileRef(blobPath(blobDir, f));
-    if (bundled[f.path] == f.sha256) return AssetRef('assets/${platformAudioPath(f.path)}');
-    if (bundled.containsKey(f.path)) return AssetRef('assets/${platformAudioPath(f.path)}');
+    if (bundled[f.path] == f.sha256) return AssetRef('assets/${platformPath(f.path)}');
+    if (bundled.containsKey(f.path)) return AssetRef('assets/${platformPath(f.path)}');
     return null;
   }
 }
 
 String blobName(CatalogFile f) {
-  final path = platformAudioPath(f.path);
+  final path = platformPath(f.path);
   final dot = path.lastIndexOf('.');
   final ext = dot >= 0 && dot > path.lastIndexOf('/') ? path.substring(dot) : '';
   return '${f.sha256}$ext';
@@ -69,15 +69,11 @@ class SyncPlan {
 
   /// Blob hashes no longer referenced after the swap (safe to delete).
   final Set<String> garbage;
-
-  int get downloadBytes => downloads.fold(0, (s, f) => s + f.bytes);
 }
 
 /// Decide what to download when [remote] is offered while [current] is active.
-///
-/// - Ambient loops are always kept local (they're small and needed offline).
-/// - Tale tracks are fetched only if the parent had already downloaded the
-///   previous version of that track; new tracks stay on-demand.
+/// Scripts and ambient loops are always kept local (small, needed offline),
+/// so every file whose sha256 isn't already here is fetched before the swap.
 SyncPlan planSync({
   required Catalog current,
   required Catalog remote,
@@ -89,24 +85,8 @@ SyncPlan planSync({
 
   final downloads = <CatalogFile>[];
   final seen = <String>{};
-  void want(CatalogFile f) {
+  for (final f in remote.files) {
     if (!local.hasExact(f) && seen.add(f.sha256)) downloads.add(f);
-  }
-
-  for (final a in remote.ambient) {
-    want(a);
-  }
-
-  final oldTracks = {
-    for (final t in current.tales)
-      for (final tr in t.tracks) tr.path: tr,
-  };
-  for (final t in remote.tales) {
-    for (final tr in t.tracks) {
-      if (local.hasExact(tr)) continue;
-      final old = oldTracks[tr.path];
-      if (old != null && local.blobs.contains(old.sha256)) want(tr);
-    }
   }
 
   final referenced = {for (final f in remote.files) f.sha256};

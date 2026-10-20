@@ -8,6 +8,7 @@ import (
 	"strings"
 	"unicode"
 
+	"golang.org/x/text/unicode/norm"
 	"gopkg.in/yaml.v3"
 )
 
@@ -55,7 +56,7 @@ type Item struct {
 	Line    int
 	// Utterance fields.
 	Tone           Tone
-	Text           string // rendered with placeholder fallbacks
+	Text           string // spoken text, normalized per CONTRACTS §7 (fallbacks, whitespace, NFC)
 	Raw            string // text as written (without tone marker)
 	HasPlaceholder bool
 	// Pause field.
@@ -227,7 +228,7 @@ func Parse(src []byte) (*Script, error) {
 		}
 		counts[section]++
 		s.Items = append(s.Items, Item{Kind: Utterance, Section: section, Line: ln, Tone: tone,
-			Text: rendered, Raw: raw, HasPlaceholder: hasPH})
+			Text: NormalizeText(rendered), Raw: raw, HasPlaceholder: hasPH})
 	}
 	if secIdx < len(Sections)-1 {
 		add(len(lines), "missing sections: %s", strings.Join(Sections[secIdx+1:], ", "))
@@ -252,6 +253,12 @@ func (s *Script) Utterances() []Item {
 		}
 	}
 	return out
+}
+
+// NormalizeText trims, collapses inner whitespace runs to one space and
+// applies Unicode NFC (CONTRACTS §7).
+func NormalizeText(s string) string {
+	return norm.NFC.String(strings.Join(strings.Fields(s), " "))
 }
 
 // PlainText returns the spoken text (fallbacks applied), one utterance per line.

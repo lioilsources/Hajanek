@@ -1,26 +1,25 @@
 package script
 
-import "math"
-
-type ToneParams struct {
-	Speed     float64
-	GainDB    float64
-	LowpassHz float64 // fallback when the engine has no native style
-}
-
+// Prosody maps tones to speech speed (CONTRACTS §2) and models the linear
+// slow-down in RampSection. Volume is handled by the player in the app.
 type Prosody struct {
-	Tones        map[Tone]ToneParams
-	RampSection  string
-	RampSpeedTo  float64
-	RampGainToDB float64
+	Speeds      map[Tone]float64
+	RampSection string
+	RampSpeedTo float64
 }
 
-// Plan returns per-item TTS parameters (zero value for pauses), applying the
-// tone mapping and the linear ramp in RampSection. The ramp never makes an
-// utterance faster/louder than its tone (min of both).
-func (p Prosody) Plan(s *Script) []ToneParams {
-	out := make([]ToneParams, len(s.Items))
-	base := p.Tones[Soft]
+// Speed returns the tone's speed, falling back to soft.
+func (p Prosody) Speed(t Tone) float64 {
+	if v := p.Speeds[t]; v > 0 {
+		return v
+	}
+	return p.Speeds[Soft]
+}
+
+// Plan returns the per-item speed (0 for pauses): the tone speed, lowered by
+// the linear ramp in RampSection (the ramp never makes an utterance faster).
+func (p Prosody) Plan(s *Script) []float64 {
+	out := make([]float64, len(s.Items))
 	var rampIdx []int
 	for i, it := range s.Items {
 		if it.Kind == Utterance && it.Section == p.RampSection {
@@ -35,24 +34,19 @@ func (p Prosody) Plan(s *Script) []ToneParams {
 		}
 		rampPos[i] = t
 	}
+	base := p.Speed(Soft)
 	for i, it := range s.Items {
 		if it.Kind != Utterance {
 			continue
 		}
-		tp := p.Tones[it.Tone]
-		if tp.Speed == 0 {
-			tp.Speed = base.Speed
-		}
+		sp := p.Speed(it.Tone)
 		if t, ok := rampPos[i]; ok && p.RampSpeedTo > 0 {
-			tp.Speed = math.Min(tp.Speed, lerp(base.Speed, p.RampSpeedTo, t))
-			tp.GainDB = math.Min(tp.GainDB, lerp(base.GainDB, p.RampGainToDB, t))
+			sp = min(sp, base+(p.RampSpeedTo-base)*t)
 		}
-		out[i] = tp
+		out[i] = sp
 	}
 	return out
 }
-
-func lerp(a, b, t float64) float64 { return a + (b-a)*t }
 
 type EstimateParams struct {
 	WPM      float64 // words per minute at RefSpeed
@@ -81,7 +75,7 @@ func (p Prosody) Estimate(s *Script, ep EstimateParams) Estimate {
 		case Utterance:
 			n := len(Words(it.Text))
 			e.Words += n
-			wps := ep.WPM / 60 * plan[i].Speed / ep.RefSpeed
+			wps := ep.WPM / 60 * plan[i] / ep.RefSpeed
 			sp := float64(n) / wps
 			e.SpeechS += sp
 			d = sp + ep.GapS

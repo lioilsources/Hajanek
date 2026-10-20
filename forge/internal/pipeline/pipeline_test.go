@@ -3,18 +3,15 @@ package pipeline
 import (
 	"context"
 	"encoding/json"
-	"math"
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/lioilsources/hajanek/forge/internal/tts"
-	"github.com/lioilsources/hajanek/forge/internal/wavio"
+	"github.com/lioilsources/hajanek/forge/internal/catalog"
 )
 
 func repoRoot(t *testing.T) string {
@@ -90,66 +87,75 @@ func TestGenerateScriptFakeLLM(t *testing.T) {
 	}
 }
 
-type fakeSynth struct{ calls int }
-
-func (f *fakeSynth) Synthesize(r tts.Request) (tts.Response, error) {
-	f.calls++
-	w, err := wavio.Create(r.OutPath, 24000)
-	if err != nil {
-		return tts.Response{}, err
+func writeFile(t *testing.T, path, data string) {
+	t.Helper()
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
 	}
-	s := make([]int16, 24000/2) // 0.5 s tone
-	for i := range s {
-		s[i] = int16(3000 * math.Sin(float64(i)*0.05))
+	if err := os.WriteFile(path, []byte(data), 0o644); err != nil {
+		t.Fatal(err)
 	}
-	if err := w.Write(s); err != nil {
-		_ = w.Close()
-		return tts.Response{}, err
-	}
-	return tts.Response{OK: true, DurationS: 0.5}, w.Close()
 }
-func (f *fakeSynth) Close() error { return nil }
 
-func TestVoiceAssembly(t *testing.T) {
-	if _, err := exec.LookPath("ffmpeg"); err != nil {
-		t.Skip("ffmpeg not installed")
-	}
-	e := testEnv(t, filepath.Join(repoRoot(t), "forge/testdata/content"))
-	fs := &fakeSynth{}
-	m, err := e.Voice(VoiceOpts{Tale: "test-pohadka", Voice: "mama", Length: 2, Synth: fs})
+func TestPublishScripts(t *testing.T) {
+	fixture, err := os.ReadFile(filepath.Join(repoRoot(t), "forge/testdata/content/scripts/test-pohadka.2.md"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if fs.calls != 15 {
-		t.Errorf("synth calls = %d, want 15", fs.calls)
+	src := string(fixture)
+	retitle := func(id, status string) string {
+		s := strings.Replace(src, "id: test-pohadka", "id: "+id, 1)
+		return strings.Replace(s, "status: reviewed", "status: "+status, 1)
 	}
-	// 15 × (0.5 s + 0.6 s gap) + 54 s of pauses
-	if want := 15*1.1 + 54; math.Abs(m.DurationS-want) > 0.05 {
-		t.Errorf("duration %.3f, want %.3f", m.DurationS, want)
-	}
-	last := m.Silences[len(m.Silences)-1]
-	if math.Abs(last[1]-m.DurationS) > 1e-6 || math.Abs(last[1]-last[0]-6.6) > 0.01 {
-		t.Errorf("final silence %v", last)
-	}
-	// Second run with --force hits the cache only.
-	e.Force = true
-	fs2 := &fakeSynth{}
-	m2, err := e.Voice(VoiceOpts{Tale: "test-pohadka", Voice: "mama", Length: 2, Synth: fs2})
+	content := t.TempDir()
+	writeFile(t, filepath.Join(content, "scripts/test-pohadka.2.md"), src)
+	writeFile(t, filepath.Join(content, "scripts/navrh.2.md"), retitle("navrh", "draft"))
+	writeFile(t, filepath.Join(content, "scripts/gold/zlata.2.md"), retitle("zlata", "gold"))
+	// A draft in scripts/ shadows the gold copy (lookup order, CONTRACTS §2).
+	writeFile(t, filepath.Join(content, "scripts/stin.2.md"), retitle("stin", "draft"))
+	writeFile(t, filepath.Join(content, "scripts/gold/stin.2.md"), retitle("stin", "gold"))
+	writeFile(t, filepath.Join(content, "presets/presets.json"), `[{"id":"louka","title":"Louka","layers":[{"ambient":"night-meadow","volume":0.6}]}]`)
+
+	e := testEnv(t, content)
+	pages := t.TempDir()
+	now := time.Date(2026, 10, 20, 3, 0, 0, 0, time.UTC)
+	res, err := e.Publish(PublishOpts{PagesDir: pages, Now: now})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if fs2.calls != 0 || m2.CacheHits != 15 {
-		t.Errorf("cache: calls %d hits %d", fs2.calls, m2.CacheHits)
+	if !res.Changed || res.Version != 1 || len(res.Scripts) != 2 || len(res.Skipped) != 2 {
+		t.Fatalf("result %+v", res)
 	}
-	// Drafts are refused without AllowDraft.
-	draftDir := t.TempDir()
-	src, _ := os.ReadFile(filepath.Join(e.Content, "scripts/test-pohadka.2.md"))
-	p := filepath.Join(draftDir, "d.md")
-	if err := os.WriteFile(p, []byte(strings.Replace(string(src), "status: reviewed", "status: draft", 1)), 0o644); err != nil {
+	cat, err := catalog.Load(filepath.Join(pages, "catalog.json"), "")
+	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := e.Voice(VoiceOpts{Tale: "test-pohadka", Voice: "mama", Length: 2, ScriptPath: p, Synth: fs2}); err == nil {
-		t.Error("draft should be refused")
+	if cat.Schema != 2 || len(cat.Tales) != 2 || cat.Tales[0].ID != "test-pohadka" || cat.Tales[1].ID != "zlata" {
+		t.Fatalf("catalog %+v", cat)
+	}
+	tl := cat.Tales[0]
+	sc := tl.Scripts[0]
+	if tl.Ambient != "" || len(cat.Presets) != 0 {
+		t.Error("unpublished ambient must be cleared and its presets dropped")
+	}
+	if sc.Path != "scripts/test-pohadka.2.md" || sc.Bytes != int64(len(fixture)) || len(sc.SHA256) != 64 {
+		t.Errorf("script %+v", sc)
+	}
+	// est = speech at judge speeds + gaps + 54 s of pauses; roughly the 2 min target.
+	if sc.EstDurationS < 90 || sc.EstDurationS > 150 {
+		t.Errorf("est_duration_s %d", sc.EstDurationS)
+	}
+	if b, _ := os.ReadFile(filepath.Join(pages, sc.Path)); string(b) != src {
+		t.Error("script not copied verbatim")
+	}
+	// Re-publish without changes keeps the version.
+	if res, err = e.Publish(PublishOpts{PagesDir: pages, Now: now.Add(time.Hour)}); err != nil || res.Changed || res.Version != 1 {
+		t.Fatalf("idempotent publish: %+v %v", res, err)
+	}
+	// Changing a script bumps the version.
+	writeFile(t, filepath.Join(content, "scripts/test-pohadka.2.md"), strings.Replace(src, "title: Testovací pohádka", "title: Jiný název", 1))
+	if res, err = e.Publish(PublishOpts{PagesDir: pages, Now: now.Add(2 * time.Hour)}); err != nil || !res.Changed || res.Version != 2 {
+		t.Fatalf("changed publish: %+v %v", res, err)
 	}
 }
 

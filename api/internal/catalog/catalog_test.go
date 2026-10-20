@@ -39,7 +39,20 @@ func TestValidate(t *testing.T) {
 		{"empty lists allowed", func(c *Catalog) {
 			c.Tales, c.Presets = []Tale{}, []Preset{}
 		}, ""},
-		{"wrong schema", func(c *Catalog) { c.Schema = 2 }, "schema"},
+		{"old schema", func(c *Catalog) { c.Schema = 1 }, "schema"},
+		{"two lengths", func(c *Catalog) {
+			sc := c.Tales[0].Scripts[0]
+			sc.LengthMin = 5
+			c.Tales[0].Scripts = append(c.Tales[0].Scripts, sc)
+		}, ""},
+		{"duplicate length", func(c *Catalog) {
+			c.Tales[0].Scripts = append(c.Tales[0].Scripts, c.Tales[0].Scripts[0])
+		}, "duplicate length_min"},
+		{"script bad sha256", func(c *Catalog) { c.Tales[0].Scripts[0].SHA256 = strings.Repeat("A", 64) }, "sha256"},
+		{"script short sha256", func(c *Catalog) { c.Tales[0].Scripts[0].SHA256 = "abc" }, "sha256"},
+		{"script missing path", func(c *Catalog) { c.Tales[0].Scripts[0].Path = "" }, "path: required"},
+		{"script zero estimate", func(c *Catalog) { c.Tales[0].Scripts[0].EstDurationS = 0 }, "est_duration_s"},
+		{"script zero length", func(c *Catalog) { c.Tales[0].Scripts[0].LengthMin = 0 }, "length_min"},
 		{"missing schema", func(c *Catalog) { c.Schema = 0 }, "schema"},
 		{"zero version", func(c *Catalog) { c.Version = 0 }, "version"},
 		{"bad generated_at", func(c *Catalog) { c.GeneratedAt = "yesterday" }, "generated_at"},
@@ -51,14 +64,12 @@ func TestValidate(t *testing.T) {
 		{"tale id trailing dash", func(c *Catalog) { c.Tales[0].ID = "karkulka-" }, "kebab-case"},
 		{"tale missing title", func(c *Catalog) { c.Tales[0].Title = " " }, "tales[0].title: required"},
 		{"duplicate ambient id", func(c *Catalog) { c.Ambient[1].ID = "sea" }, "duplicate"},
-		{"voice missing id", func(c *Catalog) { c.Voices[0].ID = "" }, "voices[0].id: required"},
-		{"track unknown voice", func(c *Catalog) { c.Tales[0].Tracks[0].Voice = "deda" }, "unknown voice"},
 		{"tale unknown ambient", func(c *Catalog) { c.Tales[0].Ambient = "lava" }, "unknown ambient"},
-		{"tale without tracks", func(c *Catalog) { c.Tales[0].Tracks = nil }, "at least one track"},
+		{"tale without scripts", func(c *Catalog) { c.Tales[0].Scripts = nil }, "at least one script"},
 		{"absolute path", func(c *Catalog) { c.Ambient[0].Path = "/ambient/sea.opus" }, "relative"},
 		{"path traversal", func(c *Catalog) { c.Ambient[0].Path = "../x.opus" }, "relative"},
 		{"bad sha256", func(c *Catalog) { c.Ambient[0].SHA256 = "…" }, "sha256"},
-		{"zero bytes", func(c *Catalog) { c.Tales[0].Tracks[0].Bytes = 0 }, "bytes"},
+		{"zero bytes", func(c *Catalog) { c.Tales[0].Scripts[0].Bytes = 0 }, "bytes"},
 		{"zero layers", func(c *Catalog) { c.Presets[0].Layers = nil }, "1–3 layers"},
 		{"four layers", func(c *Catalog) {
 			l := Layer{Ambient: "sea", Volume: ptr(0.5)}
@@ -88,7 +99,7 @@ func TestValidate(t *testing.T) {
 }
 
 func TestParse(t *testing.T) {
-	if _, err := Parse([]byte(`{"schema":1,`)); err == nil {
+	if _, err := Parse([]byte(`{"schema":2,`)); err == nil {
 		t.Fatal("expected decode error")
 	}
 	// Unknown fields are tolerated for forward compatibility.
@@ -97,5 +108,11 @@ func TestParse(t *testing.T) {
 	b = append([]byte(`{"future_field":true,`), b[1:]...)
 	if _, err := Parse(b); err != nil {
 		t.Fatalf("unknown field rejected: %v", err)
+	}
+	if sc, ok := c.Script("cervena-karkulka", 10); !ok || sc.Path != "scripts/cervena-karkulka.10.md" {
+		t.Fatalf("Script lookup: %+v %v", sc, ok)
+	}
+	if _, ok := c.Script("cervena-karkulka", 5); ok {
+		t.Fatal("unexpected script for length 5")
 	}
 }

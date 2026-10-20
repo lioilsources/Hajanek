@@ -26,6 +26,7 @@ type Snapshot struct {
 	SHA256    string
 	FetchedAt time.Time
 	UpdatedAt time.Time
+	Catalog   *Catalog // parsed Body
 }
 
 // Service polls the published catalog.json and caches the last good copy
@@ -36,6 +37,11 @@ type Service struct {
 	client *http.Client
 	log    *slog.Logger
 	now    func() time.Time
+
+	scriptDir string // on-disk script cache; memory only when empty
+
+	scriptMu sync.Mutex
+	scripts  map[string][]byte // sha256 → verified script body
 
 	mu           sync.RWMutex
 	cur          *Snapshot
@@ -49,13 +55,17 @@ func WithHTTPClient(c *http.Client) Option  { return func(s *Service) { s.client
 func WithClock(now func() time.Time) Option { return func(s *Service) { s.now = now } }
 func WithLogger(l *slog.Logger) Option      { return func(s *Service) { s.log = l } }
 
+// WithScriptDir caches fetched scripts in dir (content-addressed by sha256).
+func WithScriptDir(dir string) Option { return func(s *Service) { s.scriptDir = dir } }
+
 func NewService(q *db.Queries, url string, opts ...Option) *Service {
 	s := &Service{
-		q:      q,
-		url:    url,
-		client: &http.Client{Timeout: 30 * time.Second},
-		log:    slog.Default(),
-		now:    time.Now,
+		q:       q,
+		url:     url,
+		client:  &http.Client{Timeout: 30 * time.Second},
+		log:     slog.Default(),
+		now:     time.Now,
+		scripts: map[string][]byte{},
 	}
 	for _, o := range opts {
 		o(s)
@@ -85,6 +95,13 @@ func (s *Service) Load(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("load cached catalog: %w", err)
 	}
+	c, err := Parse(row.Body)
+	if err != nil {
+		// E.g. a schema 1 catalog cached before an upgrade: drop it and
+		// refetch without validators.
+		s.log.Warn("cached catalog is no longer valid, ignoring", "version", row.Version, "err", err)
+		return nil
+	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.cur = &Snapshot{
@@ -93,6 +110,7 @@ func (s *Service) Load(ctx context.Context) error {
 		SHA256:    row.Sha256,
 		FetchedAt: time.UnixMilli(row.FetchedAt).UTC(),
 		UpdatedAt: time.UnixMilli(row.UpdatedAt).UTC(),
+		Catalog:   c,
 	}
 	s.etag, s.lastModified = row.Etag, row.LastModified
 	return nil
@@ -184,7 +202,7 @@ func (s *Service) Poll(ctx context.Context) error {
 		return fmt.Errorf("store catalog: %w", err)
 	}
 	s.mu.Lock()
-	s.cur = &Snapshot{Version: c.Version, Body: body, SHA256: sumHex, FetchedAt: now.UTC(), UpdatedAt: now.UTC()}
+	s.cur = &Snapshot{Version: c.Version, Body: body, SHA256: sumHex, FetchedAt: now.UTC(), UpdatedAt: now.UTC(), Catalog: c}
 	s.etag, s.lastModified = newETag, newLastMod
 	s.mu.Unlock()
 

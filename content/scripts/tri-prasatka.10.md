@@ -7,6 +7,7 @@ setting: louka
 ambient: wind
 length_min: 10
 status: draft
+free: true
 tension_original: 4
 characters: [maminka prasátek, první prasátko, druhé prasátko, třetí prasátko, vlk]
 softening: Vlk nikoho nesní a domky neodfoukne. Je to promrzlý, ospalý vlk z větrného večera, jeho „fuuu“ je jen zívnutí; slaměným a dřevěným domkem jen profukuje, prasátka se v klidu sejdou v cihlovém domku a vlk se tam s nimi ohřeje u krbu.

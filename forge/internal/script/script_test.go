@@ -1,7 +1,10 @@
 package script
 
 import (
+	"encoding/json"
 	"math"
+	"os"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -113,12 +116,7 @@ func TestParseErrors(t *testing.T) {
 }
 
 func testProsody() Prosody {
-	return Prosody{
-		Tones: map[Tone]ToneParams{
-			Soft: {Speed: 0.85}, Slow: {Speed: 0.78, GainDB: -3}, Whisper: {Speed: 0.75, GainDB: -10, LowpassHz: 3500},
-		},
-		RampSection: "dojezd", RampSpeedTo: 0.75, RampGainToDB: -6,
-	}
+	return Prosody{Speeds: map[Tone]float64{Soft: 0.85, Slow: 0.78, Whisper: 0.75}, RampSection: "dojezd", RampSpeedTo: 0.75}
 }
 
 func TestPlanRamp(t *testing.T) {
@@ -128,25 +126,21 @@ func TestPlanRamp(t *testing.T) {
 		t.Fatal(err)
 	}
 	p := testProsody().Plan(s)
-	var got []ToneParams
+	var got []float64
 	for i, it := range s.Items {
 		if it.Kind == Utterance {
 			got = append(got, p[i])
 		}
 	}
-	near := func(a, b float64) bool { return math.Abs(a-b) < 1e-9 }
-	checks := []struct{ speed, gain float64 }{
-		{0.85, 0}, {0.78, -3}, {0.75, -10}, // tone mapping outside dojezd
-		{0.85, 0}, {0.85 - 0.1/3, -2}, {0.85 - 0.2/3, -4}, // linear ramp in dojezd
-		{0.75, -10}, // whisper stays quieter than the ramp
+	want := []float64{
+		0.85, 0.78, 0.75, // tone mapping outside dojezd
+		0.85, 0.85 - 0.1/3, 0.85 - 0.2/3, // linear ramp in dojezd
+		0.75, // whisper never faster than its tone
 	}
-	for i, c := range checks {
-		if !near(got[i].Speed, c.speed) || !near(got[i].GainDB, c.gain) {
-			t.Errorf("utt %d: speed %.4f gain %.2f, want %.4f %.2f", i, got[i].Speed, got[i].GainDB, c.speed, c.gain)
+	for i, w := range want {
+		if math.Abs(got[i]-w) > 1e-9 {
+			t.Errorf("utt %d: speed %.4f, want %.4f", i, got[i], w)
 		}
-	}
-	if got[2].LowpassHz != 3500 {
-		t.Error("whisper fallback low-pass missing")
 	}
 }
 
@@ -176,5 +170,45 @@ func TestEstimate(t *testing.T) {
 func TestWords(t *testing.T) {
 	if n := len(Words("Šššš… Klap, klap. A všechno je v pořádku!")); n != 8 {
 		t.Errorf("Words = %d, want 8", n)
+	}
+}
+
+// TestGoldenUtterances checks the sequence and keys against the shared golden
+// file that the Dart parser in app/ is tested against too (CONTRACTS §7).
+func TestGoldenUtterances(t *testing.T) {
+	b, err := os.ReadFile("../../../docs/testdata/utterances.golden.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var g struct {
+		VoiceID string `json:"voice_id"`
+		Script  string `json:"script"`
+		Items   []Step `json:"items"`
+	}
+	if err := json.Unmarshal(b, &g); err != nil {
+		t.Fatal(err)
+	}
+	s, err := Parse([]byte(g.Script))
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := s.Sequence(g.VoiceID)
+	if len(got) != len(g.Items) {
+		t.Fatalf("got %d items, want %d", len(got), len(g.Items))
+	}
+	for i := range got {
+		if !reflect.DeepEqual(got[i], g.Items[i]) {
+			t.Errorf("item %d:\n got %+v\nwant %+v", i, got[i], g.Items[i])
+		}
+	}
+}
+
+func TestNormalizeText(t *testing.T) {
+	// "S" + combining caron (NFD) → "Š" (NFC); tabs/NBSP-free runs collapse.
+	if got := NormalizeText("  S\u030cel \t\tdál  "); got != "\u0160el dál" {
+		t.Errorf("NormalizeText = %q", got)
+	}
+	if UtteranceKey("v", Soft, "a") == UtteranceKey("v", Slow, "a") {
+		t.Error("tone must be part of the key")
 	}
 }

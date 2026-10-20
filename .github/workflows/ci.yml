@@ -20,7 +20,7 @@ jobs:
         with:
           go-version-file: ${{ matrix.module }}/go.mod
           cache-dependency-path: ${{ matrix.module }}/go.sum
-      - name: Install ffmpeg (forge tests)
+      - name: Install ffmpeg (forge clip + ambient tests; skipped without it)
         if: matrix.module == 'forge'
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - run: go vet ./...
@@ -54,6 +54,19 @@ jobs:
           for f in ../content/scripts/*.md ../content/scripts/gold/*.md; do
             ./bin/forge judge --no-llm --content ../content "$f" > /dev/null || { echo "FAIL: $f"; exit 1; }
           done
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: api/go.mod
+          cache-dependency-path: |
+            api/go.sum
+            forge/go.sum
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: make e2e
 
   flutter:
     runs-on: ubuntu-latest

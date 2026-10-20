@@ -1,4 +1,5 @@
-# Alternative to the systemd timer (crontab -e on Spark). CRON_TZ keeps 22:00 local
-# across DST changes; forge itself stops claiming new jobs after 07:00 Europe/Prague.
+# Alternative to the systemd timer for the nightly script/publish run (crontab -e on Spark).
+# CRON_TZ keeps 22:00 local across DST changes; forge stops claiming new jobs after 07:00.
+# The voice worker is a long-running service: deploy/hajanek-forge-worker.service.
 CRON_TZ=Europe/Prague
 0 22 * * * cd $HOME/dev/Hajanek/forge && set -a && . deploy/forge.env && set +a && ./bin/forge nightly --until 07:00 --commit >> work/nightly.log 2>&1

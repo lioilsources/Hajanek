@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# End-to-end smoke test with the dummy TTS engine (no GPU, no LLM needed).
+# End-to-end smoke test without GPU and LLM: judge → ambient loop → publish into
+# a throwaway pages dir → validate catalog.json (schema 2, CONTRACTS §3).
 # Usage: forge/testdata/smoke.sh [TMPDIR]
 set -euo pipefail
 FORGE="$(cd "$(dirname "$0")/.." && pwd)"
@@ -8,31 +9,44 @@ mkdir -p "$TMP"
 CONTENT="$TMP/content"; PAGES="$TMP/pages"
 rm -rf "$CONTENT" "$PAGES"
 cp -R "$FORGE/testdata/content" "$CONTENT"
-mkdir -p "$CONTENT/ambient"
+mkdir -p "$CONTENT/ambient" "$CONTENT/presets"
 
 cd "$FORGE"
 go build -o bin/forge ./cmd/forge
-export FORGE_TTS_ENGINE=dummy
+
+./bin/forge judge --no-llm --content "$CONTENT" "$CONTENT/scripts/test-pohadka.2.md" >/dev/null
 
 # Ambient loop: 20 s of synthetic pink noise → seamless −30 LUFS loop.
 ffmpeg -hide_banner -v error -y -f lavfi -i "anoisesrc=d=20:c=pink:r=48000:a=0.2" -ac 2 "$TMP/pink.wav"
 ./bin/forge master-ambient "$TMP/pink.wav" "$CONTENT/ambient/night-meadow.opus" >/dev/null
 echo '[{"id":"night-meadow","title":"Noční louka","license":"CC0","source":"ffmpeg anoisesrc (smoke test)","free":true}]' \
   > "$CONTENT/ambient/ambient.json"
-mkdir -p "$CONTENT/presets"
 echo '[{"id":"louka","title":"Louka","layers":[{"ambient":"night-meadow","volume":0.6}]}]' > "$CONTENT/presets/presets.json"
 
-./bin/forge run --content "$CONTENT" --tale test-pohadka --voice mama --length 2 --content-pages "$PAGES"
+./bin/forge publish --content "$CONTENT" --content-pages "$PAGES" >/dev/null
+# Second run must not change anything.
+./bin/forge publish --content "$CONTENT" --content-pages "$PAGES" | grep -q '"changed": false'
 
-# Nightly from a queue file: everything cached, catalog must not change.
-echo "test-pohadka mama 2" > "$TMP/queue.txt"
-./bin/forge nightly --content "$CONTENT" --queue "$TMP/queue.txt" --until none --content-pages "$PAGES" >/dev/null
-
-OUT="$PAGES/audio/test-pohadka/mama/2.opus"
-echo "--- ffprobe"
-ffprobe -v error -show_entries stream=codec_name,sample_rate,channels:format=duration,size -of compact "$OUT"
-echo "--- ebur128"
-ffmpeg -hide_banner -nostats -i "$OUT" -filter_complex ebur128=peak=true -f null - 2>&1 \
-  | sed -n '/Summary:/,$p' | grep -E "I:|LRA:|Peak:"
-echo "--- catalog"
-python3 -c "import json,sys; c=json.load(open(sys.argv[1])); print('version', c['version'], 'tales', [t['id'] for t in c['tales']], 'ambient', [a['id'] for a in c['ambient']], 'presets', [p['id'] for p in c['presets']])" "$PAGES/catalog.json"
+python3 - "$PAGES" <<'PY'
+import hashlib, json, os, sys
+pages = sys.argv[1]
+c = json.load(open(os.path.join(pages, "catalog.json")))
+assert c["schema"] == 2 and c["version"] == 1, (c["schema"], c["version"])
+amb = {a["id"] for a in c["ambient"]}
+def check(path, sha, size):
+    b = open(os.path.join(pages, path), "rb").read()
+    assert len(b) == size and hashlib.sha256(b).hexdigest() == sha, path
+for t in c["tales"]:
+    assert t["scripts"], t["id"]
+    assert t["ambient"] in amb or t["ambient"] == "", t["id"]
+    for s in t["scripts"]:
+        check(s["path"], s["sha256"], s["bytes"])
+        assert s["est_duration_s"] > 0
+for a in c["ambient"]:
+    check(a["path"], a["sha256"], a["bytes"])
+for p in c["presets"]:
+    assert all(l["ambient"] in amb for l in p["layers"]), p["id"]
+print("catalog v%d: tales %s, ambient %s, presets %s" % (c["version"],
+      [(t["id"], [s["est_duration_s"] for s in t["scripts"]]) for t in c["tales"]],
+      sorted(amb), [p["id"] for p in c["presets"]]))
+PY

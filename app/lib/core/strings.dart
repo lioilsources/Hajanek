@@ -7,20 +7,17 @@ abstract final class S {
   static const homeJukeboxSub = 'Jen podkres, bez pohádky';
   static const homeTales = 'Pohádky';
   static const homeNowPlaying = 'Právě hraje';
-  static const homeDownloaded = 'staženo';
-  static const homeNotDownloaded = 'ke stažení';
+  static String homeMinutes(double seconds) => '${(seconds / 60).round()} min';
 
   // Tale detail
   static const detailVoice = 'Hlas';
+  static const detailNoScript = 'Text pohádky se nepodařilo načíst.';
   static const detailBackground = 'Podkres';
   static const detailRecommended = 'Doporučený';
   static const detailNoBackground = 'Bez podkresu';
   static const detailRitual = 'Rituál „dobrou noc“';
   static const detailRitualSub = 'Nejdřív jen podkres, po pohádce ještě chvíli hraje';
   static const detailPlay = 'Spustit';
-  static const detailDownload = 'Stáhnout';
-  static const detailDownloading = 'Stahuji…';
-  static const detailDownloadFailed = 'Stažení se nepovedlo';
   static const detailFavourite = 'Oblíbená';
   static String detailAge(String age) => 'věk $age';
 
@@ -35,6 +32,13 @@ abstract final class S {
   static const playerBackground = 'Podkres';
   static const playerStop = 'Zastavit';
   static const playerNothing = 'Nic nehraje';
+  static String section(String? id) => switch (id) {
+        'uvod' => 'Úvod',
+        'vstup' => 'Vstup',
+        'pribeh' => 'Příběh',
+        'dojezd' => 'Dojezd',
+        _ => '',
+      };
 
   // Mixer
   static const mixerTitle = 'Jukebox zvuků';
@@ -77,6 +81,56 @@ abstract final class S {
   static const settingsOffline = 'Bez připojení — vše funguje offline';
   static String settingsSeconds(int s) => '$s s';
   static String settingsMinutes(int m) => '$m min';
+  static const settingsVoice = 'Hlas';
+  static const settingsVocative = 'Oslovení dítěte';
+  static const settingsVocativeSub = 'V 5. pádě, např. „Aničko“. Zatím se nepoužívá.';
+  static const settingsVocativeNone = 'Nenastaveno';
   static const settingsPrivacy =
-      'Žádný účet, žádná analytika. Síť se používá jen pro aktualizaci katalogu.';
+      'Žádný účet, žádná analytika. Síť se používá jen pro aktualizaci katalogu '
+      'a pro tvůj nahraný hlas.';
+
+  // Voice
+  static const voiceTitle = 'Hlas';
+  static const voiceSystem = 'Hlas telefonu';
+  static const voiceSystemSub = 'Funguje hned a bez internetu';
+  static const voiceRecord = 'Nahrát můj hlas';
+  static const voicePending = 'Hlas se připravuje, bude hotový do rána';
+  static String voiceDownloading(int done, int total) => 'Stahuji hlas: $done z $total vět';
+  static const voiceReady = 'Připraveno';
+  static const voiceWaiting = 'Hlas je hotový, čekám na první věty';
+  static const voiceFailed = 'Hlas se nepodařilo vytvořit. Zkus nahrávku zopakovat.';
+  static const voiceDelete = 'Smazat hlas';
+  static String voiceDeleteConfirm(String name) =>
+      'Smazat hlas „$name“? Nahrávka i všechny věty se smažou z telefonu i ze serveru.';
+  static const voiceCancel = 'Zrušit';
+  static const voiceMissingClips =
+      'Věty, které ještě nejsou stažené, přečte zatím hlas telefonu.';
+  static const czechHintTitle = 'Telefon nemá český hlas';
+  static const czechHintIos =
+      'Nainstaluj ho v Nastavení → Zpřístupnění → Předčítání → Hlasy → Čeština '
+      '(nejlépe Zuzana ve vylepšené kvalitě).';
+  static const czechHintAndroid =
+      'Nainstaluj ho v Nastavení → Převod textu na řeč → Google → Nainstalovat hlasová data → čeština.';
+  static const czechHintOk = 'Rozumím';
+
+  // Recording
+  static const recTitle = 'Nahrát můj hlas';
+  static const recName = 'Tvoje jméno';
+  static const recNameHint = 'např. Jana';
+  static const recTips = 'Než začneš';
+  static const recRead = 'Přečti nahlas';
+  static const recConsent =
+      'Souhlasím, aby Hajánek z mé nahrávky vytvořil můj hlas. Nahrávka i hlas jsou '
+      'jen na serveru Hajánka a kdykoli je smažu.';
+  static const recStart = 'Nahrávat';
+  static const recStop = 'Hotovo';
+  static String recMinHint(int s) => 'Nahrávám… dokončit jde po $s s.';
+  static const recReadyHint = 'Stačí přečíst celý text. Po 30 s se nahrávání zastaví samo.';
+  static const recPlay = 'Poslechnout';
+  static const recPause = 'Zastavit';
+  static const recAgain = 'Nahrát znovu';
+  static const recUpload = 'Odeslat';
+  static const recUploading = 'Odesílám…';
+  static const recNoMic = 'Bez přístupu k mikrofonu to nejde — povol ho v Nastavení.';
+  static const recFailed = 'Nahrávání se nepodařilo. Zkus to prosím znovu.';
 }

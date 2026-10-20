@@ -1,0 +1,23 @@
+# systemd user unit for the voice worker on Spark (forge worker, CONTRACTS §8).
+# Runs all the time; render jobs wait in the queue (503 → retry) until the GPU
+# cloning engine is up in the AiStack memory schedule.
+# Install: cp deploy/hajanek-forge-worker.service ~/.config/systemd/user/
+#          systemctl --user daemon-reload && systemctl --user enable --now hajanek-forge-worker
+#          loginctl enable-linger $USER   # run without an open session
+[Unit]
+Description=Hajánek forge voice worker (hajanek-api → AiStack audio)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/dev/Hajanek/forge
+# FORGE_API_URL, WORKER_TOKEN, FORGE_WORKER_NAME, AUDIO_URL, AUDIO_API_KEY
+EnvironmentFile=%h/dev/Hajanek/forge/deploy/forge.env
+ExecStart=%h/dev/Hajanek/forge/bin/forge worker
+Restart=always
+RestartSec=30
+Nice=5
+
+[Install]
+WantedBy=default.target

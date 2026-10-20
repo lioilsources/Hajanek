@@ -10,6 +10,9 @@ import 'features/catalog/tale_detail_screen.dart';
 import 'features/mixer/mixer_screen.dart';
 import 'features/player/player_screen.dart';
 import 'features/settings/settings_screen.dart';
+import 'features/voice/record_voice_screen.dart';
+import 'features/voice/voice_controller.dart';
+import 'features/voice/voice_screen.dart';
 
 GoRouter buildRouter() => GoRouter(
       routes: [
@@ -21,6 +24,8 @@ GoRouter buildRouter() => GoRouter(
         GoRoute(path: '/player', builder: (_, _) => const PlayerScreen()),
         GoRoute(path: '/mixer', builder: (_, _) => const MixerScreen()),
         GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
+        GoRoute(path: '/voice', builder: (_, _) => const VoiceScreen()),
+        GoRoute(path: '/voice/record', builder: (_, _) => const RecordVoiceScreen()),
       ],
     );
 
@@ -39,7 +44,9 @@ class _HajanekAppState extends ConsumerState<HajanekApp> {
     super.initState();
     // Silent background check; everything works without it.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) ref.read(catalogProvider.notifier).sync();
+      if (!mounted) return;
+      ref.read(catalogProvider.notifier).sync();
+      ref.read(voiceProvider.notifier).startPolling();
     });
   }
 

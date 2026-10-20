@@ -1,4 +1,4 @@
-// Package pipeline implements the forge steps: script, judge, voice, master, qa, publish.
+// Package pipeline implements the forge steps: script, judge, master-ambient, publish, nightly.
 package pipeline
 
 import (
@@ -11,7 +11,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strconv"
 
 	"github.com/lioilsources/hajanek/forge/internal/config"
 	"github.com/lioilsources/hajanek/forge/internal/judge"
@@ -90,16 +89,12 @@ func (e *Env) ScriptPath(tale string, length int) (string, error) {
 	return "", fmt.Errorf("script %s not found in %s/scripts{,/gold}", name, e.Content)
 }
 
-func (e *Env) TrackDir(tale, voice string, length int) string {
-	return filepath.Join(e.Work, tale, voice, strconv.Itoa(length))
-}
-
+// Prosody returns the tone speeds and dojezd ramp from config (CONTRACTS §2).
 func (e *Env) Prosody() script.Prosody {
-	t := e.Cfg.TTS
-	p := script.Prosody{Tones: map[script.Tone]script.ToneParams{}, RampSection: t.Ramp.Section,
-		RampSpeedTo: t.Ramp.SpeedTo, RampGainToDB: t.Ramp.GainToDB}
-	for k, v := range t.Tones {
-		p.Tones[script.Tone(k)] = script.ToneParams{Speed: v.Speed, GainDB: v.GainDB, LowpassHz: v.FallbackLowpassHz}
+	sp := e.Cfg.Speech
+	p := script.Prosody{Speeds: map[script.Tone]float64{}, RampSection: sp.Ramp.Section, RampSpeedTo: sp.Ramp.SpeedTo}
+	for k, v := range sp.Tones {
+		p.Speeds[script.Tone(k)] = v.Speed
 	}
 	return p
 }
@@ -107,7 +102,7 @@ func (e *Env) Prosody() script.Prosody {
 func (e *Env) JudgeConfig(length int) judge.Config {
 	j := e.Cfg.Judge
 	return judge.Config{
-		LengthMin: length, WPM: j.WPM, RefSpeed: j.RefSpeed, GapS: e.Cfg.TTS.GapS,
+		LengthMin: length, WPM: j.WPM, RefSpeed: j.RefSpeed, GapS: e.Cfg.Speech.GapS,
 		Tolerance: j.LengthTolerance, MaxSentenceWords: j.MaxSentenceWords,
 		Budgets10: j.SectionBudgets10, Forbidden: judge.LoadForbidden(e.contentPath(j.ForbiddenWordsFile)),
 		Prosody: e.Prosody(),
@@ -115,16 +110,6 @@ func (e *Env) JudgeConfig(length int) judge.Config {
 }
 
 // --- small helpers ---
-
-func hashParts(parts ...any) string {
-	h := sha256.New()
-	for _, p := range parts {
-		b, _ := json.Marshal(p)
-		h.Write(b)
-		h.Write([]byte{0})
-	}
-	return hex.EncodeToString(h.Sum(nil))
-}
 
 func fileSHA256(path string) (string, int64, error) {
 	f, err := os.Open(path)
@@ -153,14 +138,6 @@ func writeJSON(path string, v any) error {
 		return err
 	}
 	return os.Rename(tmp, path)
-}
-
-func readJSON(path string, v any) error {
-	b, err := os.ReadFile(path)
-	if err != nil {
-		return err
-	}
-	return json.Unmarshal(b, v)
 }
 
 func copyFile(src, dst string) error {

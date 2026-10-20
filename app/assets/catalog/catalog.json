@@ -1,20 +1,8 @@
 {
-  "schema": 1,
-  "version": 1,
+  "schema": 2,
+  "version": 2,
   "generated_at": "2026-10-20T03:12:00Z",
   "base_url": "https://lioilsources.github.io/hajanek-content/",
-  "voices": [
-    {
-      "id": "mama",
-      "label": "Měkký",
-      "free": true
-    },
-    {
-      "id": "tata",
-      "label": "Hluboký",
-      "free": true
-    }
-  ],
   "tales": [
     {
       "id": "cervena-karkulka",
@@ -23,22 +11,13 @@
       "setting": "les",
       "ambient": "wind",
       "free": true,
-      "tracks": [
+      "scripts": [
         {
-          "voice": "mama",
           "length_min": 10,
-          "path": "audio/cervena-karkulka/mama/10.opus",
-          "duration_s": 8.0,
-          "bytes": 50276,
-          "sha256": "09867aa14f717a9d8908d60e32d082023ca501748985d7eac0cd7f2849f5ce8e"
-        },
-        {
-          "voice": "tata",
-          "length_min": 10,
-          "path": "audio/cervena-karkulka/tata/10.opus",
-          "duration_s": 601.3,
-          "bytes": 3607799,
-          "sha256": "d6d9034920d64dca11e4e22e6ec9da89bf282abab7f616835b01be60aeb72f33"
+          "path": "scripts/cervena-karkulka.10.md",
+          "sha256": "961c88ac925d6bdb8e9c7112bf8991d798fd81efb7413e2f84c0fc011b3d0fb3",
+          "bytes": 4650,
+          "est_duration_s": 583
         }
       ]
     },
@@ -46,25 +25,16 @@
       "id": "zlatovlaska",
       "title": "Zlatovláska",
       "age": "5+",
-      "setting": "hrad",
-      "ambient": "stream",
+      "setting": "more",
+      "ambient": "sea",
       "free": true,
-      "tracks": [
+      "scripts": [
         {
-          "voice": "mama",
           "length_min": 10,
-          "path": "audio/zlatovlaska/mama/10.opus",
-          "duration_s": 627.3,
-          "bytes": 3763799,
-          "sha256": "95970e6bc4c109b5f5a16f1f35c673b373c21ee621c9c96e7db87b21571318e5"
-        },
-        {
-          "voice": "tata",
-          "length_min": 10,
-          "path": "audio/zlatovlaska/tata/10.opus",
-          "duration_s": 598.3,
-          "bytes": 3589799,
-          "sha256": "d4213ae13c4b1b55848bb693559de370cc76e6aa526611c3da0ba8352d8ddb58"
+          "path": "scripts/zlatovlaska.10.md",
+          "sha256": "72ca43bf435196267be0252f4bb58f77dfc6e8a636adca011df051c1e544e24c",
+          "bytes": 4779,
+          "est_duration_s": 565
         }
       ]
     },
@@ -73,50 +43,32 @@
       "title": "Perníková chaloupka",
       "age": "3+",
       "setting": "les",
-      "ambient": "fireplace",
+      "ambient": "stream",
       "free": true,
-      "tracks": [
+      "scripts": [
         {
-          "voice": "mama",
           "length_min": 10,
-          "path": "audio/pernikova-chaloupka/mama/10.opus",
-          "duration_s": 624.3,
-          "bytes": 3745799,
-          "sha256": "a9824ddc6f7bf713518b5c50c0abd4eb2e3179a241a36096cc663185e9337d35"
-        },
-        {
-          "voice": "tata",
-          "length_min": 10,
-          "path": "audio/pernikova-chaloupka/tata/10.opus",
-          "duration_s": 595.3,
-          "bytes": 3571799,
-          "sha256": "9034512ffb5f29fef50653268474ff7c94761c8cad6e19ac2aa3e45ffc7548fa"
+          "path": "scripts/pernikova-chaloupka.10.md",
+          "sha256": "e8942e492af05b0224840c7d6202c421f14fb06c3fc85892dbeb729b65fe168f",
+          "bytes": 5017,
+          "est_duration_s": 574
         }
       ]
     },
     {
       "id": "sipkova-ruzenka",
       "title": "Šípková Růženka",
-      "age": "5+",
+      "age": "3+",
       "setting": "hrad",
-      "ambient": "wind",
+      "ambient": "night-meadow",
       "free": true,
-      "tracks": [
+      "scripts": [
         {
-          "voice": "mama",
           "length_min": 10,
-          "path": "audio/sipkova-ruzenka/mama/10.opus",
-          "duration_s": 621.3,
-          "bytes": 3727799,
-          "sha256": "09aac23d5e5637e5cff451cf552d4ded88dfadb7ac33c4456dfbf25fdf3854e9"
-        },
-        {
-          "voice": "tata",
-          "length_min": 10,
-          "path": "audio/sipkova-ruzenka/tata/10.opus",
-          "duration_s": 592.3,
-          "bytes": 3553799,
-          "sha256": "869e75c2dbaa60a9296ecc411761da26a322596a8de131d87cec3676203d5863"
+          "path": "scripts/sipkova-ruzenka.10.md",
+          "sha256": "00e978e0a08cc40f6117934c97f216177f67ab7f588868943c8cac20a5ec42d7",
+          "bytes": 4701,
+          "est_duration_s": 569
         }
       ]
     },
@@ -125,24 +77,15 @@
       "title": "Tři prasátka",
       "age": "3+",
       "setting": "louka",
-      "ambient": "night-meadow",
+      "ambient": "wind",
       "free": true,
-      "tracks": [
+      "scripts": [
         {
-          "voice": "mama",
           "length_min": 10,
-          "path": "audio/tri-prasatka/mama/10.opus",
-          "duration_s": 618.3,
-          "bytes": 3709799,
-          "sha256": "5c83dfa15d6f8a2f51e0c8f22c8ef9a0f2fbb666e257b40b263e694fc2e8d06e"
-        },
-        {
-          "voice": "tata",
-          "length_min": 10,
-          "path": "audio/tri-prasatka/tata/10.opus",
-          "duration_s": 629.3,
-          "bytes": 3775799,
-          "sha256": "a8880e78bfae86f6dd42f5415a8e14004626af170c01a0c8e863eefc529d9c3f"
+          "path": "scripts/tri-prasatka.10.md",
+          "sha256": "fbef8f0538afc6bf7071ef497519e7a5cd3754054a8b2cbac80d45c2ac864fea",
+          "bytes": 4735,
+          "est_duration_s": 562
         }
       ]
     },
@@ -153,48 +96,30 @@
       "setting": "vesnice",
       "ambient": "fireplace",
       "free": true,
-      "tracks": [
+      "scripts": [
         {
-          "voice": "mama",
           "length_min": 10,
-          "path": "audio/hrnecku-var/mama/10.opus",
-          "duration_s": 615.3,
-          "bytes": 3691799,
-          "sha256": "90d580df9b5e3d5bcf07c95899dc8dd55d010f978b0c639cbe72544b33075cbe"
-        },
-        {
-          "voice": "tata",
-          "length_min": 10,
-          "path": "audio/hrnecku-var/tata/10.opus",
-          "duration_s": 626.3,
-          "bytes": 3757799,
-          "sha256": "8b0c3e11ade3171f989b5c22dc4eac13a9d6315b38129e1f4e07e1e63de04940"
+          "path": "scripts/hrnecku-var.10.md",
+          "sha256": "e904b16820e24f3d7d34652eb75e0382ab68d98b524fbd48f0b63c9bc893313b",
+          "bytes": 4667,
+          "est_duration_s": 563
         }
       ]
     },
     {
       "id": "dlouhy-siroky-bystrozraky",
       "title": "Dlouhý, Široký a Bystrozraký",
-      "age": "7+",
-      "setting": "hory",
-      "ambient": "wind",
+      "age": "5+",
+      "setting": "hrad",
+      "ambient": "fireplace",
       "free": true,
-      "tracks": [
+      "scripts": [
         {
-          "voice": "mama",
           "length_min": 10,
-          "path": "audio/dlouhy-siroky-bystrozraky/mama/10.opus",
-          "duration_s": 612.3,
-          "bytes": 3673799,
-          "sha256": "fa3aa2497d92328c9e37fb1e4d45d672f99f57cd0296800ef2a4a8a8f5776409"
-        },
-        {
-          "voice": "tata",
-          "length_min": 10,
-          "path": "audio/dlouhy-siroky-bystrozraky/tata/10.opus",
-          "duration_s": 623.3,
-          "bytes": 3739799,
-          "sha256": "fc727574e8efbbf653fe57b6f335309d0a3a80292b1137c9db934d21db763929"
+          "path": "scripts/dlouhy-siroky-bystrozraky.10.md",
+          "sha256": "6891dee5f550a2b5e69db92a7455dbb8625777a9871d973f80fb2e3ea08a9a4c",
+          "bytes": 5016,
+          "est_duration_s": 590
         }
       ]
     },
@@ -205,22 +130,13 @@
       "setting": "les",
       "ambient": "stream",
       "free": true,
-      "tracks": [
+      "scripts": [
         {
-          "voice": "mama",
           "length_min": 10,
-          "path": "audio/o-smolickovi/mama/10.opus",
-          "duration_s": 609.3,
-          "bytes": 3655799,
-          "sha256": "48e27d1f2e9e8dab8507f1d8512ecbfbd24b1faa99b67fa3a6c2a513a4f7ca34"
-        },
-        {
-          "voice": "tata",
-          "length_min": 10,
-          "path": "audio/o-smolickovi/tata/10.opus",
-          "duration_s": 620.3,
-          "bytes": 3721799,
-          "sha256": "4b81a2dd1c98bf6964dd666fd50b57a43ccf46ff19fadc24490bf808184d1ff7"
+          "path": "scripts/o-smolickovi.10.md",
+          "sha256": "69f3474bc48e28a8f63f35611b3d728aa749e3936269ff9478ca581e32de067d",
+          "bytes": 4641,
+          "est_duration_s": 570
         }
       ]
     },
@@ -229,24 +145,15 @@
       "title": "Budulínek",
       "age": "3+",
       "setting": "vesnice",
-      "ambient": "rain",
+      "ambient": "night-meadow",
       "free": true,
-      "tracks": [
+      "scripts": [
         {
-          "voice": "mama",
           "length_min": 10,
-          "path": "audio/budulinek/mama/10.opus",
-          "duration_s": 606.3,
-          "bytes": 3637799,
-          "sha256": "4490d4712e60ce6bef8cc34ab7b2ae1a21f24b2f8118e2f697ca229b9b4e432a"
-        },
-        {
-          "voice": "tata",
-          "length_min": 10,
-          "path": "audio/budulinek/tata/10.opus",
-          "duration_s": 617.3,
-          "bytes": 3703799,
-          "sha256": "9b8a588ef40f57bae7b6076ba5ae3ccfb4b01f962d12cc333225c6c55c77fc6f"
+          "path": "scripts/budulinek.10.md",
+          "sha256": "26f8166aadf27c9046e333443c154d779a0cb57f31b4a5bf2c1ac954e98b3491",
+          "bytes": 4766,
+          "est_duration_s": 571
         }
       ]
     },
@@ -254,25 +161,16 @@
       "id": "snehurka",
       "title": "Sněhurka",
       "age": "5+",
-      "setting": "les",
-      "ambient": "night-meadow",
+      "setting": "hory",
+      "ambient": "rain",
       "free": true,
-      "tracks": [
+      "scripts": [
         {
-          "voice": "mama",
           "length_min": 10,
-          "path": "audio/snehurka/mama/10.opus",
-          "duration_s": 603.3,
-          "bytes": 3619799,
-          "sha256": "8977addda1ee0ad890a247b4218632fea490feabde4f17c4ffc52af0b2ef70dd"
-        },
-        {
-          "voice": "tata",
-          "length_min": 10,
-          "path": "audio/snehurka/tata/10.opus",
-          "duration_s": 614.3,
-          "bytes": 3685799,
-          "sha256": "069bf5f362cfddcbbdb7a26014d3ea0fec4688078f8151f27017d7bd98c30a15"
+          "path": "scripts/snehurka.10.md",
+          "sha256": "be8abfaa46ec5a2c6bae2246814abeb668d93760470fc8208a456c3b50d455df",
+          "bytes": 4698,
+          "est_duration_s": 578
         }
       ]
     }

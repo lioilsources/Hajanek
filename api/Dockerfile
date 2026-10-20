@@ -13,7 +13,9 @@ RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
 FROM gcr.io/distroless/static-debian12:nonroot
 COPY --from=build /out/hajanek-api /hajanek-api
 COPY --from=build --chown=65532:65532 /out/data /data
-ENV PORT=8080 DB_PATH=/data/hajanek.db
+# DATA_DIR holds voice samples, clips and the script cache (same volume as the DB).
+# No ffprobe in distroless: sample durations are not checked here (the app enforces 5–30 s).
+ENV PORT=8080 DB_PATH=/data/hajanek.db DATA_DIR=/data/files
 EXPOSE 8080
 VOLUME ["/data"]
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s CMD ["/hajanek-api", "healthcheck"]

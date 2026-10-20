@@ -13,42 +13,50 @@ import (
 )
 
 // SchemaVersion is the only catalog schema this service understands.
-const SchemaVersion = 1
+const SchemaVersion = 2
 
 type Catalog struct {
 	Schema      int       `json:"schema"`
 	Version     int64     `json:"version"`
 	GeneratedAt string    `json:"generated_at"`
 	BaseURL     string    `json:"base_url"`
-	Voices      []Voice   `json:"voices"`
 	Tales       []Tale    `json:"tales"`
 	Ambient     []Ambient `json:"ambient"`
 	Presets     []Preset  `json:"presets"`
 }
 
-type Voice struct {
-	ID    string `json:"id"`
-	Label string `json:"label"`
-	Free  bool   `json:"free"`
-}
-
 type Tale struct {
-	ID      string  `json:"id"`
-	Title   string  `json:"title"`
-	Age     string  `json:"age"`
-	Setting string  `json:"setting"`
-	Ambient string  `json:"ambient"`
-	Free    bool    `json:"free"`
-	Tracks  []Track `json:"tracks"`
+	ID      string   `json:"id"`
+	Title   string   `json:"title"`
+	Age     string   `json:"age"`
+	Setting string   `json:"setting"`
+	Ambient string   `json:"ambient"`
+	Free    bool     `json:"free"`
+	Scripts []Script `json:"scripts"`
 }
 
-type Track struct {
-	Voice     string  `json:"voice"`
-	LengthMin int     `json:"length_min"`
-	Path      string  `json:"path"`
-	DurationS float64 `json:"duration_s"`
-	Bytes     int64   `json:"bytes"`
-	SHA256    string  `json:"sha256"`
+// Script is the published text of one tale at one length (CONTRACTS.md §2).
+type Script struct {
+	LengthMin    int     `json:"length_min"`
+	Path         string  `json:"path"`
+	SHA256       string  `json:"sha256"`
+	Bytes        int64   `json:"bytes"`
+	EstDurationS float64 `json:"est_duration_s"`
+}
+
+// Script returns the script of tale at length, if published.
+func (c *Catalog) Script(tale string, length int) (Script, bool) {
+	for _, t := range c.Tales {
+		if t.ID != tale {
+			continue
+		}
+		for _, s := range t.Scripts {
+			if s.LengthMin == length {
+				return s, true
+			}
+		}
+	}
+	return Script{}, false
 }
 
 type Ambient struct {
@@ -113,15 +121,8 @@ func (c *Catalog) Validate() error {
 	} else if !strings.HasSuffix(c.BaseURL, "/") {
 		v.addf("base_url: must end with '/'")
 	}
-	if c.Voices == nil || c.Tales == nil || c.Ambient == nil || c.Presets == nil {
-		v.addf("voices, tales, ambient and presets are required arrays")
-	}
-
-	voices := map[string]bool{}
-	for i, vo := range c.Voices {
-		p := fmt.Sprintf("voices[%d]", i)
-		v.id(p, vo.ID, voices)
-		v.required(p+".label", vo.Label)
+	if c.Tales == nil || c.Ambient == nil || c.Presets == nil {
+		v.addf("tales, ambient and presets are required arrays")
 	}
 
 	ambient := map[string]bool{}
@@ -129,7 +130,10 @@ func (c *Catalog) Validate() error {
 		p := fmt.Sprintf("ambient[%d]", i)
 		v.id(p, a.ID, ambient)
 		v.required(p+".title", a.Title)
-		v.file(p, a.Path, a.DurationS, a.Bytes, a.SHA256)
+		v.file(p, a.Path, a.Bytes, a.SHA256)
+		if a.DurationS <= 0 {
+			v.addf("%s.duration_s: must be > 0", p)
+		}
 		v.required(p+".license", a.License)
 	}
 
@@ -141,24 +145,23 @@ func (c *Catalog) Validate() error {
 		if t.Ambient != "" && !ambient[t.Ambient] {
 			v.addf("%s.ambient: unknown ambient %q", p, t.Ambient)
 		}
-		if len(t.Tracks) == 0 {
-			v.addf("%s.tracks: at least one track required", p)
+		if len(t.Scripts) == 0 {
+			v.addf("%s.scripts: at least one script required", p)
 		}
-		seen := map[string]bool{}
-		for j, tr := range t.Tracks {
-			tp := fmt.Sprintf("%s.tracks[%d]", p, j)
-			if !voices[tr.Voice] {
-				v.addf("%s.voice: unknown voice %q", tp, tr.Voice)
+		seen := map[int]bool{}
+		for j, sc := range t.Scripts {
+			sp := fmt.Sprintf("%s.scripts[%d]", p, j)
+			if sc.LengthMin < 1 {
+				v.addf("%s.length_min: must be >= 1", sp)
 			}
-			if tr.LengthMin < 1 {
-				v.addf("%s.length_min: must be >= 1", tp)
+			if seen[sc.LengthMin] {
+				v.addf("%s: duplicate length_min %d", sp, sc.LengthMin)
 			}
-			key := fmt.Sprintf("%s/%d", tr.Voice, tr.LengthMin)
-			if seen[key] {
-				v.addf("%s: duplicate voice/length %s", tp, key)
+			seen[sc.LengthMin] = true
+			v.file(sp, sc.Path, sc.Bytes, sc.SHA256)
+			if sc.EstDurationS <= 0 {
+				v.addf("%s.est_duration_s: must be > 0", sp)
 			}
-			seen[key] = true
-			v.file(tp, tr.Path, tr.DurationS, tr.Bytes, tr.SHA256)
 		}
 	}
 
@@ -210,15 +213,12 @@ func (v *validator) id(prefix, id string, seen map[string]bool) {
 	seen[id] = true
 }
 
-func (v *validator) file(prefix, path string, duration float64, size int64, sum string) {
+func (v *validator) file(prefix, path string, size int64, sum string) {
 	switch {
 	case path == "":
 		v.addf("%s.path: required", prefix)
 	case strings.HasPrefix(path, "/") || strings.Contains(path, "://") || strings.Contains(path, ".."):
 		v.addf("%s.path: must be relative to base_url: %q", prefix, path)
-	}
-	if duration <= 0 {
-		v.addf("%s.duration_s: must be > 0", prefix)
 	}
 	if size <= 0 {
 		v.addf("%s.bytes: must be > 0", prefix)

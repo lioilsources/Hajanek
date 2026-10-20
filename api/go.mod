@@ -4,6 +4,7 @@ go 1.26.0
 
 require (
 	github.com/golang-migrate/migrate/v4 v4.20.1
+	golang.org/x/text v0.43.0
 	modernc.org/sqlite v1.60.1
 )
 

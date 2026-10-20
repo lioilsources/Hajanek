@@ -7,8 +7,9 @@
 http://hajanek-api.ol1n.com {
 	encode zstd gzip
 
+	# Voice samples are up to 5 MB (multipart), worker clips up to 2 MB.
 	request_body {
-		max_size 1MB
+		max_size 6MB
 	}
 
 	header {

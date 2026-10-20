@@ -8,7 +8,7 @@ class CatalogFormatException implements Exception {
 }
 
 /// The only schema this app understands.
-const supportedCatalogSchema = 1;
+const supportedCatalogSchema = 2;
 
 /// Anything with a path relative to base_url and a content hash.
 abstract interface class CatalogFile {
@@ -17,45 +17,30 @@ abstract interface class CatalogFile {
   int get bytes;
 }
 
-class Voice {
-  const Voice({required this.id, required this.label, required this.free});
-  final String id;
-  final String label;
-  final bool free;
-
-  factory Voice.fromJson(Map<String, dynamic> j) => Voice(
-        id: _str(j, 'id'),
-        label: _str(j, 'label'),
-        free: j['free'] as bool? ?? true,
-      );
-}
-
-class Track implements CatalogFile {
-  const Track({
-    required this.voice,
+/// One script text of a tale (a length variant), CONTRACTS §3.
+class ScriptFile implements CatalogFile {
+  const ScriptFile({
     required this.lengthMin,
     required this.path,
-    required this.durationS,
-    required this.bytes,
     required this.sha256,
+    required this.bytes,
+    required this.estDurationS,
   });
-  final String voice;
   final int lengthMin;
   @override
   final String path;
-  final double durationS;
-  @override
-  final int bytes;
   @override
   final String sha256;
+  @override
+  final int bytes;
+  final double estDurationS;
 
-  factory Track.fromJson(Map<String, dynamic> j) => Track(
-        voice: _str(j, 'voice'),
+  factory ScriptFile.fromJson(Map<String, dynamic> j) => ScriptFile(
         lengthMin: (j['length_min'] as num).toInt(),
         path: _str(j, 'path'),
-        durationS: (j['duration_s'] as num).toDouble(),
-        bytes: (j['bytes'] as num).toInt(),
         sha256: _sha(j),
+        bytes: (j['bytes'] as num).toInt(),
+        estDurationS: ((j['est_duration_s'] as num?) ?? 0).toDouble(),
       );
 }
 
@@ -67,7 +52,7 @@ class Tale {
     required this.setting,
     required this.ambient,
     required this.free,
-    required this.tracks,
+    required this.scripts,
   });
   final String id;
   final String title;
@@ -75,27 +60,30 @@ class Tale {
   final String setting;
   final String ambient;
   final bool free;
-  final List<Track> tracks;
+  final List<ScriptFile> scripts;
 
-  Track? track(String voice, {int lengthMin = 10}) {
-    for (final t in tracks) {
-      if (t.voice == voice && t.lengthMin == lengthMin) return t;
-    }
-    return null;
-  }
-
-  factory Tale.fromJson(Map<String, dynamic> j) => Tale(
-        id: _str(j, 'id'),
-        title: _str(j, 'title'),
-        age: j['age'] as String? ?? '',
-        setting: j['setting'] as String? ?? '',
-        ambient: j['ambient'] as String? ?? '',
-        free: j['free'] as bool? ?? true,
-        tracks: [
-          for (final t in (j['tracks'] as List? ?? const []))
-            Track.fromJson(t as Map<String, dynamic>),
-        ],
+  /// The requested length, else the first variant.
+  ScriptFile script({int lengthMin = 10}) => scripts.firstWhere(
+        (s) => s.lengthMin == lengthMin,
+        orElse: () => scripts.first,
       );
+
+  factory Tale.fromJson(Map<String, dynamic> j) {
+    final scripts = [
+      for (final s in (j['scripts'] as List? ?? const []))
+        ScriptFile.fromJson(s as Map<String, dynamic>),
+    ];
+    if (scripts.isEmpty) throw CatalogFormatException('tale ${j['id']}: no scripts');
+    return Tale(
+      id: _str(j, 'id'),
+      title: _str(j, 'title'),
+      age: j['age'] as String? ?? '',
+      setting: j['setting'] as String? ?? '',
+      ambient: j['ambient'] as String? ?? '',
+      free: j['free'] as bool? ?? true,
+      scripts: scripts,
+    );
+  }
 }
 
 class Ambient implements CatalogFile {
@@ -198,7 +186,6 @@ class Catalog {
     required this.version,
     required this.generatedAt,
     required this.baseUrl,
-    required this.voices,
     required this.tales,
     required this.ambient,
     required this.presets,
@@ -207,20 +194,28 @@ class Catalog {
   final int version;
   final DateTime? generatedAt;
   final String baseUrl;
-  final List<Voice> voices;
   final List<Tale> tales;
   final List<Ambient> ambient;
   final List<MixPreset> presets;
 
+  Catalog withoutTales(Set<String> ids) => Catalog(
+        schema: schema,
+        version: version,
+        generatedAt: generatedAt,
+        baseUrl: baseUrl,
+        tales: [for (final t in tales) if (!ids.contains(t.id)) t],
+        ambient: ambient,
+        presets: presets,
+      );
+
   Tale? tale(String id) => _firstWhere(tales, (t) => t.id == id);
   Ambient? ambientById(String id) => _firstWhere(ambient, (a) => a.id == id);
-  Voice? voice(String id) => _firstWhere(voices, (v) => v.id == id);
 
   /// Every downloadable file referenced by this catalog.
   Iterable<CatalogFile> get files sync* {
     yield* ambient;
     for (final t in tales) {
-      yield* t.tracks;
+      yield* t.scripts;
     }
   }
 
@@ -234,17 +229,33 @@ class Catalog {
     final version = j['version'];
     if (version is! num) throw CatalogFormatException('missing version');
     final base = j['base_url'] as String? ?? '';
-    return Catalog(
+    final c = Catalog(
       schema: schema!,
       version: version.toInt(),
       generatedAt: DateTime.tryParse(j['generated_at'] as String? ?? ''),
       baseUrl: base.endsWith('/') || base.isEmpty ? base : '$base/',
-      voices: [for (final v in (j['voices'] as List? ?? const [])) Voice.fromJson(v as Map<String, dynamic>)],
       tales: [for (final t in (j['tales'] as List? ?? const [])) Tale.fromJson(t as Map<String, dynamic>)],
       ambient: [for (final a in (j['ambient'] as List? ?? const [])) Ambient.fromJson(a as Map<String, dynamic>)],
       presets: [for (final p in (j['presets'] as List? ?? const [])) MixPreset.fromJson(p as Map<String, dynamic>)],
     );
+    final ambientIds = {for (final a in c.ambient) a.id};
+    for (final t in c.tales) {
+      if (t.ambient.isNotEmpty && !ambientIds.contains(t.ambient)) {
+        throw CatalogFormatException('tale ${t.id}: unknown ambient ${t.ambient}');
+      }
+    }
+    for (final p in c.presets) {
+      for (final l in p.layers) {
+        if (!ambientIds.contains(l.ambient)) {
+          throw CatalogFormatException('preset ${p.id}: unknown ambient ${l.ambient}');
+        }
+      }
+    }
+    return c;
   }
+
+  /// Schema of a decoded catalog without parsing the rest.
+  static int? schemaOf(Map<String, dynamic> j) => (j['schema'] as num?)?.toInt();
 }
 
 T? _firstWhere<T>(Iterable<T> xs, bool Function(T) test) {

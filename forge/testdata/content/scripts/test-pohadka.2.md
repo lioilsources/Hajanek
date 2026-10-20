@@ -11,7 +11,7 @@ tension_original: 0
 characters: [ježek]
 ---
 
-<!-- Short fixture for the forge end-to-end smoke test (dummy TTS engine). -->
+<!-- Short fixture for the forge end-to-end smoke test (judge → publish). -->
 
 ## uvod
 [soft] Lehni si pěkně do postýlky, {{osloveni|broučku}}.

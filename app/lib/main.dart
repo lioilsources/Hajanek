@@ -3,6 +3,7 @@ import 'package:audio_session/audio_session.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'app.dart';
@@ -13,22 +14,40 @@ import 'features/catalog/catalog_repository.dart';
 import 'features/player/audio_engine.dart';
 import 'features/player/audio_handler.dart';
 import 'features/player/player_controller.dart';
+import 'features/player/system_tts.dart';
 import 'features/settings/settings_controller.dart';
+import 'features/voice/voice_api.dart';
+import 'features/voice/voice_controller.dart';
+
+class SecureTokenStore implements TokenStore {
+  static const _key = 'hajanek_device_token';
+  final _storage = const FlutterSecureStorage();
+  @override
+  Future<String?> read() => _storage.read(key: _key);
+  @override
+  Future<void> write(String token) => _storage.write(key: _key, value: token);
+  @override
+  Future<void> delete() => _storage.delete(key: _key);
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final db = AppDatabase();
-  final settings = AppSettings.fromValues(await db.readAllValues());
+  final values = await db.readAllValues();
+  final settings = AppSettings.fromValues(values);
 
   final repo = CatalogRepository(
-    loadBundledCatalog: () => rootBundle.loadString('assets/catalog/catalog.json'),
+    loadAsset: rootBundle.loadString,
     listBundledAssets: () async =>
         (await AssetManifest.loadFromAssetBundle(rootBundle)).listAssets().toSet(),
     docsDir: getApplicationDocumentsDirectory,
   );
   final snapshot = await repo.init();
+  final voicesDir = '${(await getApplicationSupportDirectory()).path}/voices';
 
+  // Category playback: ambient and speech (system TTS too) keep going with
+  // the screen locked; UIBackgroundModes=audio is set in Info.plist.
   final session = await AudioSession.instance;
   await session.configure(const AudioSessionConfiguration.music());
 
@@ -56,6 +75,11 @@ Future<void> main() async {
       catalogRepositoryProvider.overrideWithValue(repo),
       audioEngineProvider.overrideWithValue(JustAudioEngine()),
       audioHandlerProvider.overrideWithValue(handler),
+      systemTtsProvider.overrideWithValue(SystemTtsSource()),
+      clipOutputProvider.overrideWithValue(JustAudioClipOutput()),
+      voicesDirProvider.overrideWithValue(voicesDir),
+      initialVoicesProvider.overrideWithValue(LocalVoice.decodeList(values[parentVoicesKey])),
+      voiceApiProvider.overrideWithValue(VoiceApi(tokens: SecureTokenStore())),
     ],
     child: const HajanekApp(),
   ));

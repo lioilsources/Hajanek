@@ -7,6 +7,7 @@ setting: les
 ambient: wind
 length_min: 10
 status: gold
+free: true
 tension_original: 4
 characters: [Karkulka, maminka, babička, vlk, myslivec]
 softening: Vlk nikoho nesní ani nestraší. Je to starý, ospalý a hodný vlk, který jde Karkulku doprovodit. Myslivec jen zamává a jde spát.

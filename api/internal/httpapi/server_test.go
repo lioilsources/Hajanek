@@ -2,6 +2,8 @@ package httpapi
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"io"
 	"log/slog"
@@ -16,6 +18,7 @@ import (
 	"github.com/lioilsources/hajanek/api/internal/catalog"
 	"github.com/lioilsources/hajanek/api/internal/db"
 	"github.com/lioilsources/hajanek/api/internal/jobs"
+	"github.com/lioilsources/hajanek/api/internal/voices"
 )
 
 const (
@@ -24,10 +27,13 @@ const (
 )
 
 type env struct {
-	t     *testing.T
-	h     http.Handler
-	cat   *catalog.Service
-	pages *httptest.Server
+	t       *testing.T
+	h       http.Handler
+	cat     *catalog.Service
+	pages   *httptest.Server
+	voices  *voices.Store
+	dataDir string
+	script  []byte // published cervena-karkulka 10 min script
 }
 
 func newEnv(t *testing.T, withCatalog bool) *env {
@@ -43,14 +49,20 @@ func newEnv(t *testing.T, withCatalog bool) *env {
 		}
 	})
 
-	body, err := os.ReadFile("../catalog/testdata/valid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
+	scriptBody := goldenScript(t)
+	var body []byte
 	pages := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, _ = w.Write(body)
+		switch r.URL.Path {
+		case "/catalog.json":
+			_, _ = w.Write(body)
+		case "/scripts/cervena-karkulka.10.md":
+			_, _ = w.Write(scriptBody)
+		default:
+			http.NotFound(w, r)
+		}
 	}))
 	t.Cleanup(pages.Close)
+	body = testCatalog(t, pages.URL+"/", scriptBody)
 
 	quiet := slog.New(slog.NewTextHandler(io.Discard, nil))
 	cat := catalog.NewService(db.New(sqldb), pages.URL+"/catalog.json", catalog.WithLogger(quiet))
@@ -61,8 +73,50 @@ func newEnv(t *testing.T, withCatalog bool) *env {
 	}
 	store := jobs.NewStore(sqldb, time.Minute, 3)
 	store.Log = quiet
-	s := &Server{DB: sqldb, Catalog: cat, Jobs: store, AdminToken: adminToken, WorkerToken: workerToken, Log: quiet}
-	return &env{t: t, h: s.Handler(), cat: cat, pages: pages}
+	dataDir := t.TempDir()
+	vs := voices.NewStore(sqldb, store, dataDir, 3)
+	vs.Log = quiet
+	store.OnFinish = vs.OnJobFinished
+	s := &Server{DB: sqldb, Catalog: cat, Jobs: store, AdminToken: adminToken, WorkerToken: workerToken, Log: quiet,
+		Voices: vs, Probe: fakeProbe, DeviceLimiter: NewRateLimiter(5, time.Hour)}
+	return &env{t: t, h: s.Handler(), cat: cat, pages: pages, voices: vs, dataDir: dataDir, script: scriptBody}
+}
+
+// goldenScript is the script from docs/testdata/utterances.golden.json.
+func goldenScript(t *testing.T) []byte {
+	t.Helper()
+	b, err := os.ReadFile("../../../docs/testdata/utterances.golden.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var g struct{ Script string }
+	if err := json.Unmarshal(b, &g); err != nil {
+		t.Fatal(err)
+	}
+	return []byte(g.Script)
+}
+
+// testCatalog is the schema 2 fixture re-pointed at the fake Pages server,
+// with the real sha256 of the served script.
+func testCatalog(t *testing.T, baseURL string, script []byte) []byte {
+	t.Helper()
+	b, err := os.ReadFile("../catalog/testdata/valid.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var c catalog.Catalog
+	if err := json.Unmarshal(b, &c); err != nil {
+		t.Fatal(err)
+	}
+	sum := sha256.Sum256(script)
+	c.BaseURL = baseURL
+	c.Tales[0].Scripts[0].SHA256 = hex.EncodeToString(sum[:])
+	c.Tales[0].Scripts[0].Bytes = int64(len(script))
+	out, err := json.Marshal(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return out
 }
 
 func (e *env) do(method, path, token, body string) *httptest.ResponseRecorder {

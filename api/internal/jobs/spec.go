@@ -9,6 +9,7 @@ import (
 	"slices"
 
 	"github.com/lioilsources/hajanek/api/internal/catalog"
+	"github.com/lioilsources/hajanek/api/internal/ids"
 )
 
 type Kind string
@@ -19,9 +20,17 @@ const (
 	KindMaster  Kind = "master"  // raw → mastered opus + QA
 	KindPublish Kind = "publish" // new catalog version → Pages
 	KindTale    Kind = "tale"    // whole pipeline for one tale
+
+	// Parent voices (ADR-003). Voice is the voice UUID.
+	KindVoiceCreate Kind = "voice_create" // upload sample to the audio service
+	KindVoiceDelete Kind = "voice_delete" // delete the voice in the audio service
+	KindRender      Kind = "render"       // clips for every utterance of tale/length
 )
 
-var Kinds = []Kind{KindScript, KindVoice, KindMaster, KindPublish, KindTale}
+// Kinds accepted by the queue. script/voice/master/tale predate ADR-003 and
+// are kept so existing forge tooling keeps working.
+var Kinds = []Kind{KindScript, KindVoice, KindMaster, KindPublish, KindTale,
+	KindVoiceCreate, KindVoiceDelete, KindRender}
 
 type Status string
 
@@ -43,11 +52,19 @@ const DefaultLength = 10
 
 // Spec is what an admin enqueues.
 type Spec struct {
-	Kind      Kind   `json:"kind"`
-	Tale      string `json:"tale,omitempty"`
-	Voice     string `json:"voice,omitempty"`
+	Kind  Kind   `json:"kind"`
+	Tale  string `json:"tale,omitempty"`
+	Voice string `json:"voice,omitempty"`
+	// VoiceID is the field name for parent-voice kinds (CONTRACTS §8);
+	// it is an alias of Voice.
+	VoiceID   string `json:"voice_id,omitempty"`
 	LengthMin int    `json:"length_min,omitempty"`
 	Priority  int    `json:"priority,omitempty"`
+}
+
+// IsVoiceKind reports kinds whose voice is a parent-voice UUID.
+func IsVoiceKind(k Kind) bool {
+	return k == KindVoiceCreate || k == KindVoiceDelete || k == KindRender
 }
 
 // Normalize validates s and fills defaults (length_min = 10 for tale jobs).
@@ -55,10 +72,36 @@ func (s *Spec) Normalize() error {
 	if !slices.Contains(Kinds, s.Kind) {
 		return &ValidationError{Err: fmt.Errorf("kind: must be one of %v", Kinds)}
 	}
+	switch {
+	case s.VoiceID != "" && s.Voice != "" && s.VoiceID != s.Voice:
+		return &ValidationError{Err: errors.New("voice and voice_id differ")}
+	case s.VoiceID != "":
+		s.Voice = s.VoiceID
+	}
+	s.VoiceID = ""
+	if s.Kind == KindVoiceCreate || s.Kind == KindVoiceDelete {
+		var errs []error
+		if !ids.IsUUID(s.Voice) {
+			errs = append(errs, fmt.Errorf("voice: must be a voice UUID for kind %q", s.Kind))
+		}
+		if s.Tale != "" || s.LengthMin != 0 {
+			errs = append(errs, fmt.Errorf("tale/length_min: not applicable to kind %q", s.Kind))
+		}
+		if s.Priority < -1000 || s.Priority > 1000 {
+			errs = append(errs, errors.New("priority: must be within -1000..1000"))
+		}
+		if len(errs) > 0 {
+			return &ValidationError{Err: errors.Join(errs...)}
+		}
+		return nil
+	}
 	needTale := s.Kind != KindPublish
-	needVoice := s.Kind == KindVoice || s.Kind == KindMaster
+	needVoice := s.Kind == KindVoice || s.Kind == KindMaster || s.Kind == KindRender
 
 	var errs []error
+	if s.Kind == KindRender && s.Voice != "" && !ids.IsUUID(s.Voice) {
+		errs = append(errs, errors.New("voice: must be a voice UUID for kind \"render\""))
+	}
 	switch {
 	case s.Tale == "" && needTale:
 		errs = append(errs, fmt.Errorf("tale: required for kind %q", s.Kind))

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/strings.dart';
 import '../../core/theme.dart';
@@ -7,6 +8,8 @@ import '../../core/widgets.dart';
 import '../catalog/catalog_controller.dart';
 import '../timer/sleep_timer.dart';
 import '../timer/timer_button.dart';
+import '../voice/voice_controller.dart';
+import '../voice/voice_screen.dart';
 import 'settings_controller.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -62,6 +65,22 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => pick<SleepTimerOption>(S.settingsTimer, SleepTimerOption.choices,
                 timerLabel, s.timer, (s, v) => s.copyWith(timer: v)),
           ),
+          ListTile(
+            title: const Text(S.settingsVoice, style: TextStyle(fontSize: 18)),
+            trailing: Text(voiceLabel(s.voiceId, ref.watch(voiceProvider).voices),
+                style: const TextStyle(fontSize: 16)),
+            onTap: () => context.push('/voice'),
+          ),
+          ListTile(
+            title: const Text(S.settingsVocative, style: TextStyle(fontSize: 18)),
+            subtitle: const Text(S.settingsVocativeSub),
+            trailing: Text(s.vocative.isEmpty ? S.settingsVocativeNone : s.vocative,
+                style: const TextStyle(fontSize: 16)),
+            onTap: () async {
+              final v = await _askVocative(context, s.vocative);
+              if (v != null) ctrl.update((s) => s.copyWith(vocative: v.trim()));
+            },
+          ),
           const SectionLabel(S.settingsCatalog),
           ListTile(
             title: Text(S.settingsCatalogVersion(catalog.catalog.version)),
@@ -84,4 +103,24 @@ class SettingsScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+Future<String?> _askVocative(BuildContext context, String current) {
+  final c = TextEditingController(text: current);
+  return showDialog<String>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text(S.settingsVocative),
+      content: TextField(
+        controller: c,
+        autofocus: true,
+        textCapitalization: TextCapitalization.words,
+        decoration: const InputDecoration(hintText: 'Aničko'),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text(S.mixerCancel)),
+        TextButton(onPressed: () => Navigator.pop(context, c.text), child: const Text(S.mixerSave)),
+      ],
+    ),
+  );
 }

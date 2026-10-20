@@ -17,6 +17,7 @@ import (
 
 	"github.com/lioilsources/hajanek/api/internal/catalog"
 	"github.com/lioilsources/hajanek/api/internal/jobs"
+	"github.com/lioilsources/hajanek/api/internal/voices"
 )
 
 const maxBodyBytes = 1 << 20
@@ -28,6 +29,10 @@ type Server struct {
 	AdminToken  string
 	WorkerToken string
 	Log         *slog.Logger
+
+	Voices        *voices.Store
+	Probe         voices.Prober // nil: sample duration is not checked
+	DeviceLimiter *RateLimiter  // nil: no limit on POST /v1/devices
 }
 
 // Handler returns the routed, logged HTTP handler.
@@ -47,6 +52,22 @@ func (s *Server) Handler() http.Handler {
 	mux.Handle("POST /v1/jobs/claim", worker(s.claimJob))
 	mux.Handle("POST /v1/jobs/{id}/heartbeat", worker(s.heartbeat))
 	mux.Handle("POST /v1/jobs/{id}/complete", worker(s.completeJob))
+
+	mux.HandleFunc("POST /v1/devices", s.registerDevice)
+	mux.Handle("DELETE /v1/devices/me", s.device(s.deleteDevice))
+	mux.Handle("POST /v1/voices", s.device(s.createVoice))
+	mux.Handle("GET /v1/voices", s.device(s.listVoices))
+	mux.Handle("GET /v1/voices/{id}", s.device(s.getVoice))
+	mux.Handle("DELETE /v1/voices/{id}", s.device(s.deleteVoice))
+	mux.Handle("POST /v1/voices/{id}/renders", s.device(s.createRender))
+	mux.Handle("GET /v1/voices/{id}/renders/{tale}/{length}", s.device(s.getRender))
+	mux.Handle("GET /v1/clips/{voice}/{file}", s.device(s.getClip))
+
+	mux.Handle("GET /v1/worker/voices/{id}/sample", worker(s.workerSample))
+	mux.Handle("POST /v1/worker/voices/{id}/status", worker(s.workerVoiceStatus))
+	mux.Handle("GET /v1/worker/scripts/{tale}/{length}", worker(s.workerScript))
+	mux.Handle("GET /v1/worker/clips/{voice}", worker(s.workerClipKeys))
+	mux.Handle("PUT /v1/worker/clips/{voice}/{key}", worker(s.workerPutClip))
 
 	return s.logRequests(mux)
 }
@@ -116,7 +137,7 @@ func (s *Server) createJob(w http.ResponseWriter, r *http.Request) {
 		status = http.StatusOK
 		w.Header().Set("X-Deduplicated", "true")
 	} else {
-		s.Log.Info("job enqueued", "id", job.ID, "kind", job.Kind, "tale", job.Tale, "voice", job.Voice)
+		s.Log.Info("job enqueued", "id", job.ID, "kind", job.Kind, "tale", job.Tale, "voice", job.Voice+job.VoiceID)
 	}
 	w.Header().Set("Location", "/v1/jobs/"+job.ID)
 	writeJSON(w, status, job)

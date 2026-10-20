@@ -8,6 +8,8 @@ import '../../core/theme.dart';
 import '../../core/widgets.dart';
 import '../player/player_controller.dart';
 import '../settings/settings_controller.dart';
+import '../voice/voice_controller.dart';
+import '../voice/voice_screen.dart';
 import 'catalog_controller.dart';
 import 'catalog_models.dart';
 
@@ -23,7 +25,6 @@ class TaleDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _TaleDetailScreenState extends ConsumerState<TaleDetailScreen> {
-  late String _voice = ref.read(settingsProvider).voice;
   late bool _ritual = ref.read(settingsProvider).ritual;
   String _background = _recommended;
 
@@ -35,18 +36,14 @@ class _TaleDetailScreenState extends ConsumerState<TaleDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final catalogState = ref.watch(catalogProvider);
-    final catalog = catalogState.catalog;
+    final catalog = ref.watch(catalogProvider).catalog;
     final tale = catalog.tale(widget.taleId);
     if (tale == null) return const Scaffold(body: SizedBox.shrink());
 
     final presets = [...catalog.presets, ...?ref.watch(userPresetsProvider).value];
     final favourite = ref.watch(favouritesProvider).value?.contains(tale.id) ?? false;
-    final voices = catalog.voices.where((v) => tale.track(v.id) != null).toList();
-    if (voices.isNotEmpty && !voices.any((v) => v.id == _voice)) _voice = voices.first.id;
-    final track = tale.track(_voice);
-    final available = track != null && catalogState.resolve(track) != null;
-    final progress = track == null ? null : catalogState.downloads[track.path];
+    final voiceId = ref.watch(settingsProvider.select((s) => s.voiceId));
+    final voices = ref.watch(voiceProvider.select((s) => s.voices));
     final recommendedTitle = catalog.ambientById(tale.ambient)?.title ?? tale.ambient;
 
     final backgroundChoices = <(String, String)>[
@@ -79,26 +76,10 @@ class _TaleDetailScreenState extends ConsumerState<TaleDetailScreen> {
             child: Text(S.detailAge(tale.age), style: const TextStyle(color: Night.textDim)),
           ),
           const SectionLabel(S.detailVoice),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: [
-                for (final v in voices)
-                  OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(140, Night.tap),
-                      side: BorderSide(
-                        color: v.id == _voice ? Night.accent : Night.outline,
-                        width: v.id == _voice ? 2 : 1,
-                      ),
-                    ),
-                    onPressed: () => setState(() => _voice = v.id),
-                    child: Text(v.label, style: const TextStyle(fontSize: 18)),
-                  ),
-              ],
-            ),
+          ListTile(
+            title: Text(voiceLabel(voiceId, voices), style: const TextStyle(fontSize: 18)),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/voice'),
           ),
           const SectionLabel(S.detailBackground),
           ListTile(
@@ -128,60 +109,26 @@ class _TaleDetailScreenState extends ConsumerState<TaleDetailScreen> {
           const SizedBox(height: 24),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: switch ((available, progress)) {
-              (true, _) => FilledButton.icon(
-                  style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(72)),
-                  icon: const Icon(Icons.play_arrow, size: 32),
-                  label: const Text(S.detailPlay, style: TextStyle(fontSize: 22)),
-                  onPressed: () async {
-                    ref.read(settingsProvider.notifier)
-                        .update((s) => s.copyWith(voice: _voice, ritual: _ritual));
-                    await ref.read(playerProvider.notifier).startTale(
-                          tale: tale,
-                          voice: _voice,
-                          layers: _layers(tale, presets),
-                          ritual: _ritual,
-                        );
-                    if (context.mounted) context.push('/player');
-                  },
-                ),
-              (false, final double p) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(S.detailDownloading),
-                    const SizedBox(height: 12),
-                    LinearProgressIndicator(
-                      value: p,
-                      minHeight: 6,
-                      color: Night.accentDim,
-                      backgroundColor: Night.outline,
-                    ),
-                  ],
-                ),
-              (false, null) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (track != null && catalogState.failed.contains(track.path))
-                      const Padding(
-                        padding: EdgeInsets.only(bottom: 12),
-                        child: Text(S.detailDownloadFailed),
-                      ),
-                    FilledButton.icon(
-                      style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(72)),
-                      icon: const Icon(Icons.download, size: 28),
-                      label: Text(
-                        track == null
-                            ? S.detailDownload
-                            : '${S.detailDownload} (${(track.bytes / 1e6).toStringAsFixed(1)} MB)',
-                        style: const TextStyle(fontSize: 20),
-                      ),
-                      onPressed: track == null
-                          ? null
-                          : () => ref.read(catalogProvider.notifier).download(track),
-                    ),
-                  ],
-                ),
-            },
+            child: FilledButton.icon(
+              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(72)),
+              icon: const Icon(Icons.play_arrow, size: 32),
+              label: const Text(S.detailPlay, style: TextStyle(fontSize: 22)),
+              onPressed: () async {
+                ref.read(settingsProvider.notifier).update((s) => s.copyWith(ritual: _ritual));
+                final ok = await ref.read(playerProvider.notifier).startTale(
+                      tale: tale,
+                      layers: _layers(tale, presets),
+                      ritual: _ritual,
+                    );
+                if (!context.mounted) return;
+                if (ok) {
+                  context.push('/player');
+                } else {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(const SnackBar(content: Text(S.detailNoScript)));
+                }
+              },
+            ),
           ),
         ],
       ),

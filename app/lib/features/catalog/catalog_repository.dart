@@ -5,6 +5,8 @@ import 'dart:io';
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:http/http.dart' as http;
 
+import '../../core/content_ref.dart';
+import '../../core/script/script.dart';
 import 'catalog_models.dart';
 import 'catalog_sync.dart';
 
@@ -12,6 +14,11 @@ const defaultCatalogUrl = String.fromEnvironment(
   'CATALOG_URL',
   defaultValue: 'https://lioilsources.github.io/hajanek-content/catalog.json',
 );
+
+/// Bundled tales whose script is `status: draft`. Must be false for release
+/// (`--dart-define=INCLUDE_DRAFTS=false`); the published catalog never has
+/// drafts anyway.
+const includeDrafts = bool.fromEnvironment('INCLUDE_DRAFTS', defaultValue: true);
 
 class CatalogSnapshot {
   const CatalogSnapshot({required this.catalog, required this.local});
@@ -34,15 +41,20 @@ class HashMismatchException implements Exception {
 /// Bundled catalog → local (downloaded) catalog → remote check.
 class CatalogRepository {
   CatalogRepository({
-    required this.loadBundledCatalog,
+    required this.loadAsset,
     required this.listBundledAssets,
     required this.docsDir,
     http.Client? client,
     Uri? remoteUrl,
+    this.drafts = includeDrafts,
   })  : client = client ?? http.Client(),
         remoteUrl = remoteUrl ?? Uri.parse(defaultCatalogUrl);
 
-  final Future<String> Function() loadBundledCatalog;
+  static const bundledCatalogAsset = 'assets/catalog/catalog.json';
+
+  /// Text of a bundled asset (rootBundle.loadString in the app).
+  final Future<String> Function(String asset) loadAsset;
+  final bool drafts;
   final Future<Set<String>> Function() listBundledAssets;
   final Future<Directory> Function() docsDir;
   final http.Client client;
@@ -54,7 +66,8 @@ class CatalogRepository {
   File get _catalogFile => File('${_root.path}/catalog.json');
 
   Future<CatalogSnapshot> init() async {
-    final bundled = Catalog.fromJson(jsonDecode(await loadBundledCatalog()) as Map<String, dynamic>);
+    var bundled = Catalog.fromJson(
+        jsonDecode(await loadAsset(bundledCatalogAsset)) as Map<String, dynamic>);
     final assets = await listBundledAssets();
     final bundledFiles = {
       for (final f in bundled.files)
@@ -65,6 +78,16 @@ class CatalogRepository {
     await _blobs.create(recursive: true);
     if (await _tmp.exists()) await _tmp.delete(recursive: true);
     await _tmp.create(recursive: true);
+
+    if (!drafts) {
+      final hidden = <String>{};
+      for (final t in bundled.tales) {
+        final s = t.script();
+        if (!assets.contains('assets/${s.path}')) continue;
+        if (parseScript(await loadAsset('assets/${s.path}')).isDraft) hidden.add(t.id);
+      }
+      bundled = bundled.withoutTales(hidden);
+    }
 
     var catalog = bundled;
     if (await _catalogFile.exists()) {
@@ -103,13 +126,17 @@ class CatalogRepository {
       throw HttpException('catalog ${resp.statusCode}', uri: remoteUrl);
     }
     final body = utf8.decode(resp.bodyBytes);
-    final remote = Catalog.fromJson(jsonDecode(body) as Map<String, dynamic>);
+    final json = jsonDecode(body) as Map<String, dynamic>;
+    // An app that is too old (or too new) for the published schema keeps
+    // what it has instead of reporting an error.
+    if (Catalog.schemaOf(json) != supportedCatalogSchema) return (SyncResult.upToDate, current);
+    final remote = Catalog.fromJson(json);
     final plan = planSync(current: current.catalog, remote: remote, local: current.local);
     if (!plan.apply) return (SyncResult.upToDate, current);
 
     var local = current.local;
     for (final f in plan.downloads) {
-      await _download(remote.urlFor(platformAudioPath(f.path)), f);
+      await _download(remote.urlFor(platformPath(f.path)), f);
       local = local.withBlob(f.sha256);
     }
 
@@ -126,17 +153,13 @@ class CatalogRepository {
     return (SyncResult.updated, CatalogSnapshot(catalog: remote, local: local));
   }
 
-  /// On-demand download (tale tracks). Returns updated local content.
-  Future<LocalContent> download(
-    CatalogSnapshot snap,
-    CatalogFile f, {
-    void Function(double progress)? onProgress,
-  }) async {
-    await _download(snap.catalog.urlFor(platformAudioPath(f.path)), f, onProgress: onProgress);
-    return snap.local.withBlob(f.sha256);
-  }
+  /// Text of a script (bundled or downloaded).
+  Future<String> loadText(ContentRef ref) => switch (ref) {
+        AssetRef(:final asset) => loadAsset(asset),
+        FileRef(:final path) => File(path).readAsString(),
+      };
 
-  Future<void> _download(Uri url, CatalogFile f, {void Function(double)? onProgress}) async {
+  Future<void> _download(Uri url, CatalogFile f) async {
     final part = File('${_tmp.path}/${f.sha256}.part');
     final resp = await client.send(http.Request('GET', url));
     if (resp.statusCode != 200) {
@@ -145,14 +168,10 @@ class CatalogRepository {
     final sink = part.openWrite();
     final digestSink = _DigestSink();
     final hasher = crypto.sha256.startChunkedConversion(digestSink);
-    var received = 0;
-    final total = resp.contentLength ?? f.bytes;
     try {
       await for (final chunk in resp.stream) {
         sink.add(chunk);
         hasher.add(chunk);
-        received += chunk.length;
-        if (onProgress != null && total > 0) onProgress((received / total).clamp(0.0, 1.0));
       }
     } finally {
       await sink.close();

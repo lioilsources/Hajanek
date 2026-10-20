@@ -16,10 +16,8 @@ func cfg(length int) Config {
 		LengthMin: length, WPM: 95, RefSpeed: 0.85, GapS: 0.6, Tolerance: 0.15, MaxSentenceWords: 18,
 		Budgets10: map[string][2]float64{"uvod": {50, 100}, "vstup": {40, 80}, "pribeh": {270, 450}, "dojezd": {70, 130}},
 		Prosody: script.Prosody{
-			Tones: map[script.Tone]script.ToneParams{
-				script.Soft: {Speed: 0.85}, script.Slow: {Speed: 0.78, GainDB: -3}, script.Whisper: {Speed: 0.75, GainDB: -10},
-			},
-			RampSection: "dojezd", RampSpeedTo: 0.75, RampGainToDB: -6,
+			Speeds:      map[script.Tone]float64{script.Soft: 0.85, script.Slow: 0.78, script.Whisper: 0.75},
+			RampSection: "dojezd", RampSpeedTo: 0.75,
 		},
 	}
 }

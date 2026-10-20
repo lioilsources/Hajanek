@@ -7,6 +7,7 @@ setting: les
 ambient: stream
 length_min: 10
 status: draft
+free: true
 tension_original: 5
 characters: [Jeníček, Mařenka, tatínek, babička perníkářka, dědeček]
 softening: Nikdo nebloudí, nikdo nikoho nezavírá a žádná pec ani lopata se nevyskytuje. Majitelka chaloupky je hodná, ospalá babička perníkářka, která se loupání perníčku jen zasměje, pohostí děti mlékem s medem a všichni u ní v klidu přespí.

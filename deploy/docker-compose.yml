@@ -17,6 +17,7 @@ services:
     environment:
       PORT: "8080"
       DB_PATH: /data/hajanek.db
+      DATA_DIR: /data/files   # voice samples, clips, script cache
     volumes:
       - hajanek-data:/data
     networks:
@@ -63,6 +64,6 @@ networks:
     name: hajanek
 
 volumes:
-  hajanek-data:   # SQLite (catalog cache + job queue)
+  hajanek-data:   # SQLite (catalog cache, jobs, devices, voices) + DATA_DIR (samples, clips) — back up together, contains parents' voices
   caddy-data:
   caddy-config:

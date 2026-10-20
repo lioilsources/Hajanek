@@ -20,9 +20,6 @@ String phaseLabel(PlayerState p) => switch (p.phase) {
       RitualPhase.done => S.playerDone,
     };
 
-String _mmss(Duration d) =>
-    '${d.inMinutes}:${(d.inSeconds % 60).toString().padLeft(2, '0')}';
-
 class PlayerScreen extends ConsumerWidget {
   const PlayerScreen({super.key});
 
@@ -65,11 +62,20 @@ class PlayerScreen extends ConsumerWidget {
               Text(
                 [
                   phaseLabel(p),
-                  if (p.kind == SessionKind.tale && p.phase == RitualPhase.voice)
-                    '${_mmss(p.position)} / ${_mmss(p.duration ?? Duration.zero)}',
+                  if (p.kind == SessionKind.tale && p.phase == RitualPhase.voice) S.section(p.section),
                 ].where((s) => s.isNotEmpty).join(' · '),
                 style: const TextStyle(color: Night.textDim, fontSize: 16),
               ),
+              if (p.kind == SessionKind.tale && p.phase == RitualPhase.voice)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(48, 12, 48, 0),
+                  child: LinearProgressIndicator(
+                    value: p.progress,
+                    minHeight: 3,
+                    color: Night.accentDim,
+                    backgroundColor: Night.outline,
+                  ),
+                ),
               const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

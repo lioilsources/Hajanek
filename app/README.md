@@ -4,14 +4,10 @@ Usínací pohádkové meditace pro děti: hlas + podkres přírodních zvuků, r
 „dobrou noc“, časovač, jukebox zvuků. Offline-first, žádný účet, žádná analytika.
 Bundle ID `com.ol1n.hajanek` (iOS i Android), iOS 15+, Android 8+ (minSdk 26).
 
-> ⚠️ **Nutno ověřit na zařízení: Ogg Opus na iOS.** Katalog (CONTRACTS §4–5)
-> používá `.opus` (Ogg Opus). `just_audio` na iOS hraje přes AVPlayer a
-> AVFoundation oficiálně podporuje Opus jen v kontejneru CAF; podpora Ogg
-> kontejneru v AVPlayeru je nejistá (simulátor ani `flutter test` to neověří).
-> **Fallback = AAC `.m4a` varianta** souborů pro iOS. V kódu jde vše přes jedinou
-> funkci `platformAudioPath()` v `lib/features/catalog/catalog_sync.dart` —
-> přepnutí přípony je jednořádková změna, ale katalog by pak potřeboval i
-> `sha256`/`bytes` pro každou variantu (změna kontraktu, zatím neděláme).
+Architektura hlasu: [ADR-003](../docs/adr/ADR-003-voice-architecture.md).
+Katalog nese **texty skriptů**, ne audio. Pohádku čte buď **hlas telefonu**
+(systémové TTS, offline), nebo **hlas rodiče** — klon vytvořený na Sparku,
+stažený po větách jako klipy. Formáty: [CONTRACTS.md](../docs/CONTRACTS.md).
 
 ## Spuštění
 
@@ -20,80 +16,135 @@ cd app
 flutter pub get
 dart run build_runner build      # jen po změně tabulek v lib/core/db/database.dart
 flutter run                      # zařízení/simulátor
-flutter test                     # unit + widget testy
+flutter test                     # unit + widget testy (čte i ../docs/testdata)
 flutter analyze
 ```
 
-Jiná adresa katalogu (např. lokální server při vývoji):
+`flutter test` se spouští z `app/` a potřebuje celé repo: golden test parseru
+čte `../docs/testdata/utterances.golden.json` a test bundlu porovnává
+`assets/scripts/` s `../content/scripts/`.
+
+### `--dart-define`
+
+| proměnná | výchozí | k čemu |
+|---|---|---|
+| `CATALOG_URL` | `https://lioilsources.github.io/hajanek-content/catalog.json` | odkud se stahuje katalog |
+| `API_URL` | `https://hajanek-api.ol1n.com` | hajanek-api (registrace zařízení, hlasy rodičů, klipy) |
+| `INCLUDE_DRAFTS` | `true` | ukázat pohádky, jejichž skript v bundlu má `status: draft`. **Pro release musí být `false`** (`flutter build ipa --dart-define=INCLUDE_DRAFTS=false`). Publikovaný katalog drafty nikdy nemá. |
+
+Appka mluví jen s Pages (katalog) a s `hajanek-api`; nikdy s `llm.ol1n.com`
+a nepotřebuje žádné CF Access tajnosti.
+
+### Obsah v bundlu
 
 ```bash
-flutter run --dart-define=CATALOG_URL=http://192.168.1.10:8000/catalog.json
+dart run tool/bundle_content.dart [--version N]
 ```
 
-Výchozí: `https://lioilsources.github.io/hajanek-content/catalog.json`.
+zkopíruje všech 10 skriptů z `../content/scripts/` (+ `gold/`) do
+`assets/scripts/`, nahrávací text do `assets/voice/` a přepíše `tales`
+v `assets/catalog/catalog.json` (sha256, bytes, `est_duration_s` = 95 slov/min
++ pauzy). Ambient a předvolby nechá. Test `bundled scripts are copies of
+content/` spadne, když se na to zapomene.
 
 ## Struktura
 
 ```
 lib/
-  main.dart              init: drift, katalog, audio_session, audio_service
+  main.dart              init: drift, katalog, audio_session, audio_service, TTS, API
   app.dart               MaterialApp.router + go_router trasy
   core/
+    script/script.dart   parser skriptu (CONTRACTS §2/§7): promluvy a pauzy se
+                         sekcí a tónem, oslovení, NFC, utterance_key, odhad délky
+    script/tone.dart     tabulka tónů + dojezd ramp + převod rychlosti pro platformu
     strings.dart         všechny české texty UI na jednom místě
-    theme.dart           noční paleta (téměř černá, tlumený teplý akcent), dětský font
-    widgets.dart         dýchající kruh, ztmavení po 10 s nečinnosti, výběrový sheet
-    providers.dart       databáze, oblíbené, uživatelské předvolby, hodiny
-    audio_ref.dart       AssetRef / FileRef (bundle vs. stažený soubor)
+    theme.dart, widgets.dart, providers.dart, content_ref.dart (bundle vs. soubor)
     db/database.dart     drift: oblíbené, historie, předvolby, key/value nastavení
   features/
-    catalog/             modely catalog.json, plán synchronizace, repozitář,
-                         Domů, detail pohádky
-    player/              rituál (čistý Dart stavový automat), audio engine
-                         (1 hlas + 3 ambient přehrávače), audio_service handler,
-                         controller, obrazovka přehrávače
-    mixer/               jukebox: 1 hlavní + až 2 vedlejší vrstvy, předvolby
-    timer/               časovač spánku (čistý Dart) + tlačítko/výběr
-    settings/            nastavení (persistované v drift key/value)
+    catalog/             modely catalog.json (schema 2), plán synchronizace,
+                         repozitář, Domů, detail pohádky
+    player/              script_sequencer (čistý Dart: promluvy → VoiceSource,
+                         pauzy → Timer), voice_source (ClonedVoiceSource s
+                         fallbackem), system_tts (flutter_tts, výběr českého hlasu),
+                         audio_engine (3 ambient vrstvy + přehrávač klipů),
+                         rituál, controller, audio_service handler, obrazovka
+    voice/               hajanek-api klient, stav hlasů rodiče (polling, stahování
+                         klipů), obrazovka „Hlas“, nahrávání vzorku
+    mixer/, timer/, settings/
 assets/
-  catalog/catalog.json   kopie katalogu v bundlu (verze 1)
-  ambient/{id}.opus      8 ambient smyček (z content/ambient, CC0 / vlastní syntéza)
-  audio/cervena-karkulka/mama/10.opus   PLACEHOLDER (8 s tón), aby šel přehrávač otestovat offline
+  catalog/catalog.json   kopie katalogu (schema 2, verze 2, všech 10 pohádek)
+  scripts/{id}.10.md     texty všech skriptů (8 z 10 je zatím draft)
+  voice/recording_script.md   text, který rodič čte při nahrávání
+  ambient/{id}.opus      8 ambient smyček
+tool/bundle_content.dart
 ```
 
 ## Jak to funguje
 
-- **Katalog**: start z bundlu → pokud je v dokumentech novější uložený
-  `catalog.json`, použije se ten → na pozadí kontrola vzdáleného katalogu. Je-li
-  `version` vyšší, stáhnou se změněné soubory (podle `sha256`), ověří se hash a
-  teprve pak se atomicky (rename) přepne `catalog.json`. Soubory se ukládají
-  adresované obsahem (`catalog/blobs/{sha256}.opus`), takže nový katalog nikdy
-  nepřepíše soubor, na který ukazuje starý. Ambient se drží vždy lokálně;
-  pohádky se stahují na vyžádání (tlačítko „Stáhnout“) a při aktualizaci se
-  obnoví jen ty, které už byly stažené. Bez sítě vše funguje.
-- **Přehrávač**: hlas + až 3 ambient vrstvy jako paralelní `AudioPlayer`y,
-  ambient `LoopMode.one`. Rituál (§4.3): podkres sám N s (výchozí 60) → pohádka
-  (podkres ztlumený na ×0.6) → podkres doznívá (výchozí 20 min) → 60 s fade-out
-  → stop. Bez rituálu: hned pohádka, po ní 60 s fade-out. Fade řeší aplikace.
-  Posuvník hlas ↔ podkres. Zamčená obrazovka: play/pause/stop s názvem pohádky
-  (`audio_service`).
-- **Časovač**: vypnuto / 5 / 10 / 20 / 30 / 45 / 60 min / „po dohrání“;
-  posledních 60 s plynule ztlumí vše a zastaví.
-- **UI**: jen tmavé, velká tlačítka (≥ 56 px), po 10 s nečinnosti na
-  přehrávači další ztmavení (první dotyk jen probudí). Jediný pohyb: dýchající
-  kruh (vypnutelný). Názvy pohádek dětským fontem `cute_kid_fonts` (Baloo 2),
-  ovládání systémovým písmem.
+- **Katalog**: start z bundlu → novější uložený `catalog.json` z dokumentů →
+  na pozadí kontrola vzdáleného. Je-li `version` vyšší, stáhnou se všechny
+  změněné skripty a smyčky (podle `sha256`, ověří se hash) a teprve pak se
+  atomicky přepne `catalog.json`. Soubory jsou adresované obsahem
+  (`catalog/blobs/{sha256}.md|.opus`). Vzdálený katalog jiného `schema`
+  (např. starý schema 1 na Pages) se tiše ignoruje.
+- **Přehrávač**: jeden pro oba hlasy. `ScriptSequencer` jde po položkách
+  skriptu; promluvu předá `VoiceSource`, pauzu odměří časovačem. Pauza
+  uprostřed promluvy zastaví TTS/klip a po pokračování ji přečte znovu od
+  začátku; pauza uprostřed ticha si pamatuje zbytek. Rituál: podkres sám N s →
+  skript (podkres ztlumený ×0.6) → podkres doznívá → fade-out. Konec skriptu
+  = „voiceCompleted“ pro rituál i časovač „po dohrání“.
+- **Hlas telefonu** (`SystemTtsSource`): `cs-CZ`, z `getVoices` vybere nejlepší
+  český hlas (iOS premium > enhanced > default, Android podle kvality,
+  offline přednostně). Tón: rychlost relativně k normálu (iOS 0.5 = normál,
+  Android 1.0), hlasitost = tón × posuvník hlas↔podkres × fade časovače
+  (u TTS platí od další věty), `whisper` navíc pitch 0.95.
+- **Hlas rodiče** (`ClonedVoiceSource`): klip
+  `applicationSupport/voices/{id}/{utterance_key}.m4a`; chybí-li, větu přečte
+  hlas telefonu. Klíč se počítá z textu s fallbackem oslovení (CONTRACTS §7),
+  takže nastavené oslovení dítěte klipy nerozbije.
+- **Nahrání hlasu**: jméno → text k přečtení (první věta je souhlas) → zaškrtnutý
+  souhlas → nahrávka 5–30 s (AAC 48 kHz mono, bez AGC/potlačení šumu/echo
+  cancel; Android zdroj `VOICE_RECOGNITION`) → poslech → odeslání. Zařízení se
+  jednou zaregistruje (`POST /v1/devices`), token je ve `flutter_secure_storage`.
+  Pak `POST /v1/voices`; stav se polluje každé 2 min, dokud hlas není hotový
+  („Hlas se připravuje, bude hotový do rána“). Když je `ready`: `POST renders`
+  pro všechny free pohádky (znovu jen při změně sha skriptu), manifesty,
+  stažení chybějících klipů (`.part` + rename, kontrola délky v bajtech),
+  průběh „x z y vět“. Smazání: potvrzení → `DELETE /v1/voices/{id}` → smaže
+  klipy v telefonu. Chyby sítě jsou klidné české věty, nic dalšího se nerozbije.
+- **Lock screen**: název pohádky a aktuální sekce (Úvod / Vstup / Příběh /
+  Dojezd), play/pause/stop.
+- **Bez českého hlasu** v telefonu ukáže Domů (a obrazovka Hlas) návod, jak ho
+  doinstalovat.
 
-## Co je placeholder / co chybí
+## Co je potřeba ověřit na zařízení
 
-- `assets/audio/cervena-karkulka/mama/10.opus` — 8s sinusový tón, ne skutečná
-  meditace. Ostatní stopy v `catalog.json` mají vymyšlené `sha256`/`bytes`
-  (stažení skončí chybou hashe, dokud nebude publikován skutečný katalog
-  z `content/`).
-- Ambient smyčky jsou zkopírované z `content/ambient/` (skutečné CC0 nahrávky);
-  při jejich změně je potřeba znovu přepočítat `sha256`/`bytes` v
-  `assets/catalog/catalog.json` (nebo převzít katalog z publikačního kroku).
-- Jen na reálném zařízení lze ověřit: ovládání na zamčené obrazovce, běh na
-  pozadí 20+ min na iOS (UIBackgroundModes `audio` je nastaveno), přehrávání
-  Ogg Opus na iOS, bezešvost smyček, souběh 4 přehrávačů.
-- Jméno dítěte v rituálu, délky 5/15/20 min, statistika „kdy usnul“ — fáze 1.
+- **Systémové TTS se zamčenou obrazovkou na iOS**: session je
+  `AVAudioSessionCategoryPlayback` (audio_session + `setSharedInstance(true)`,
+  `autoStopSharedSession(false)`, `UIBackgroundModes=audio`). Ověřit, že
+  AVSpeechSynthesizer čte dál po zamčení i po 10+ minutách, že se mezi větami
+  session nedeaktivuje (podkres nesmí utichnout) a že pauza/pokračování z lock
+  screenu funguje uprostřed věty.
+- **Android na pozadí**: běží foreground service audio_service; ověřit čtení
+  se zhasnutým displejem a bez podkresu (jen TTS) a že TTS nebere audio focus
+  ambientu.
+- **Dostupnost českého hlasu**: co vrací `getVoices` na iOS (Zuzana
+  default/enhanced/premium) a na Androidu (Google TTS, `network_required`),
+  a že se návod k instalaci zobrazí jen tehdy, když opravdu chybí.
+- **Kvalita nahrávky**: že je zvuk z mikrofonu nezpracovaný (iOS bez voice
+  processing, Android `VOICE_RECOGNITION`), dost hlasitý a že klon z ní zní
+  přirozeně; že se po nahrávání vrátí session na přehrávání.
+- **Rychlost a hlasitost tónů**: dojezd má zpomalovat a ztišovat plynule;
+  na iOS se rychlost 0.85× mapuje na `0.425`.
+- Dál platí z dřívějška: bezešvost smyček, souběh přehrávačů, Ogg Opus na
+  iOS 15–25 (ověřeno jen iOS 26 simulátor, `integration_test/codec_probe_test.dart`).
+
+## Co chybí
+
+- Oslovení dítěte je v nastavení, ale skripty ho v MVP nepoužívají
+  (CONTRACTS §2) — všechny čtou fallback.
+- Volba hlasu po pohádkách (teď jeden hlas pro celou appku), délky 5/15/20 min,
+  statistika „kdy usnul“.
+- Licence klonování (ADR-003): placený „Můj hlas“ neprojde, dokud nebude
+  český klonující engine s komerční licencí.
 - Ikona aplikace je zatím výchozí Flutter.

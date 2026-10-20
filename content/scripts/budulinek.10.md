@@ -7,6 +7,7 @@ setting: vesnice
 ambient: night-meadow
 length_min: 10
 status: draft
+free: true
 tension_original: 3
 characters: [Budulínek, dědeček, babička, liška, lišátka]
 softening: Liška Budulínka neodnáší a nic mu nesní. Je to zvědavá, hravá liška, která ho sveze na ocásku k lišátkům, dědeček s houslemi a babička s buchtami za ním přijdou a všichni jdou spolu domů.

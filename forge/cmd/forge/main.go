@@ -1,4 +1,4 @@
-// Command forge is the Hajánek generation pipeline (script → voice → master → qa → publish).
+// Command forge is the Hajánek content pipeline (script → judge → publish) and the voice worker on Spark.
 package main
 
 import (
@@ -6,27 +6,31 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strings"
+	"syscall"
+	"time"
 
+	"github.com/lioilsources/hajanek/forge/internal/audio"
+	"github.com/lioilsources/hajanek/forge/internal/jobs"
 	"github.com/lioilsources/hajanek/forge/internal/pipeline"
+	"github.com/lioilsources/hajanek/forge/internal/worker"
 )
 
-const usage = `forge — Hajánek generation pipeline
+const usage = `forge — Hajánek content pipeline and voice worker
 
 usage: forge <command> [flags]
 
 commands:
   script   --tale ID --length N            generate content/scripts/{id}.{N}.md via LLM, then judge
   judge    [--length N] [--no-llm] FILE    check a script; JSON report, exit 1 on fail
-  voice    --tale ID --voice V --length N  TTS per utterance (cached) + assembly → voice.wav
-  master   --tale ID --voice V --length N  ffmpeg mastering → master.opus (−23 LUFS, Opus 48k mono)
   master-ambient [--crossfade S] IN OUT    seamless loop, −30 LUFS, Opus 96k stereo
-  qa       --tale ID --voice V --length N  ASR WER + signal checks → qa.json
-  publish  --content-pages DIR [--commit]  copy passing tracks, merge catalog.json
-  run      --tale ID --voice V --length N  all of the above, stops on judge/qa failure
-  nightly  [--queue FILE] [--until HH:MM]  drain hajanek-api jobs or queue file, publish, notify
+  publish  --content-pages DIR [--commit]  copy reviewed/gold scripts + ambient, rebuild catalog.json
+  nightly  [--queue FILE] [--until HH:MM]  drain script/publish jobs (api or queue file), publish, notify
+  worker   [--once]                        voice jobs from hajanek-api → AiStack audio service (Spark)
 
 common flags: --repo DIR --content DIR --config FILE --force
 `
@@ -40,7 +44,7 @@ func addCommon(fs *flag.FlagSet, c *common) {
 	fs.StringVar(&c.repo, "repo", "", "monorepo root (default: auto-detect)")
 	fs.StringVar(&c.content, "content", "", "content dir (default: {repo}/content)")
 	fs.StringVar(&c.config, "config", "", "config file (default: {repo}/forge/config.yaml)")
-	fs.BoolVar(&c.force, "force", false, "redo even if outputs are up to date")
+	fs.BoolVar(&c.force, "force", false, "script: regenerate an existing script")
 }
 
 func (c *common) env() *pipeline.Env {
@@ -74,16 +78,13 @@ func printJSON(v any) {
 }
 
 type trackFlags struct {
-	tale, voice string
-	length      int
+	tale   string
+	length int
 }
 
-func addTrack(fs *flag.FlagSet, t *trackFlags, needVoice bool) {
+func addTrack(fs *flag.FlagSet, t *trackFlags) {
 	fs.StringVar(&t.tale, "tale", "", "tale id")
 	fs.IntVar(&t.length, "length", 10, "length in minutes")
-	if needVoice {
-		fs.StringVar(&t.voice, "voice", "mama", "voice id")
-	}
 }
 
 func (t *trackFlags) check() {
@@ -92,12 +93,34 @@ func (t *trackFlags) check() {
 	}
 }
 
+func newWorker(e *pipeline.Env) (*worker.Worker, error) {
+	api := jobs.FromEnv()
+	if api == nil {
+		return nil, fmt.Errorf("worker: FORGE_API_URL and WORKER_TOKEN are required")
+	}
+	wc := e.Cfg.Worker
+	tmp := filepath.Join(e.Work, "_worker")
+	if err := os.MkdirAll(tmp, 0o755); err != nil {
+		return nil, err
+	}
+	clip := audio.ClipOpts{LUFS: wc.ClipLUFS, TruePeak: wc.ClipTruePeak, LRA: wc.ClipLRA, Bitrate: wc.ClipBitrate, SampleRate: wc.ClipSampleRate}
+	return &worker.Worker{
+		API:     api,
+		Audio:   &worker.AudioClient{BaseURL: wc.AudioURL, Key: os.Getenv("AUDIO_API_KEY"), HTTP: &http.Client{Timeout: 2 * time.Minute}},
+		Cfg:     wc,
+		Prosody: e.Prosody(),
+		Encode:  func(in, out string) (float64, error) { return audio.EncodeClip(in, out, clip) },
+		TmpDir:  tmp,
+		Log:     e.Log,
+	}, nil
+}
+
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Fprint(os.Stderr, usage)
 		os.Exit(2)
 	}
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	cmd, args := os.Args[1], os.Args[2:]
 	fs := flag.NewFlagSet(cmd, flag.ExitOnError)
@@ -107,7 +130,7 @@ func main() {
 
 	switch cmd {
 	case "script":
-		addTrack(fs, &t, false)
+		addTrack(fs, &t)
 		_ = fs.Parse(args)
 		t.check()
 		e := c.env()
@@ -139,29 +162,6 @@ func main() {
 			os.Exit(1)
 		}
 
-	case "voice":
-		addTrack(fs, &t, true)
-		allow := fs.Bool("allow-draft", false, "voice scripts with status: draft")
-		_ = fs.Parse(args)
-		t.check()
-		m, err := c.env().Voice(pipeline.VoiceOpts{Tale: t.tale, Voice: t.voice, Length: t.length, AllowDraft: *allow})
-		if err != nil {
-			die(err)
-		}
-		printJSON(map[string]any{"duration_s": m.DurationS, "synthesized": m.Synthesize, "cache_hits": m.CacheHits, "silences": len(m.Silences)})
-
-	case "master":
-		addTrack(fs, &t, true)
-		_ = fs.Parse(args)
-		t.check()
-		rep, err := c.env().Master(t.tale, t.voice, t.length)
-		if rep != nil {
-			printJSON(rep.Result.Measured)
-		}
-		if err != nil {
-			die(err)
-		}
-
 	case "master-ambient":
 		xf := fs.Float64("crossfade", 0, "crossfade seconds (default: config)")
 		_ = fs.Parse(args)
@@ -178,18 +178,6 @@ func main() {
 		}
 		printJSON(map[string]any{"measured": res.Measured, "probe": res.Probe})
 
-	case "qa":
-		addTrack(fs, &t, true)
-		_ = fs.Parse(args)
-		t.check()
-		rep, err := c.env().QA(t.tale, t.voice, t.length)
-		if rep != nil {
-			printJSON(rep)
-		}
-		if err != nil {
-			die(err)
-		}
-
 	case "publish":
 		pages := fs.String("content-pages", os.Getenv("HAJANEK_PAGES_DIR"), "pages repo dir (hajanek-content)")
 		commit := fs.Bool("commit", false, "git commit in the pages repo")
@@ -205,30 +193,15 @@ func main() {
 			die(err)
 		}
 
-	case "run":
-		addTrack(fs, &t, true)
-		allow := fs.Bool("allow-draft", false, "voice scripts with status: draft")
-		pages := fs.String("content-pages", os.Getenv("HAJANEK_PAGES_DIR"), "publish into this pages repo (optional)")
-		commit := fs.Bool("commit", false, "git commit in the pages repo")
-		_ = fs.Parse(args)
-		t.check()
-		r := c.env().Run(ctx, pipeline.RunOpts{Tale: t.tale, Voice: t.voice, Length: t.length,
-			AllowDraft: *allow, PagesDir: *pages, Commit: *commit})
-		printJSON(r)
-		if !r.OK {
-			os.Exit(1)
-		}
-
 	case "nightly":
 		queue := fs.String("queue", "", "queue file (default: config nightly.queue_file)")
 		until := fs.String("until", "", "stop starting new jobs after HH:MM (default: config)")
-		allow := fs.Bool("allow-draft", false, "voice scripts with status: draft")
 		pages := fs.String("content-pages", os.Getenv("HAJANEK_PAGES_DIR"), "publish into this pages repo at the end")
 		commit := fs.Bool("commit", false, "git commit in the pages repo")
 		_ = fs.Parse(args)
 		e := c.env()
 		o := pipeline.NightlyOpts{QueueFile: e.Cfg.Nightly.QueueFile, Until: e.Cfg.Nightly.Until, Timezone: e.Cfg.Nightly.Timezone,
-			AllowDraft: *allow, PagesDir: *pages, Commit: *commit}
+			PagesDir: *pages, Commit: *commit}
 		if *queue != "" {
 			o.QueueFile = *queue
 		}
@@ -247,6 +220,17 @@ func main() {
 			if !r.OK {
 				os.Exit(1)
 			}
+		}
+
+	case "worker":
+		once := fs.Bool("once", false, "exit when the queue is empty (or a job is deferred)")
+		_ = fs.Parse(args)
+		w, err := newWorker(c.env())
+		if err != nil {
+			die(err)
+		}
+		if err := w.Run(ctx, *once); err != nil {
+			die(err)
 		}
 
 	case "-h", "--help", "help":

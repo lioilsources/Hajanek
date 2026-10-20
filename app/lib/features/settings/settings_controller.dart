@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers.dart';
 import '../catalog/catalog_models.dart';
 import '../player/ritual.dart';
+import '../player/system_tts.dart';
 import '../timer/sleep_timer.dart';
 
 class AppSettings {
@@ -15,7 +16,9 @@ class AppSettings {
     this.tailMinutes = 20,
     this.timer = const SleepTimerOption.off(),
     this.balance = 0.5,
-    this.voice = 'mama',
+    this.voiceId = systemVoiceId,
+    this.vocative = '',
+    this.czechHintDismissed = false,
     this.lastMix = const [MixLayer(ambient: 'sea', volume: 0.7)],
   });
 
@@ -27,7 +30,13 @@ class AppSettings {
 
   /// 0 = only voice, 1 = only background, 0.5 = both at full.
   final double balance;
-  final String voice;
+
+  /// `system` (the phone's voice) or the id of a parent's cloned voice.
+  final String voiceId;
+
+  /// The child's name in the 5th case (“Aničko”); empty = script fallback.
+  final String vocative;
+  final bool czechHintDismissed;
   final List<MixLayer> lastMix;
 
   static const introChoices = [30, 60, 90, 120];
@@ -47,7 +56,9 @@ class AppSettings {
     int? tailMinutes,
     SleepTimerOption? timer,
     double? balance,
-    String? voice,
+    String? voiceId,
+    String? vocative,
+    bool? czechHintDismissed,
     List<MixLayer>? lastMix,
   }) =>
       AppSettings(
@@ -57,7 +68,9 @@ class AppSettings {
         tailMinutes: tailMinutes ?? this.tailMinutes,
         timer: timer ?? this.timer,
         balance: balance ?? this.balance,
-        voice: voice ?? this.voice,
+        voiceId: voiceId ?? this.voiceId,
+        vocative: vocative ?? this.vocative,
+        czechHintDismissed: czechHintDismissed ?? this.czechHintDismissed,
         lastMix: lastMix ?? this.lastMix,
       );
 
@@ -68,7 +81,9 @@ class AppSettings {
         'tail_min': '$tailMinutes',
         'timer': '${timer.code}',
         'balance': '$balance',
-        'voice': voice,
+        'voice_id': voiceId,
+        'vocative': vocative,
+        'czech_hint_dismissed': '$czechHintDismissed',
         'last_mix': jsonEncode([for (final l in lastMix) l.toJson()]),
       };
 
@@ -93,7 +108,9 @@ class AppSettings {
       tailMinutes: int.tryParse(v['tail_min'] ?? '') ?? d.tailMinutes,
       timer: SleepTimerOption.fromCode(int.tryParse(v['timer'] ?? '') ?? 0),
       balance: (double.tryParse(v['balance'] ?? '') ?? d.balance).clamp(0.0, 1.0),
-      voice: v['voice'] ?? d.voice,
+      voiceId: v['voice_id'] ?? d.voiceId,
+      vocative: v['vocative'] ?? d.vocative,
+      czechHintDismissed: v['czech_hint_dismissed'] == 'true',
       lastMix: v['last_mix'] == null ? d.lastMix : mix(),
     );
   }

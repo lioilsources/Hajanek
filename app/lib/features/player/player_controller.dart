@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/providers.dart';
+import '../../core/script/script.dart';
 import '../../core/strings.dart';
 import '../catalog/catalog_controller.dart';
 import '../catalog/catalog_models.dart';
@@ -12,6 +13,9 @@ import '../timer/sleep_timer.dart';
 import 'audio_engine.dart';
 import 'audio_handler.dart';
 import 'ritual.dart';
+import 'script_sequencer.dart';
+import 'system_tts.dart';
+import 'voice_source.dart';
 
 enum SessionKind { tale, mixer }
 
@@ -19,28 +23,32 @@ class PlayerState {
   const PlayerState({
     this.kind,
     this.tale,
-    this.voice,
+    this.voiceId,
     this.layers = const [],
     this.balance = 0.5,
     this.playing = false,
     this.phase = RitualPhase.idle,
     this.timer = const SleepTimerOption.off(),
     this.timerRemaining,
-    this.position = Duration.zero,
-    this.duration,
+    this.progress = 0,
+    this.section,
   });
 
   final SessionKind? kind;
   final Tale? tale;
-  final String? voice;
+  final String? voiceId;
   final List<MixLayer> layers;
   final double balance;
   final bool playing;
   final RitualPhase phase;
   final SleepTimerOption timer;
   final Duration? timerRemaining;
-  final Duration position;
-  final Duration? duration;
+
+  /// Share of the script already spoken, 0..1.
+  final double progress;
+
+  /// Script section being read (`uvod` … `dojezd`).
+  final String? section;
 
   bool get active => kind != null;
   String get title => tale?.title ?? S.mixerTitle;
@@ -52,27 +60,32 @@ class PlayerState {
     RitualPhase? phase,
     SleepTimerOption? timer,
     Duration? Function()? timerRemaining,
-    Duration? position,
-    Duration? Function()? duration,
+    double? progress,
+    String? section,
   }) =>
       PlayerState(
         kind: kind,
         tale: tale,
-        voice: voice,
+        voiceId: voiceId,
         layers: layers ?? this.layers,
         balance: balance ?? this.balance,
         playing: playing ?? this.playing,
         phase: phase ?? this.phase,
         timer: timer ?? this.timer,
         timerRemaining: timerRemaining == null ? this.timerRemaining : timerRemaining(),
-        position: position ?? this.position,
-        duration: duration == null ? this.duration : duration(),
+        progress: progress ?? this.progress,
+        section: section ?? this.section,
       );
 }
 
 /// Overridden in main(); null in widget tests (no platform audio).
 final audioEngineProvider = Provider<AudioEngine?>((ref) => null);
 final audioHandlerProvider = Provider<HajanekAudioHandler?>((ref) => null);
+final systemTtsProvider = Provider<SystemTtsSource?>((ref) => null);
+final clipOutputProvider = Provider<ClipOutput?>((ref) => null);
+
+/// `applicationSupport/voices`; clips of voice X live in `{dir}/X/`.
+final voicesDirProvider = Provider<String?>((ref) => null);
 
 final playerProvider = NotifierProvider<PlayerController, PlayerState>(PlayerController.new);
 
@@ -89,20 +102,16 @@ class PlayerController extends Notifier<PlayerState> {
   DateTime _now() => ref.read(clockProvider)();
 
   RitualMachine? _ritual;
+  ScriptSequencer? _script;
+  VoiceSource? _voice;
   SleepTimer _timer = SleepTimer(const SleepTimerOption.off());
   Timer? _ticker;
   bool _voiceStarted = false;
   int? _historyId;
-  final _subs = <StreamSubscription<Object?>>[];
 
   @override
   PlayerState build() {
     final s = ref.read(settingsProvider);
-    final engine = _engine;
-    if (engine != null) {
-      _subs.add(engine.voiceCompleted.listen((_) => _onVoiceCompleted()));
-      _subs.add(engine.voicePosition.listen(_onPosition));
-    }
     final handler = ref.read(audioHandlerProvider);
     if (handler != null) {
       handler
@@ -112,42 +121,62 @@ class PlayerController extends Notifier<PlayerState> {
     }
     ref.onDispose(() {
       _ticker?.cancel();
-      for (final s in _subs) {
-        s.cancel();
-      }
+      _script?.stop();
     });
     return PlayerState(layers: s.lastMix, balance: s.balance, timer: s.timer);
   }
 
-  Future<void> startTale({
+  VoiceSource _voiceFor(String voiceId) {
+    final system = ref.read(systemTtsProvider) ?? SilentVoiceSource();
+    final out = ref.read(clipOutputProvider);
+    final dir = ref.read(voicesDirProvider);
+    if (voiceId == systemVoiceId || out == null || dir == null) return system;
+    return ClonedVoiceSource(voiceId: voiceId, clipDir: '$dir/$voiceId', output: out, fallback: system);
+  }
+
+  /// Returns false when the tale's script can't be loaded.
+  Future<bool> startTale({
     required Tale tale,
-    required String voice,
     required List<MixLayer> layers,
     required bool ritual,
   }) async {
-    final track = tale.track(voice);
-    final source = track == null ? null : ref.read(catalogProvider).resolve(track);
-    if (source == null) return;
+    final settings = ref.read(settingsProvider);
+    final Script script;
+    try {
+      final text = await ref.read(catalogProvider.notifier).loadScript(tale.script());
+      if (text == null) return false;
+      script = parseScript(text, vocative: settings.vocative);
+    } on Object {
+      return false;
+    }
     await stop();
     final now = _now();
-    await _engine?.setVoice(source);
-    _ritual = RitualMachine(ref.read(settingsProvider).ritualConfig(enabled: ritual))..start(now);
+    final voice = _voice = _voiceFor(settings.voiceId);
+    final items = script.items;
+    _script = ScriptSequencer(
+      items: items,
+      voice: voice,
+      onProgress: (next) => _onScriptProgress(next, items.length),
+      onCompleted: _onVoiceCompleted,
+    );
+    _ritual = RitualMachine(settings.ritualConfig(enabled: ritual))..start(now);
     _timer = SleepTimer(state.timer)..start(now);
     _voiceStarted = false;
     state = PlayerState(
       kind: SessionKind.tale,
       tale: tale,
-      voice: voice,
+      voiceId: settings.voiceId,
       layers: layers,
       balance: state.balance,
       playing: true,
       phase: _ritual!.phase,
       timer: state.timer,
-      duration: Duration(milliseconds: (track!.durationS * 1000).round()),
+      section: _script!.section,
     );
     await _applyLayers();
     _engine?.playAmbient();
     _startTicker();
+    return true;
   }
 
   /// Standalone jukebox: just the ambient layers.
@@ -155,6 +184,7 @@ class PlayerController extends Notifier<PlayerState> {
     if (state.active) return resume();
     final now = _now();
     _ritual = null;
+    _script = null;
     _timer = SleepTimer(
       state.timer.kind == SleepTimerKind.endOfTale ? const SleepTimerOption.off() : state.timer,
     )..start(now);
@@ -174,7 +204,7 @@ class PlayerController extends Notifier<PlayerState> {
     if (!state.active || !state.playing) return;
     _ritual?.pause(_now());
     state = state.copyWith(playing: false);
-    await _engine?.pauseVoice();
+    await _script?.pause();
     await _engine?.pauseAmbient();
     _publish();
   }
@@ -184,7 +214,7 @@ class PlayerController extends Notifier<PlayerState> {
     _ritual?.resume(_now());
     state = state.copyWith(playing: true);
     _engine?.playAmbient();
-    if (_voiceStarted && _ritual?.phase == RitualPhase.voice) _engine?.playVoice();
+    if (_voiceStarted && _ritual?.phase == RitualPhase.voice) _script?.play();
     _tick();
   }
 
@@ -195,8 +225,12 @@ class PlayerController extends Notifier<PlayerState> {
     _ticker = null;
     _ritual = null;
     _voiceStarted = false;
+    final script = _script;
+    _script = null;
+    _voice = null;
     final wasActive = state.active;
     state = PlayerState(layers: state.layers, balance: state.balance, timer: state.timer);
+    await script?.stop();
     if (wasActive) await _engine?.stopAll();
     _publish();
   }
@@ -260,7 +294,7 @@ class PlayerController extends Notifier<PlayerState> {
       }
       if (frame.voiceActive && !_voiceStarted && state.playing) {
         _voiceStarted = true;
-        _engine?.playVoice();
+        _script?.play();
         _recordStart(now);
       }
       ambientGain = frame.ambientGain;
@@ -268,9 +302,9 @@ class PlayerController extends Notifier<PlayerState> {
 
     final master = _timer.gain(now);
     final g = balanceGains(state.balance);
+    _voice?.setGain(g.voice * master);
     final engine = _engine;
     if (engine != null) {
-      engine.setVoiceVolume(g.voice * master);
       for (var i = 0; i < AudioEngine.layerSlots; i++) {
         final v = i < state.layers.length ? state.layers[i].volume : 0.0;
         engine.setLayerVolume(i, v * g.background * ambientGain * master);
@@ -297,16 +331,18 @@ class PlayerController extends Notifier<PlayerState> {
     _tick();
   }
 
-  void _onPosition(Duration p) {
-    if (p.inSeconds != state.position.inSeconds && state.active) {
-      final d = _engine?.voiceDuration;
-      state = state.copyWith(position: p, duration: d == null ? null : () => d);
-    }
+  void _onScriptProgress(int next, int total) {
+    if (state.kind != SessionKind.tale) return;
+    state = state.copyWith(
+      progress: total == 0 ? 1 : next / total,
+      section: _script?.section,
+    );
+    _publish();
   }
 
   Future<void> _recordStart(DateTime now) async {
     final tale = state.tale;
-    final voice = state.voice;
+    final voice = state.voiceId;
     if (tale == null || voice == null) return;
     try {
       _historyId = await ref.read(databaseProvider).startHistory(tale.id, voice, now);
@@ -315,23 +351,23 @@ class PlayerController extends Notifier<PlayerState> {
     }
   }
 
-  bool? _lastPublishedPlaying;
-  String? _lastPublishedTitle;
+  String? _lastPublished;
 
+  /// Lock screen: tale title, and the section while the voice reads.
   void _publish() {
     final handler = ref.read(audioHandlerProvider);
     if (handler == null) return;
-    if (_lastPublishedPlaying == state.playing &&
-        _lastPublishedTitle == (state.active ? state.title : null)) {
-      return;
-    }
-    _lastPublishedPlaying = state.playing;
-    _lastPublishedTitle = state.active ? state.title : null;
+    final subtitle = state.kind == SessionKind.tale && state.phase == RitualPhase.voice
+        ? S.section(state.section)
+        : null;
+    final key = '${state.active}|${state.playing}|${state.title}|$subtitle';
+    if (key == _lastPublished) return;
+    _lastPublished = key;
     handler.show(
       title: state.title,
+      subtitle: subtitle,
       playing: state.playing,
       active: state.active,
-      duration: state.duration,
     );
   }
 }

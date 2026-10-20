@@ -19,6 +19,20 @@ type CatalogCache struct {
 	UpdatedAt    int64
 }
 
+type Clip struct {
+	VoiceID   string
+	Key       string
+	Bytes     int64
+	DurationS float64
+	CreatedAt int64
+}
+
+type Device struct {
+	ID        string
+	TokenHash string
+	CreatedAt int64
+}
+
 type Job struct {
 	ID             string
 	Kind           string
@@ -38,4 +52,31 @@ type Job struct {
 	UpdatedAt      int64
 	StartedAt      sql.NullInt64
 	FinishedAt     sql.NullInt64
+}
+
+type Render struct {
+	VoiceID      string
+	Tale         string
+	LengthMin    int64
+	ScriptSha256 string
+	JobID        string
+	Done         int64
+	Total        int64
+	CreatedAt    int64
+	UpdatedAt    int64
+}
+
+type Voice struct {
+	ID              string
+	DeviceID        sql.NullString
+	Name            string
+	Status          string
+	Error           string
+	SampleExt       string
+	SampleBytes     int64
+	SampleDurationS sql.NullFloat64
+	ConsentText     string
+	ConsentAt       int64
+	CreatedAt       int64
+	UpdatedAt       int64
 }
