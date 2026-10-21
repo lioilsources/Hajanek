@@ -146,4 +146,18 @@ assets/
   statistika „kdy usnul“.
 - Licence klonování (ADR-003): placený „Můj hlas“ neprojde, dokud nebude
   český klonující engine s komerční licencí.
-- Ikona aplikace je zatím výchozí Flutter.
+
+## Release
+
+Tag `v*` → `.github/workflows/release-android.yml`: podepsané AAB + APK
+(`hajanek-<tag>.apk`, na to odkazuje olin.now/hajanek) na GitHub Release,
+vždy s `INCLUDE_DRAFTS=false`. Secrets jednou:
+`Distribution/scripts/setup-gh-secrets.sh --repo lioilsources/Hajanek --bundle-id com.ol1n.hajanek`
+(vygeneruje upload keystore → commitni ho do Distribution). Firebase se přeskočí,
+dokud není `FIREBASE_ANDROID_APP_ID`. iOS release zatím není (chybí App ID,
+profil a appka v App Store Connect, viz Distribution/SKILL.md).
+
+Ikona: zdroj `assets/icon/icon.svg`, z něj `icon.png` a `icon_foreground.png`
+(adaptivní, průhledná); platformní ikony `dart run flutter_launcher_icons`.
+Ten při generování přepíše v `project.pbxproj` nesouvisející
+`ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS` na `AppIcon` — vrať to.
