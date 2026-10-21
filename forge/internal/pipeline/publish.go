@@ -153,7 +153,7 @@ func (e *Env) Publish(o PublishOpts) (*PublishResult, error) {
 		case perr != nil:
 			res.Skipped = append(res.Skipped, fmt.Sprintf("%s (parse: %v)", name, perr))
 			continue
-		case s.Meta.Status != "reviewed" && s.Meta.Status != "gold" && !(o.Drafts && s.Meta.Status == "draft"):
+		case !publishable(s.Meta.Status, o.Drafts):
 			res.Skipped = append(res.Skipped, fmt.Sprintf("%s (status %q)", name, s.Meta.Status))
 			continue
 		case s.Meta.ID != ref.Tale || s.Meta.LengthMin != ref.Length:
@@ -299,4 +299,9 @@ func gitCommit(dir, msg string) error {
 		return err
 	}
 	return run("commit", "-m", msg)
+}
+
+// publishable: reviewed and gold scripts, drafts only on request.
+func publishable(status string, drafts bool) bool {
+	return status == "reviewed" || status == "gold" || drafts && status == "draft"
 }
