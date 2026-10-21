@@ -126,6 +126,11 @@ func TestPublishScripts(t *testing.T) {
 	if !res.Changed || res.Version != 1 || len(res.Scripts) != 2 || len(res.Skipped) != 2 {
 		t.Fatalf("result %+v", res)
 	}
+	drafts := t.TempDir()
+	if res, err := e.Publish(PublishOpts{PagesDir: drafts, Now: now, Drafts: true, MinVersion: 4}); err != nil ||
+		res.Version != 4 || len(res.Scripts) != 4 || len(res.Skipped) != 0 {
+		t.Fatalf("drafts: %+v %v", res, err)
+	}
 	cat, err := catalog.Load(filepath.Join(pages, "catalog.json"), "")
 	if err != nil {
 		t.Fatal(err)

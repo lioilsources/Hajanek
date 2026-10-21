@@ -1,9 +1,26 @@
 {
   "schema": 2,
-  "version": 3,
-  "generated_at": "2026-10-21T01:01:00Z",
+  "version": 4,
+  "generated_at": "2026-10-21T01:23:59Z",
   "base_url": "https://lioilsources.github.io/hajanek-content/",
   "tales": [
+    {
+      "id": "budulinek",
+      "title": "Budulínek",
+      "age": "3+",
+      "setting": "vesnice",
+      "ambient": "night-meadow",
+      "free": true,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "scripts/budulinek.10.md",
+          "sha256": "26f8166aadf27c9046e333443c154d779a0cb57f31b4a5bf2c1ac954e98b3491",
+          "bytes": 4766,
+          "est_duration_s": 630
+        }
+      ]
+    },
     {
       "id": "cervena-karkulka",
       "title": "Červená Karkulka",
@@ -17,24 +34,58 @@
           "path": "scripts/cervena-karkulka.10.md",
           "sha256": "961c88ac925d6bdb8e9c7112bf8991d798fd81efb7413e2f84c0fc011b3d0fb3",
           "bytes": 4650,
-          "est_duration_s": 583
+          "est_duration_s": 649
         }
       ]
     },
     {
-      "id": "zlatovlaska",
-      "title": "Zlatovláska",
+      "id": "dlouhy-siroky-bystrozraky",
+      "title": "Dlouhý, Široký a Bystrozraký",
       "age": "5+",
-      "setting": "more",
-      "ambient": "sea",
-      "free": true,
+      "setting": "hrad",
+      "ambient": "fireplace",
+      "free": false,
       "scripts": [
         {
           "length_min": 10,
-          "path": "scripts/zlatovlaska.10.md",
-          "sha256": "72ca43bf435196267be0252f4bb58f77dfc6e8a636adca011df051c1e544e24c",
-          "bytes": 4779,
-          "est_duration_s": 565
+          "path": "scripts/dlouhy-siroky-bystrozraky.10.md",
+          "sha256": "6891dee5f550a2b5e69db92a7455dbb8625777a9871d973f80fb2e3ea08a9a4c",
+          "bytes": 5016,
+          "est_duration_s": 646
+        }
+      ]
+    },
+    {
+      "id": "hrnecku-var",
+      "title": "Hrnečku, vař!",
+      "age": "3+",
+      "setting": "vesnice",
+      "ambient": "fireplace",
+      "free": false,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "scripts/hrnecku-var.10.md",
+          "sha256": "e904b16820e24f3d7d34652eb75e0382ab68d98b524fbd48f0b63c9bc893313b",
+          "bytes": 4667,
+          "est_duration_s": 621
+        }
+      ]
+    },
+    {
+      "id": "o-smolickovi",
+      "title": "O Smolíčkovi",
+      "age": "3+",
+      "setting": "les",
+      "ambient": "stream",
+      "free": false,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "scripts/o-smolickovi.10.md",
+          "sha256": "69f3474bc48e28a8f63f35611b3d728aa749e3936269ff9478ca581e32de067d",
+          "bytes": 4641,
+          "est_duration_s": 627
         }
       ]
     },
@@ -51,7 +102,7 @@
           "path": "scripts/pernikova-chaloupka.10.md",
           "sha256": "e8942e492af05b0224840c7d6202c421f14fb06c3fc85892dbeb729b65fe168f",
           "bytes": 5017,
-          "est_duration_s": 574
+          "est_duration_s": 635
         }
       ]
     },
@@ -61,14 +112,31 @@
       "age": "3+",
       "setting": "hrad",
       "ambient": "night-meadow",
-      "free": true,
+      "free": false,
       "scripts": [
         {
           "length_min": 10,
           "path": "scripts/sipkova-ruzenka.10.md",
           "sha256": "00e978e0a08cc40f6117934c97f216177f67ab7f588868943c8cac20a5ec42d7",
           "bytes": 4701,
-          "est_duration_s": 569
+          "est_duration_s": 627
+        }
+      ]
+    },
+    {
+      "id": "snehurka",
+      "title": "Sněhurka",
+      "age": "5+",
+      "setting": "hory",
+      "ambient": "rain",
+      "free": false,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "scripts/snehurka.10.md",
+          "sha256": "be8abfaa46ec5a2c6bae2246814abeb668d93760470fc8208a456c3b50d455df",
+          "bytes": 4698,
+          "est_duration_s": 636
         }
       ]
     },
@@ -85,227 +153,111 @@
           "path": "scripts/tri-prasatka.10.md",
           "sha256": "fbef8f0538afc6bf7071ef497519e7a5cd3754054a8b2cbac80d45c2ac864fea",
           "bytes": 4735,
-          "est_duration_s": 562
+          "est_duration_s": 624
         }
       ]
     },
     {
-      "id": "hrnecku-var",
-      "title": "Hrnečku, vař!",
-      "age": "3+",
-      "setting": "vesnice",
-      "ambient": "fireplace",
-      "free": true,
-      "scripts": [
-        {
-          "length_min": 10,
-          "path": "scripts/hrnecku-var.10.md",
-          "sha256": "e904b16820e24f3d7d34652eb75e0382ab68d98b524fbd48f0b63c9bc893313b",
-          "bytes": 4667,
-          "est_duration_s": 563
-        }
-      ]
-    },
-    {
-      "id": "dlouhy-siroky-bystrozraky",
-      "title": "Dlouhý, Široký a Bystrozraký",
+      "id": "zlatovlaska",
+      "title": "Zlatovláska",
       "age": "5+",
-      "setting": "hrad",
-      "ambient": "fireplace",
+      "setting": "more",
+      "ambient": "sea",
       "free": true,
       "scripts": [
         {
           "length_min": 10,
-          "path": "scripts/dlouhy-siroky-bystrozraky.10.md",
-          "sha256": "6891dee5f550a2b5e69db92a7455dbb8625777a9871d973f80fb2e3ea08a9a4c",
-          "bytes": 5016,
-          "est_duration_s": 590
-        }
-      ]
-    },
-    {
-      "id": "o-smolickovi",
-      "title": "O Smolíčkovi",
-      "age": "3+",
-      "setting": "les",
-      "ambient": "stream",
-      "free": true,
-      "scripts": [
-        {
-          "length_min": 10,
-          "path": "scripts/o-smolickovi.10.md",
-          "sha256": "69f3474bc48e28a8f63f35611b3d728aa749e3936269ff9478ca581e32de067d",
-          "bytes": 4641,
-          "est_duration_s": 570
-        }
-      ]
-    },
-    {
-      "id": "budulinek",
-      "title": "Budulínek",
-      "age": "3+",
-      "setting": "vesnice",
-      "ambient": "night-meadow",
-      "free": true,
-      "scripts": [
-        {
-          "length_min": 10,
-          "path": "scripts/budulinek.10.md",
-          "sha256": "26f8166aadf27c9046e333443c154d779a0cb57f31b4a5bf2c1ac954e98b3491",
-          "bytes": 4766,
-          "est_duration_s": 571
-        }
-      ]
-    },
-    {
-      "id": "snehurka",
-      "title": "Sněhurka",
-      "age": "5+",
-      "setting": "hory",
-      "ambient": "rain",
-      "free": true,
-      "scripts": [
-        {
-          "length_min": 10,
-          "path": "scripts/snehurka.10.md",
-          "sha256": "be8abfaa46ec5a2c6bae2246814abeb668d93760470fc8208a456c3b50d455df",
-          "bytes": 4698,
-          "est_duration_s": 578
+          "path": "scripts/zlatovlaska.10.md",
+          "sha256": "72ca43bf435196267be0252f4bb58f77dfc6e8a636adca011df051c1e544e24c",
+          "bytes": 4779,
+          "est_duration_s": 632
         }
       ]
     }
   ],
   "ambient": [
     {
-      "id": "sea",
-      "title": "Moře",
-      "path": "ambient/sea.opus",
-      "duration_s": 100.0,
-      "bytes": 1025510,
-      "sha256": "e4436178e18f453e6dc7daa1e2530181a01d83040e6951e3bd1f7cd4bf0dcf33",
-      "free": true,
-      "license": "CC0",
-      "source": "pulswelle: Waves at Baltic Sea shore (CC0)",
-      "kind": "nature"
-    },
-    {
-      "id": "rain",
-      "title": "Déšť na střechu",
-      "path": "ambient/rain.opus",
-      "duration_s": 90.0,
-      "bytes": 1042948,
-      "sha256": "ab0e733e7c7c1fcda3a59c22cf89908babbd2e232e91a4bac0e021dc0b9ecaec",
-      "free": true,
-      "license": "CC0",
-      "source": "Metadex: Soft rain on roof window (CC0)",
-      "kind": "nature"
-    },
-    {
-      "id": "stream",
-      "title": "Potůček",
-      "path": "ambient/stream.opus",
-      "duration_s": 100.0,
-      "bytes": 1189322,
-      "sha256": "8d792dc7a6dd0b6a07e482d5a8b1dc0b36b18c12380e9455897e9592c4edfd7f",
-      "free": true,
-      "license": "CC0",
-      "source": "turbostream: Stream Wyre forest (CC0)",
+      "id": "brown-noise",
+      "title": "Hnědý šum",
+      "path": "ambient/brown-noise.opus",
+      "duration_s": 60,
+      "bytes": 641249,
+      "sha256": "b73ea1589935ce77cd637b29ed92951b2b96f20c858925dfc388321e77712591",
+      "free": false,
+      "license": "vlastní syntéza",
+      "source": "ffmpeg anoisesrc",
       "kind": "nature"
     },
     {
       "id": "fireplace",
       "title": "Krb",
       "path": "ambient/fireplace.opus",
-      "duration_s": 100.0,
+      "duration_s": 100,
       "bytes": 1223971,
       "sha256": "497e05e0715dc07dceb0c6f0b3186893a20ed2fc881b5c9ebdb99de0060f11a9",
-      "free": true,
+      "free": false,
       "license": "CC0",
-      "source": "BonnyOrbit: Fireplace crackling wood little flame (CC0)",
+      "source": "https://freesound.org/people/BonnyOrbit/sounds/484338/",
       "kind": "nature"
     },
     {
-      "id": "wind",
-      "title": "Vítr v korunách",
-      "path": "ambient/wind.opus",
-      "duration_s": 100.0,
-      "bytes": 1037375,
-      "sha256": "1ed7cf87576cbd2c28eff20aece8be28f69d219b44f983f99cb6ae6d264136fc",
-      "free": true,
-      "license": "CC0",
-      "source": "Anya_Media: Forest, trees rustling in the wind (CC0)",
-      "kind": "nature"
-    },
-    {
-      "id": "night-meadow",
-      "title": "Noční louka",
-      "path": "ambient/night-meadow.opus",
-      "duration_s": 100.0,
-      "bytes": 1137057,
-      "sha256": "1fbf2294caf6cacd19754753d25f96b1e1af08baf03b96688e7b192e4e1d65e4",
-      "free": true,
-      "license": "CC0",
-      "source": "hdfreema: Night Crickets Back Porch (CC0)",
-      "kind": "nature"
-    },
-    {
-      "id": "pink-noise",
-      "title": "Růžový šum",
-      "path": "ambient/pink-noise.opus",
-      "duration_s": 60.0,
-      "bytes": 644247,
-      "sha256": "d3bbbc80881ed127bcdecdb6c21081707064661e3ac8048ba19ad6da1831dc6f",
-      "free": true,
-      "license": "own",
-      "source": "anoisesrc pink, 2 seeds -> decorrelated stereo",
-      "kind": "nature"
-    },
-    {
-      "id": "brown-noise",
-      "title": "Hnědý šum",
-      "path": "ambient/brown-noise.opus",
-      "duration_s": 60.0,
-      "bytes": 641249,
-      "sha256": "b73ea1589935ce77cd637b29ed92951b2b96f20c858925dfc388321e77712591",
-      "free": true,
-      "license": "own",
-      "source": "anoisesrc brown, 2 seeds -> decorrelated stereo",
-      "kind": "nature"
-    },
-    {
-      "id": "lullaby-musicbox",
-      "title": "Hrací skříňka",
-      "path": "ambient/lullaby-musicbox.opus",
-      "duration_s": 137.2,
-      "bytes": 1951886,
-      "sha256": "6fb0dce94b14f5f3feccde45a0dbeab9a2f352dce34feb7d9bab8dad58633e49",
+      "id": "lullaby-dream-1",
+      "title": "Snění",
+      "path": "ambient/lullaby-dream-1.opus",
+      "duration_s": 136.2,
+      "bytes": 1885636,
+      "sha256": "cb17acce609bbb7e7ab9c9e131be4a8d16238fd270190040080168279d00f921",
       "free": true,
       "license": "vlastní generace (ACE-Step 1.5, MIT)",
-      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 0, seed 11; prompt: gentle music box lullaby, soft celesta, slow, calm, sleepy, warm, instrumental, no drums, children bedtime",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 1, seed 41; prompt: ambient warm synth pads, slow evolving, very calm, deep sleep, soft, no melody jumps, no drums, instrumental",
       "kind": "music"
     },
     {
-      "id": "lullaby-piano-1",
-      "title": "Klavír",
-      "path": "ambient/lullaby-piano-1.opus",
-      "duration_s": 139.3,
-      "bytes": 1923230,
-      "sha256": "311379c0b2e1eb96dfa007c909e2b97e98add3e1be8f7ba4820d3a869cacf7a4",
-      "free": true,
-      "license": "vlastní generace (ACE-Step 1.5, MIT)",
-      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 0, seed 21; prompt: soft felt piano lullaby, slow, tender, sparse notes, warm, calm, sleepy, instrumental, no drums, children bedtime",
-      "kind": "music"
-    },
-    {
-      "id": "lullaby-piano-2",
-      "title": "Klavír II",
-      "path": "ambient/lullaby-piano-2.opus",
-      "duration_s": 136.5,
-      "bytes": 2016364,
-      "sha256": "64cc4666fb3541b158307020f4fa649a85fd82acbc83014b1bd1bcdfb3a5ab49",
+      "id": "lullaby-dream-2",
+      "title": "Snění II",
+      "path": "ambient/lullaby-dream-2.opus",
+      "duration_s": 138,
+      "bytes": 1846723,
+      "sha256": "5263009a606aefba4b94c0978058f43bb7b7caaeb1aa1c85a7471d6d5dc2bb2e",
       "free": false,
       "license": "vlastní generace (ACE-Step 1.5, MIT)",
-      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 2, seed 21; prompt: soft felt piano lullaby, slow, tender, sparse notes, warm, calm, sleepy, instrumental, no drums, children bedtime",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 2, seed 41; prompt: ambient warm synth pads, slow evolving, very calm, deep sleep, soft, no melody jumps, no drums, instrumental",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-guitar-1",
+      "title": "Kytara",
+      "path": "ambient/lullaby-guitar-1.opus",
+      "duration_s": 142,
+      "bytes": 1990578,
+      "sha256": "917bcd9e141de5c680dd7ce0d50ccd9af1fda19d36132285b8fbc440287302cf",
+      "free": true,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 0, seed 51; prompt: quiet fingerpicked acoustic nylon guitar lullaby, slow, soft, warm, calm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-guitar-2",
+      "title": "Kytara II",
+      "path": "ambient/lullaby-guitar-2.opus",
+      "duration_s": 122.1,
+      "bytes": 1712911,
+      "sha256": "28b46232ee8fae907312a8daeee48cbf36d219b1aad212c71cd2764bbe8d614b",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 1, seed 51; prompt: quiet fingerpicked acoustic nylon guitar lullaby, slow, soft, warm, calm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-guitar-3",
+      "title": "Kytara III",
+      "path": "ambient/lullaby-guitar-3.opus",
+      "duration_s": 142.3,
+      "bytes": 2062703,
+      "sha256": "55a466d7fa6e2224c8d9b2c077922bf1e5eb932ba1fa7cc99c9360ee359dd99e",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 2, seed 51; prompt: quiet fingerpicked acoustic nylon guitar lullaby, slow, soft, warm, calm, instrumental, no drums, children bedtime",
       "kind": "music"
     },
     {
@@ -345,39 +297,39 @@
       "kind": "music"
     },
     {
-      "id": "lullaby-guitar-1",
-      "title": "Kytara",
-      "path": "ambient/lullaby-guitar-1.opus",
-      "duration_s": 142.0,
-      "bytes": 1990578,
-      "sha256": "917bcd9e141de5c680dd7ce0d50ccd9af1fda19d36132285b8fbc440287302cf",
+      "id": "lullaby-musicbox",
+      "title": "Hrací skříňka",
+      "path": "ambient/lullaby-musicbox.opus",
+      "duration_s": 137.2,
+      "bytes": 1951886,
+      "sha256": "6fb0dce94b14f5f3feccde45a0dbeab9a2f352dce34feb7d9bab8dad58633e49",
       "free": true,
       "license": "vlastní generace (ACE-Step 1.5, MIT)",
-      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 0, seed 51; prompt: quiet fingerpicked acoustic nylon guitar lullaby, slow, soft, warm, calm, instrumental, no drums, children bedtime",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 0, seed 11; prompt: gentle music box lullaby, soft celesta, slow, calm, sleepy, warm, instrumental, no drums, children bedtime",
       "kind": "music"
     },
     {
-      "id": "lullaby-guitar-2",
-      "title": "Kytara II",
-      "path": "ambient/lullaby-guitar-2.opus",
-      "duration_s": 122.1,
-      "bytes": 1712911,
-      "sha256": "28b46232ee8fae907312a8daeee48cbf36d219b1aad212c71cd2764bbe8d614b",
-      "free": false,
+      "id": "lullaby-piano-1",
+      "title": "Klavír",
+      "path": "ambient/lullaby-piano-1.opus",
+      "duration_s": 139.3,
+      "bytes": 1923230,
+      "sha256": "311379c0b2e1eb96dfa007c909e2b97e98add3e1be8f7ba4820d3a869cacf7a4",
+      "free": true,
       "license": "vlastní generace (ACE-Step 1.5, MIT)",
-      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 1, seed 51; prompt: quiet fingerpicked acoustic nylon guitar lullaby, slow, soft, warm, calm, instrumental, no drums, children bedtime",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 0, seed 21; prompt: soft felt piano lullaby, slow, tender, sparse notes, warm, calm, sleepy, instrumental, no drums, children bedtime",
       "kind": "music"
     },
     {
-      "id": "lullaby-guitar-3",
-      "title": "Kytara III",
-      "path": "ambient/lullaby-guitar-3.opus",
-      "duration_s": 142.3,
-      "bytes": 2062703,
-      "sha256": "55a466d7fa6e2224c8d9b2c077922bf1e5eb932ba1fa7cc99c9360ee359dd99e",
+      "id": "lullaby-piano-2",
+      "title": "Klavír II",
+      "path": "ambient/lullaby-piano-2.opus",
+      "duration_s": 136.5,
+      "bytes": 2016364,
+      "sha256": "64cc4666fb3541b158307020f4fa649a85fd82acbc83014b1bd1bcdfb3a5ab49",
       "free": false,
       "license": "vlastní generace (ACE-Step 1.5, MIT)",
-      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 2, seed 51; prompt: quiet fingerpicked acoustic nylon guitar lullaby, slow, soft, warm, calm, instrumental, no drums, children bedtime",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 2, seed 21; prompt: soft felt piano lullaby, slow, tender, sparse notes, warm, calm, sleepy, instrumental, no drums, children bedtime",
       "kind": "music"
     },
     {
@@ -417,28 +369,76 @@
       "kind": "music"
     },
     {
-      "id": "lullaby-dream-1",
-      "title": "Snění",
-      "path": "ambient/lullaby-dream-1.opus",
-      "duration_s": 136.2,
-      "bytes": 1885636,
-      "sha256": "cb17acce609bbb7e7ab9c9e131be4a8d16238fd270190040080168279d00f921",
-      "free": true,
-      "license": "vlastní generace (ACE-Step 1.5, MIT)",
-      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 1, seed 41; prompt: ambient warm synth pads, slow evolving, very calm, deep sleep, soft, no melody jumps, no drums, instrumental",
-      "kind": "music"
+      "id": "night-meadow",
+      "title": "Noční louka",
+      "path": "ambient/night-meadow.opus",
+      "duration_s": 100,
+      "bytes": 1137057,
+      "sha256": "1fbf2294caf6cacd19754753d25f96b1e1af08baf03b96688e7b192e4e1d65e4",
+      "free": false,
+      "license": "CC0",
+      "source": "https://freesound.org/people/hdfreema/sounds/333221/",
+      "kind": "nature"
     },
     {
-      "id": "lullaby-dream-2",
-      "title": "Snění II",
-      "path": "ambient/lullaby-dream-2.opus",
-      "duration_s": 138.0,
-      "bytes": 1846723,
-      "sha256": "5263009a606aefba4b94c0978058f43bb7b7caaeb1aa1c85a7471d6d5dc2bb2e",
+      "id": "pink-noise",
+      "title": "Růžový šum",
+      "path": "ambient/pink-noise.opus",
+      "duration_s": 60,
+      "bytes": 644247,
+      "sha256": "d3bbbc80881ed127bcdecdb6c21081707064661e3ac8048ba19ad6da1831dc6f",
+      "free": true,
+      "license": "vlastní syntéza",
+      "source": "ffmpeg anoisesrc",
+      "kind": "nature"
+    },
+    {
+      "id": "rain",
+      "title": "Déšť na střechu",
+      "path": "ambient/rain.opus",
+      "duration_s": 90,
+      "bytes": 1042948,
+      "sha256": "ab0e733e7c7c1fcda3a59c22cf89908babbd2e232e91a4bac0e021dc0b9ecaec",
+      "free": true,
+      "license": "CC0",
+      "source": "https://freesound.org/people/Metadex/sounds/235827/",
+      "kind": "nature"
+    },
+    {
+      "id": "sea",
+      "title": "Moře",
+      "path": "ambient/sea.opus",
+      "duration_s": 100,
+      "bytes": 1025510,
+      "sha256": "e4436178e18f453e6dc7daa1e2530181a01d83040e6951e3bd1f7cd4bf0dcf33",
+      "free": true,
+      "license": "CC0",
+      "source": "https://freesound.org/people/pulswelle/sounds/339517/",
+      "kind": "nature"
+    },
+    {
+      "id": "stream",
+      "title": "Potůček",
+      "path": "ambient/stream.opus",
+      "duration_s": 100,
+      "bytes": 1189322,
+      "sha256": "8d792dc7a6dd0b6a07e482d5a8b1dc0b36b18c12380e9455897e9592c4edfd7f",
       "free": false,
-      "license": "vlastní generace (ACE-Step 1.5, MIT)",
-      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 2, seed 41; prompt: ambient warm synth pads, slow evolving, very calm, deep sleep, soft, no melody jumps, no drums, instrumental",
-      "kind": "music"
+      "license": "CC0",
+      "source": "https://freesound.org/people/turbostream/sounds/220528/",
+      "kind": "nature"
+    },
+    {
+      "id": "wind",
+      "title": "Vítr v korunách",
+      "path": "ambient/wind.opus",
+      "duration_s": 100,
+      "bytes": 1037375,
+      "sha256": "1ed7cf87576cbd2c28eff20aece8be28f69d219b44f983f99cb6ae6d264136fc",
+      "free": true,
+      "license": "CC0",
+      "source": "https://freesound.org/people/Anya_Media/sounds/523389/",
+      "kind": "nature"
     }
   ],
   "presets": [

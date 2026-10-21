@@ -30,22 +30,22 @@ flutter analyze
 |---|---|---|
 | `CATALOG_URL` | `https://lioilsources.github.io/hajanek-content/catalog.json` | odkud se stahuje katalog |
 | `API_URL` | `https://hajanek-api.ol1n.com` | hajanek-api (registrace zařízení, hlasy rodičů, klipy) |
-| `INCLUDE_DRAFTS` | `true` | ukázat pohádky, jejichž skript v bundlu má `status: draft`. **Pro release musí být `false`** (`flutter build ipa --dart-define=INCLUDE_DRAFTS=false`). Publikovaný katalog drafty nikdy nemá. |
+| `INCLUDE_DRAFTS` | `true` | ukázat pohádky, jejichž skript v bundlu má `status: draft`. **Pro release musí být `false`** (`flutter build ipa --dart-define=INCLUDE_DRAFTS=false`). Drafty jsou zatím i v publikovaném katalogu (`forge publish --drafts`, kvůli testu s Alexkem); appka je pozná podle `status` skriptu. |
 
 Appka mluví jen s Pages (katalog) a s `hajanek-api`; nikdy s `llm.ol1n.com`
 a nepotřebuje žádné CF Access tajnosti.
 
 ### Obsah v bundlu
 
+Bundle je přesná kopie publikovaného katalogu (`hajanek-content`):
+
 ```bash
-dart run tool/bundle_content.dart [--version N]
+forge/bin/forge publish --repo . --content-pages ../hajanek-content --drafts --min-version N
+tools/sync_app_bundle.sh      # catalog.json + skripty + ambient + nahrávací text → app/assets/
 ```
 
-zkopíruje všech 10 skriptů z `../content/scripts/` (+ `gold/`) do
-`assets/scripts/`, nahrávací text do `assets/voice/` a přepíše `tales`
-v `assets/catalog/catalog.json` (sha256, bytes, `est_duration_s` = 95 slov/min
-+ pauzy). Ambient a předvolby nechá. Test `bundled scripts are copies of
-content/` spadne, když se na to zapomene.
+Testy `bundled scripts are copies of content/` a `bundled files match their
+hashes` spadnou, když se na to zapomene.
 
 ## Struktura
 
@@ -72,11 +72,10 @@ lib/
                          klipů), obrazovka „Hlas“, nahrávání vzorku
     mixer/, timer/, settings/
 assets/
-  catalog/catalog.json   kopie katalogu (schema 2, verze 2, všech 10 pohádek)
+  catalog/catalog.json   kopie publikovaného katalogu (schema 2, všech 10 pohádek)
   scripts/{id}.10.md     texty všech skriptů (8 z 10 je zatím draft)
   voice/recording_script.md   text, který rodič čte při nahrávání
-  ambient/{id}.opus      8 ambient smyček
-tool/bundle_content.dart
+  ambient/{id}.opus      8 zvuků + 14 ukolébavek
 ```
 
 ## Jak to funguje

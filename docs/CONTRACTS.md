@@ -129,7 +129,9 @@ telefonu (systémové TTS) nebo na Sparku z hlasu rodiče (§8).
   nová `sha256` a nová `version` katalogu; app stahuje jen změny podle `sha256`.
 - `version` je monotónní integer; app porovnává s lokální.
 - `presets[].layers`: 1–3 vrstvy, `volume` 0.0–1.0.
-- Publikují se jen skripty se `status: reviewed | gold`.
+- Publikují se skripty se `status: reviewed | gold`; `forge publish --drafts`
+  přidá i `draft` (testování před kontrolou). Appka má v bundlu kopii
+  publikovaného katalogu (`tools/sync_app_bundle.sh`).
 - `est_duration_s` = odhad forge (95 slov/min při normální rychlosti + pauzy);
   skutečná délka závisí na hlasu.
 - App má v bundlu **kopii** katalogu, všech skriptů a ambient smyček

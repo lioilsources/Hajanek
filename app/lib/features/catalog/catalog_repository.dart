@@ -16,8 +16,8 @@ const defaultCatalogUrl = String.fromEnvironment(
 );
 
 /// Bundled tales whose script is `status: draft`. Must be false for release
-/// (`--dart-define=INCLUDE_DRAFTS=false`); the published catalog never has
-/// drafts anyway.
+/// (`--dart-define=INCLUDE_DRAFTS=false`). The published catalog carries
+/// drafts only while testing (`forge publish --drafts`).
 const includeDrafts = bool.fromEnvironment('INCLUDE_DRAFTS', defaultValue: true);
 
 class CatalogSnapshot {

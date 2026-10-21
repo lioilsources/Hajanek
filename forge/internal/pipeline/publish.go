@@ -30,6 +30,11 @@ type PublishOpts struct {
 	PagesDir string
 	Commit   bool
 	Now      time.Time
+	// Drafts publishes status: draft scripts too (testing before review).
+	Drafts bool
+	// MinVersion raises the new catalog version to at least this, so it beats
+	// the copy bundled in the app.
+	MinVersion int
 }
 
 type PublishResult struct {
@@ -108,7 +113,7 @@ func (e *Env) scriptRefs() []scriptRef {
 	return out
 }
 
-// Publish copies reviewed/gold scripts and ambient loops into the pages repo
+// Publish copies reviewed/gold scripts (plus drafts with o.Drafts) and ambient loops into the pages repo
 // and rebuilds catalog.json (schema 2, CONTRACTS §3).
 func (e *Env) Publish(o PublishOpts) (*PublishResult, error) {
 	if o.Now.IsZero() {
@@ -148,7 +153,7 @@ func (e *Env) Publish(o PublishOpts) (*PublishResult, error) {
 		case perr != nil:
 			res.Skipped = append(res.Skipped, fmt.Sprintf("%s (parse: %v)", name, perr))
 			continue
-		case s.Meta.Status != "reviewed" && s.Meta.Status != "gold":
+		case s.Meta.Status != "reviewed" && s.Meta.Status != "gold" && !(o.Drafts && s.Meta.Status == "draft"):
 			res.Skipped = append(res.Skipped, fmt.Sprintf("%s (status %q)", name, s.Meta.Status))
 			continue
 		case s.Meta.ID != ref.Tale || s.Meta.LengthMin != ref.Length:
@@ -192,6 +197,10 @@ func (e *Env) Publish(o PublishOpts) (*PublishResult, error) {
 	e.reconcile(cat, res)
 
 	res.Changed = cat.Finalize(prev, o.Now)
+	if cat.Version < o.MinVersion {
+		cat.Version, res.Changed = o.MinVersion, true
+		cat.GeneratedAt = o.Now.UTC().Format(time.RFC3339)
+	}
 	res.Version = cat.Version
 	if errs := cat.Validate(pages, prev); len(errs) > 0 {
 		return res, fmt.Errorf("catalog invalid: %s", strings.Join(errs, "; "))

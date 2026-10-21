@@ -108,7 +108,8 @@ void main() {
       for (final t in c.tales) {
         final s = t.script();
         final parsed = parseScript(File('assets/${s.path}').readAsStringSync());
-        expect(s.estDurationS, parsed.estimatedSeconds.roundToDouble(), reason: s.path);
+        // est_duration_s is forge's estimate (adds the gaps between utterances).
+        expect(s.estDurationS, closeTo(parsed.estimatedSeconds, parsed.estimatedSeconds * 0.15), reason: s.path);
         expect(parsed.meta['id'], t.id);
       }
     });
@@ -119,7 +120,7 @@ void main() {
         final src = [File('../content/scripts/$name'), File('../content/scripts/gold/$name')]
             .firstWhere((x) => x.existsSync());
         expect(f.readAsStringSync(), src.readAsStringSync(),
-            reason: '$name is stale: run dart run tool/bundle_content.dart');
+            reason: '$name is stale: run forge publish + tools/sync_app_bundle.sh');
       }
     });
 
