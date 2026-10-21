@@ -1,7 +1,7 @@
 {
   "schema": 2,
-  "version": 2,
-  "generated_at": "2026-10-20T03:12:00Z",
+  "version": 3,
+  "generated_at": "2026-10-21T01:01:00Z",
   "base_url": "https://lioilsources.github.io/hajanek-content/",
   "tales": [
     {
@@ -185,7 +185,8 @@
       "sha256": "e4436178e18f453e6dc7daa1e2530181a01d83040e6951e3bd1f7cd4bf0dcf33",
       "free": true,
       "license": "CC0",
-      "source": "pulswelle: Waves at Baltic Sea shore (CC0)"
+      "source": "pulswelle: Waves at Baltic Sea shore (CC0)",
+      "kind": "nature"
     },
     {
       "id": "rain",
@@ -196,7 +197,8 @@
       "sha256": "ab0e733e7c7c1fcda3a59c22cf89908babbd2e232e91a4bac0e021dc0b9ecaec",
       "free": true,
       "license": "CC0",
-      "source": "Metadex: Soft rain on roof window (CC0)"
+      "source": "Metadex: Soft rain on roof window (CC0)",
+      "kind": "nature"
     },
     {
       "id": "stream",
@@ -207,7 +209,8 @@
       "sha256": "8d792dc7a6dd0b6a07e482d5a8b1dc0b36b18c12380e9455897e9592c4edfd7f",
       "free": true,
       "license": "CC0",
-      "source": "turbostream: Stream Wyre forest (CC0)"
+      "source": "turbostream: Stream Wyre forest (CC0)",
+      "kind": "nature"
     },
     {
       "id": "fireplace",
@@ -218,7 +221,8 @@
       "sha256": "497e05e0715dc07dceb0c6f0b3186893a20ed2fc881b5c9ebdb99de0060f11a9",
       "free": true,
       "license": "CC0",
-      "source": "BonnyOrbit: Fireplace crackling wood little flame (CC0)"
+      "source": "BonnyOrbit: Fireplace crackling wood little flame (CC0)",
+      "kind": "nature"
     },
     {
       "id": "wind",
@@ -229,7 +233,8 @@
       "sha256": "1ed7cf87576cbd2c28eff20aece8be28f69d219b44f983f99cb6ae6d264136fc",
       "free": true,
       "license": "CC0",
-      "source": "Anya_Media: Forest, trees rustling in the wind (CC0)"
+      "source": "Anya_Media: Forest, trees rustling in the wind (CC0)",
+      "kind": "nature"
     },
     {
       "id": "night-meadow",
@@ -240,7 +245,8 @@
       "sha256": "1fbf2294caf6cacd19754753d25f96b1e1af08baf03b96688e7b192e4e1d65e4",
       "free": true,
       "license": "CC0",
-      "source": "hdfreema: Night Crickets Back Porch (CC0)"
+      "source": "hdfreema: Night Crickets Back Porch (CC0)",
+      "kind": "nature"
     },
     {
       "id": "pink-noise",
@@ -251,7 +257,8 @@
       "sha256": "d3bbbc80881ed127bcdecdb6c21081707064661e3ac8048ba19ad6da1831dc6f",
       "free": true,
       "license": "own",
-      "source": "anoisesrc pink, 2 seeds -> decorrelated stereo"
+      "source": "anoisesrc pink, 2 seeds -> decorrelated stereo",
+      "kind": "nature"
     },
     {
       "id": "brown-noise",
@@ -262,7 +269,176 @@
       "sha256": "b73ea1589935ce77cd637b29ed92951b2b96f20c858925dfc388321e77712591",
       "free": true,
       "license": "own",
-      "source": "anoisesrc brown, 2 seeds -> decorrelated stereo"
+      "source": "anoisesrc brown, 2 seeds -> decorrelated stereo",
+      "kind": "nature"
+    },
+    {
+      "id": "lullaby-musicbox",
+      "title": "Hrací skříňka",
+      "path": "ambient/lullaby-musicbox.opus",
+      "duration_s": 137.2,
+      "bytes": 1951886,
+      "sha256": "6fb0dce94b14f5f3feccde45a0dbeab9a2f352dce34feb7d9bab8dad58633e49",
+      "free": true,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 0, seed 11; prompt: gentle music box lullaby, soft celesta, slow, calm, sleepy, warm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-piano-1",
+      "title": "Klavír",
+      "path": "ambient/lullaby-piano-1.opus",
+      "duration_s": 139.3,
+      "bytes": 1923230,
+      "sha256": "311379c0b2e1eb96dfa007c909e2b97e98add3e1be8f7ba4820d3a869cacf7a4",
+      "free": true,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 0, seed 21; prompt: soft felt piano lullaby, slow, tender, sparse notes, warm, calm, sleepy, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-piano-2",
+      "title": "Klavír II",
+      "path": "ambient/lullaby-piano-2.opus",
+      "duration_s": 136.5,
+      "bytes": 2016364,
+      "sha256": "64cc4666fb3541b158307020f4fa649a85fd82acbc83014b1bd1bcdfb3a5ab49",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 2, seed 21; prompt: soft felt piano lullaby, slow, tender, sparse notes, warm, calm, sleepy, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-harp-1",
+      "title": "Harfa",
+      "path": "ambient/lullaby-harp-1.opus",
+      "duration_s": 138.8,
+      "bytes": 1935397,
+      "sha256": "0301b5963f8bd0ceb158bfa35723e0ab2f7489aca97f71e5ac682763a4319092",
+      "free": true,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 0, seed 31; prompt: gentle harp and celesta lullaby, slow, dreamy, soft, calm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-harp-2",
+      "title": "Harfa II",
+      "path": "ambient/lullaby-harp-2.opus",
+      "duration_s": 137.7,
+      "bytes": 1979970,
+      "sha256": "d2426aa76535b688ccee5cf8b830f76dabee4770dc0824c007bedbacd3d2ab1f",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 1, seed 31; prompt: gentle harp and celesta lullaby, slow, dreamy, soft, calm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-harp-3",
+      "title": "Harfa III",
+      "path": "ambient/lullaby-harp-3.opus",
+      "duration_s": 141.3,
+      "bytes": 2063893,
+      "sha256": "166e0f6526807201f4c76e8865f63107357ba0c6d1df28dd004b9756ff4ad504",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 2, seed 31; prompt: gentle harp and celesta lullaby, slow, dreamy, soft, calm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-guitar-1",
+      "title": "Kytara",
+      "path": "ambient/lullaby-guitar-1.opus",
+      "duration_s": 142.0,
+      "bytes": 1990578,
+      "sha256": "917bcd9e141de5c680dd7ce0d50ccd9af1fda19d36132285b8fbc440287302cf",
+      "free": true,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 0, seed 51; prompt: quiet fingerpicked acoustic nylon guitar lullaby, slow, soft, warm, calm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-guitar-2",
+      "title": "Kytara II",
+      "path": "ambient/lullaby-guitar-2.opus",
+      "duration_s": 122.1,
+      "bytes": 1712911,
+      "sha256": "28b46232ee8fae907312a8daeee48cbf36d219b1aad212c71cd2764bbe8d614b",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 1, seed 51; prompt: quiet fingerpicked acoustic nylon guitar lullaby, slow, soft, warm, calm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-guitar-3",
+      "title": "Kytara III",
+      "path": "ambient/lullaby-guitar-3.opus",
+      "duration_s": 142.3,
+      "bytes": 2062703,
+      "sha256": "55a466d7fa6e2224c8d9b2c077922bf1e5eb932ba1fa7cc99c9360ee359dd99e",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 2, seed 51; prompt: quiet fingerpicked acoustic nylon guitar lullaby, slow, soft, warm, calm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-stars-1",
+      "title": "Hvězdičky",
+      "path": "ambient/lullaby-stars-1.opus",
+      "duration_s": 137.8,
+      "bytes": 2003969,
+      "sha256": "209fc6cf449cf631ed7262adc1790649e69a2a171612d541cfa413d67f6f0af4",
+      "free": true,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 0, seed 61; prompt: starry night lullaby, soft glockenspiel, airy pads, slow, magical, calm, sleepy, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-stars-2",
+      "title": "Hvězdičky II",
+      "path": "ambient/lullaby-stars-2.opus",
+      "duration_s": 139.7,
+      "bytes": 1937302,
+      "sha256": "e9fe6bbfb80dcca7d13f3c20110f89c68ad78af10a5ce73e3cfc1d411926321e",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 1, seed 61; prompt: starry night lullaby, soft glockenspiel, airy pads, slow, magical, calm, sleepy, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-stars-3",
+      "title": "Hvězdičky III",
+      "path": "ambient/lullaby-stars-3.opus",
+      "duration_s": 138.9,
+      "bytes": 2051541,
+      "sha256": "88409a8f5079acc342b6131f875463cc380bc4119df0c06a600726792bedcfd7",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 2, seed 61; prompt: starry night lullaby, soft glockenspiel, airy pads, slow, magical, calm, sleepy, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-dream-1",
+      "title": "Snění",
+      "path": "ambient/lullaby-dream-1.opus",
+      "duration_s": 136.2,
+      "bytes": 1885636,
+      "sha256": "cb17acce609bbb7e7ab9c9e131be4a8d16238fd270190040080168279d00f921",
+      "free": true,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 1, seed 41; prompt: ambient warm synth pads, slow evolving, very calm, deep sleep, soft, no melody jumps, no drums, instrumental",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-dream-2",
+      "title": "Snění II",
+      "path": "ambient/lullaby-dream-2.opus",
+      "duration_s": 138.0,
+      "bytes": 1846723,
+      "sha256": "5263009a606aefba4b94c0978058f43bb7b7caaeb1aa1c85a7471d6d5dc2bb2e",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 2, seed 41; prompt: ambient warm synth pads, slow evolving, very calm, deep sleep, soft, no melody jumps, no drums, instrumental",
+      "kind": "music"
     }
   ],
   "presets": [

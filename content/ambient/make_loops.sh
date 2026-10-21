@@ -117,6 +117,9 @@ build() {
 #    block is within ±6 dB of the neighbours' median. (Full-band ±3 dB vs the
 #    median is too strict: a natural bubble/crackle can sit on the seam.)
 #    Negative controls (hard-cut brown noise / sine) score +20..25 dB.
+#  * lullaby-* (music): only the click check (not louder than the loudest
+#    neighbour +1 dB). Notes change the >6 kHz level and rests are silence,
+#    so the median and silence rules would fail every melody.
 verify_one() {
   f=$1
   id=$(basename "$f"); id=${id%.*}
@@ -163,9 +166,10 @@ verify_one() {
   set -- $(seam_eval "$TMP/$id.full"); fd=$1 fe=$2
   set -- $(seam_eval "$TMP/$id.high"); hd=$1 he=$2
   ok=PASS
-  awk -v a="$fd" -v b="$fe" -v c="$hd" -v d="$he" \
-    'BEGIN{ if (b>1||d>1||c>6||c<-6) exit 0; exit 1 }' && ok=FAIL
-  [ "$sil" -gt 0 ] && ok=FAIL
+  case $id in lullaby-*) music=1 ;; *) music=0 ;; esac
+  awk -v a="$fd" -v b="$fe" -v c="$hd" -v d="$he" -v m="$music" \
+    'BEGIN{ if (b>1||d>1||(!m&&(c>6||c<-6))) exit 0; exit 1 }' && ok=FAIL
+  [ "$sil" -gt 0 ] && [ "$music" = 0 ] && ok=FAIL
   size=$(wc -c < "$f" | awk '{printf "%.0f", $1/1024}')
   printf '%-13s %6.1f %7s %7s %5s %10s %10s %4s %6s  %s\n' \
     "$id" "$dur" "$lufs" "$tpk" "$sil" "$fd/$fe" "$hd/$he" "$ok" "${size}K" ""

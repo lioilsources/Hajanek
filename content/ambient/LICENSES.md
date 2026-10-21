@@ -16,6 +16,11 @@ Stav ověřen 2026-10-20 přímo na stránkách zvuků (Freesound uvádí „Cre
 | `pink-noise.opus` | vlastní syntéza (`anoisesrc=color=pink`, seedy 11/29) | Hajánek | vlastní, bez omezení | — | — |
 | `brown-noise.opus` | vlastní syntéza (`anoisesrc=color=brown`, seedy 11/29) | Hajánek | vlastní, bez omezení | — | — |
 
+Ukolébavky `lullaby-*.opus` jsou vlastní generace modelem **ACE-Step 1.5 turbo**
+(licence MIT; výstupy modelu nejsou omezené a lze je užít komerčně), spuštěným na
+vlastním hardwaru (AiStack). Bez cizího zvukového materiálu, bez textu (instrumentální),
+melodie nejsou převzaté. Prompt a seed každé smyčky jsou v `ambient.json`.
+
 Doporučený text do „O aplikaci → Zvuky“:
 
 > Přírodní zvuky: pulswelle, Metadex, turbostream, BonnyOrbit, Anya_Media a hdfreema

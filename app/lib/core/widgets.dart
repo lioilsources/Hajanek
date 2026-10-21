@@ -126,6 +126,8 @@ Future<T?> showChoiceSheet<T>({
   required List<T> choices,
   required String Function(T) label,
   T? selected,
+  /// Section heading of each choice; a heading is shown where it changes.
+  String Function(T)? group,
 }) =>
     showModalBottomSheet<T>(
       context: context,
@@ -140,12 +142,14 @@ Future<T?> showChoiceSheet<T>({
                 padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
                 child: Text(title, style: Theme.of(context).textTheme.titleMedium),
               ),
-              for (final c in choices)
+              for (final (i, c) in choices.indexed) ...[
+                if (group != null && (i == 0 || group(choices[i - 1]) != group(c))) SectionLabel(group(c)),
                 ListTile(
                   title: Text(label(c), style: const TextStyle(fontSize: 18)),
                   trailing: c == selected ? const Icon(Icons.check, color: Night.accent) : null,
                   onTap: () => Navigator.of(context).pop(c),
                 ),
+              ],
             ],
           ),
         ),

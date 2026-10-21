@@ -1,7 +1,7 @@
 # content/ambient — bezešvé ambientní smyčky
 
 Formát dle `docs/CONTRACTS.md` §4: `{id}.opus`, Opus 96 kbps VBR, stereo, 48 kHz,
-60–120 s, bezešvá smyčka, −30 LUFS integrated. Původ a licence:
+60–150 s, bezešvá smyčka, −30 LUFS integrated. Původ a licence:
 [`LICENSES.md`](LICENSES.md), rozhodnutí: [`docs/adr/ADR-002-ambient-sources.md`](../../docs/adr/ADR-002-ambient-sources.md).
 
 | id | délka | zdroj |
@@ -14,6 +14,31 @@ Formát dle `docs/CONTRACTS.md` §4: `{id}.opus`, Opus 96 kbps VBR, stereo, 48 k
 | `night-meadow` | 100 s | Freesound 333221 (CC0) |
 | `pink-noise` | 60 s | syntéza ffmpeg |
 | `brown-noise` | 60 s | syntéza ffmpeg |
+
+### Ukolébavky (`kind: music`)
+
+Vygenerované ACE-Step 1.5 turbo na AiStack (Spark), 150 s, 60 BPM, instrumentální,
+`loop: true`, pak `forge master-ambient` (−30 LUFS, crossfade). Prompty a seedy jsou
+u každé smyčky v `ambient.json` (`source`). Vybráno ze 17 kandidátů; vyřazené měly
+velké skoky hlasitosti (LRA > 8 LU). Kandidáti a surová wav jsou mimo repo
+(`hajanek-music-candidates/`).
+
+| id | název | délka |
+|---|---|---|
+| `lullaby-musicbox` | Hrací skříňka | 137 s |
+| `lullaby-piano-1` | Klavír | 139 s |
+| `lullaby-piano-2` | Klavír II | 136 s |
+| `lullaby-harp-1` | Harfa | 139 s |
+| `lullaby-harp-2` | Harfa II | 138 s |
+| `lullaby-harp-3` | Harfa III | 141 s |
+| `lullaby-guitar-1` | Kytara | 142 s |
+| `lullaby-guitar-2` | Kytara II | 122 s |
+| `lullaby-guitar-3` | Kytara III | 142 s |
+| `lullaby-stars-1` | Hvězdičky | 138 s |
+| `lullaby-stars-2` | Hvězdičky II | 140 s |
+| `lullaby-stars-3` | Hvězdičky III | 139 s |
+| `lullaby-dream-1` | Snění | 136 s |
+| `lullaby-dream-2` | Snění II | 138 s |
 
 ## Soubory
 

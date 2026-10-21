@@ -53,6 +53,8 @@ abstract final class S {
   static const mixerDeletePreset = 'Smazat předvolbu?';
   static const mixerDelete = 'Smazat';
   static const mixerRemoveLayer = 'Odebrat vrstvu';
+  static const mixerGroupNature = 'Přírodní zvuky';
+  static const mixerGroupMusic = 'Ukolébavky';
 
   // Timer
   static const timerTitle = 'Časovač';

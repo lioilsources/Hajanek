@@ -22,6 +22,14 @@ class MixerScreen extends ConsumerWidget {
     final layers = p.layers;
 
     String title(String id) => catalog.ambientById(id)?.title ?? id;
+    // Nature sounds first, then lullabies; catalog order within a group.
+    final choices = [
+      for (final k in AmbientKind.values)
+        for (final a in catalog.ambient)
+          if (a.kind == k) a.id,
+    ];
+    String group(String id) =>
+        catalog.ambientById(id)?.kind == AmbientKind.music ? S.mixerGroupMusic : S.mixerGroupNature;
 
     void replace(int i, MixLayer l) => ctrl.setLayers([...layers]..[i] = l);
 
@@ -53,8 +61,9 @@ class MixerScreen extends ConsumerWidget {
                 final id = await showChoiceSheet<String>(
                   context: context,
                   title: i == 0 ? S.mixerMain : S.mixerSecondary,
-                  choices: [for (final a in catalog.ambient) a.id],
+                  choices: choices,
                   label: title,
+                  group: group,
                   selected: layers[i].ambient,
                 );
                 if (id != null) replace(i, layers[i].copyWith(ambient: id));

@@ -74,7 +74,13 @@ void main() {
       expect(c.tales, hasLength(10));
       expect(c.ambient.map((a) => a.id), unorderedEquals([
         'sea', 'rain', 'stream', 'fireplace', 'wind', 'night-meadow', 'pink-noise', 'brown-noise', //
+        'lullaby-musicbox', 'lullaby-piano-1', 'lullaby-piano-2', 'lullaby-harp-1', 'lullaby-harp-2', //
+        'lullaby-harp-3', 'lullaby-guitar-1', 'lullaby-guitar-2', 'lullaby-guitar-3', 'lullaby-stars-1', //
+        'lullaby-stars-2', 'lullaby-stars-3', 'lullaby-dream-1', 'lullaby-dream-2', //
       ]));
+      for (final a in c.ambient) {
+        expect(a.kind, a.id.startsWith('lullaby-') ? AmbientKind.music : AmbientKind.nature, reason: a.id);
+      }
       for (final t in c.tales) {
         final s = t.script();
         expect(s.lengthMin, 10, reason: t.id);

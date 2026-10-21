@@ -69,6 +69,8 @@ type Ambient struct {
 	Free      bool    `json:"free"`
 	License   string  `json:"license"`
 	Source    string  `json:"source"`
+	// Kind groups the jukebox: "nature" (recordings, noise) or "music" (lullabies).
+	Kind string `json:"kind,omitempty"`
 }
 
 type Preset struct {
@@ -135,6 +137,9 @@ func (c *Catalog) Validate() error {
 			v.addf("%s.duration_s: must be > 0", p)
 		}
 		v.required(p+".license", a.License)
+		if a.Kind != "" && a.Kind != "nature" && a.Kind != "music" {
+			v.addf("%s.kind: must be nature or music, got %q", p, a.Kind)
+		}
 	}
 
 	tales := map[string]bool{}

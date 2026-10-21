@@ -69,6 +69,8 @@ func TestValidate(t *testing.T) {
 		{"absolute path", func(c *Catalog) { c.Ambient[0].Path = "/ambient/sea.opus" }, "relative"},
 		{"path traversal", func(c *Catalog) { c.Ambient[0].Path = "../x.opus" }, "relative"},
 		{"bad sha256", func(c *Catalog) { c.Ambient[0].SHA256 = "…" }, "sha256"},
+		{"ambient kinds", func(c *Catalog) { c.Ambient[0].Kind, c.Ambient[1].Kind = "nature", "music" }, ""},
+		{"unknown ambient kind", func(c *Catalog) { c.Ambient[0].Kind = "podcast" }, "kind"},
 		{"zero bytes", func(c *Catalog) { c.Tales[0].Scripts[0].Bytes = 0 }, "bytes"},
 		{"zero layers", func(c *Catalog) { c.Presets[0].Layers = nil }, "1–3 layers"},
 		{"four layers", func(c *Catalog) {

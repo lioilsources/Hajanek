@@ -97,6 +97,7 @@ class Ambient implements CatalogFile {
     required this.free,
     this.license = '',
     this.source = '',
+    this.kind = AmbientKind.nature,
   });
   final String id;
   final String title;
@@ -110,6 +111,7 @@ class Ambient implements CatalogFile {
   final bool free;
   final String license;
   final String source;
+  final AmbientKind kind;
 
   factory Ambient.fromJson(Map<String, dynamic> j) => Ambient(
         id: _str(j, 'id'),
@@ -121,8 +123,12 @@ class Ambient implements CatalogFile {
         free: j['free'] as bool? ?? true,
         license: j['license'] as String? ?? '',
         source: j['source'] as String? ?? '',
+        kind: j['kind'] == 'music' ? AmbientKind.music : AmbientKind.nature,
       );
 }
+
+/// Jukebox groups: nature recordings and noise, or lullabies.
+enum AmbientKind { nature, music }
 
 class MixLayer {
   const MixLayer({required this.ambient, required this.volume});

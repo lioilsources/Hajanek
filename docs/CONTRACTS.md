@@ -138,7 +138,7 @@ telefonu (systémové TTS) nebo na Sparku z hlasu rodiče (§8).
   pohádka má ≥ 1 skript, odkazy na ambient existují, `version` je vyšší než
   u posledního přijatého (stejná verze s jiným obsahem = odmítnuto).
 
-## 4. Ambient smyčky (MVP: 8)
+## 4. Ambient smyčky (8 zvuků + 14 ukolébavek)
 
 | id | název v UI | zdroj |
 |---|---|---|
@@ -151,8 +151,16 @@ telefonu (systémové TTS) nebo na Sparku z hlasu rodiče (§8).
 | `pink-noise` | Růžový šum | syntéza ffmpeg |
 | `brown-noise` | Hnědý šum | syntéza ffmpeg |
 
-Formát: Opus 96 kbps stereo, 48 kHz, 60–120 s, bezešvá smyčka
+Ukolébavky (`kind: "music"`, id `lullaby-*`): 14 instrumentálních smyček
+vygenerovaných ACE-Step 1.5 (MIT) na AiStack, 60 BPM — hrací skříňka, klavír,
+harfa, kytara, „hvězdičky“ (zvonkohra), „snění“ (plochy). Přehled
+v `content/ambient/README.md`.
+
+Formát: Opus 96 kbps VBR stereo, 48 kHz, 60–150 s, bezešvá smyčka
 (crossfade loop), loudness −30 LUFS integrated.
+
+`kind` (volitelné): `nature` (nahrávky a šumy, výchozí) | `music`
+(ukolébavky). Jukebox podle něj dělí výběr na „Přírodní zvuky“ a „Ukolébavky“.
 
 ## 5. Hlasy v appce
 

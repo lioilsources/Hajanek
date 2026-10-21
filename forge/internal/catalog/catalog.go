@@ -46,6 +46,8 @@ type Ambient struct {
 	Free      bool    `json:"free"`
 	License   string  `json:"license"`
 	Source    string  `json:"source"`
+	// Kind groups the jukebox: "nature" (recordings, noise) or "music" (lullabies).
+	Kind string `json:"kind,omitempty"`
 }
 
 type Layer struct {
