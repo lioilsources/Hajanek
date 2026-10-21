@@ -10,6 +10,9 @@ abstract final class Night {
   static const accentDim = Color(0xFF4A3A22);
   static const text = Color(0xFF8C8478);
   static const textDim = Color(0xFF5A544C);
+
+  /// Only for the line being read aloud while recording a voice.
+  static const textBright = Color(0xFFC4B8A4);
   static const outline = Color(0xFF26262C);
 
   /// Minimum tap target for a parent fumbling in the dark.

@@ -124,8 +124,9 @@ abstract final class S {
       'jen na serveru Hajánka a kdykoli je smažu.';
   static const recStart = 'Nahrávat';
   static const recStop = 'Hotovo';
-  static String recMinHint(int s) => 'Nahrávám… dokončit jde po $s s.';
-  static const recReadyHint = 'Stačí přečíst celý text. Po 30 s se nahrávání zastaví samo.';
+  static const recReadHint = 'Při nahrávání se text posouvá s tebou. Ťukni na řádek, který právě čteš, když se rozejdete.';
+  static String recMinHint(int s) => 'dokončit jde po $s s';
+  static const recReadyHint = 'čti dál, po 30 s se zastaví samo';
   static const recPlay = 'Poslechnout';
   static const recPause = 'Zastavit';
   static const recAgain = 'Nahrát znovu';

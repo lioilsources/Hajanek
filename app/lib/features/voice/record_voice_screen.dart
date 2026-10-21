@@ -14,6 +14,7 @@ import '../../core/strings.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
 import '../player/player_controller.dart' show playerProvider;
+import 'prompter.dart';
 import 'recording_text.dart';
 import 'voice_api.dart';
 import 'voice_controller.dart';
@@ -62,6 +63,9 @@ class _RecordVoiceScreenState extends ConsumerState<RecordVoiceScreen> {
   bool _previewPlaying = false;
   String? _path;
   String? _error;
+  // Prompter highlight: line _syncLine started at _syncAt (tap a line to resync).
+  int _syncLine = 0;
+  Duration _syncAt = Duration.zero;
 
   int get _seconds => _clock.elapsed.inSeconds;
 
@@ -96,6 +100,8 @@ class _RecordVoiceScreenState extends ConsumerState<RecordVoiceScreen> {
       _clock
         ..reset()
         ..start();
+      _syncLine = 0;
+      _syncAt = Duration.zero;
       _ticker = Timer.periodic(const Duration(milliseconds: 250), (_) {
         if (!mounted) return;
         if (_seconds >= maxRecordSeconds) {
@@ -155,17 +161,60 @@ class _RecordVoiceScreenState extends ConsumerState<RecordVoiceScreen> {
     await _preview?.stop();
     setState(() => _error = null);
     try {
-      await ref.read(voiceProvider.notifier).upload(
-            samplePath: path,
-            name: _name.text.trim(),
-            consentText: text.consent,
-          );
+      await ref
+          .read(voiceProvider.notifier)
+          .upload(samplePath: path, name: _name.text.trim(), consentText: text.consent);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(S.voicePending)));
       context.pop();
     } on VoiceApiException catch (e) {
       if (mounted) setState(() => _error = e.message);
     }
+  }
+
+  void _resync(int line) => setState(() {
+    _syncLine = line;
+    _syncAt = _clock.elapsed;
+  });
+
+  /// While recording, the text fills the screen and follows the reader.
+  Widget _recordingBody(RecordingText text) {
+    final lines = [text.consent, ...text.lines];
+    final canStop = _seconds >= minRecordSeconds;
+    return Column(
+      children: [
+        Expanded(
+          child: Prompter(
+            key: const ValueKey('rec-prompter'),
+            lines: lines,
+            active: promptLineAt(lines, _clock.elapsed - _syncAt, from: _syncLine),
+            onTapLine: _resync,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              LinearProgressIndicator(value: _clock.elapsed.inMilliseconds / (maxRecordSeconds * 1000)),
+              const SizedBox(height: 8),
+              Text(
+                '${_fmt(_seconds)} / ${_fmt(maxRecordSeconds)} · ${canStop ? S.recReadyHint : S.recMinHint(minRecordSeconds)}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Night.textDim, fontFeatures: [FontFeature.tabularFigures()]),
+              ),
+              const SizedBox(height: 12),
+              FilledButton.icon(
+                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(Night.tap)),
+                icon: const Icon(Icons.stop),
+                label: const Text(S.recStop, style: TextStyle(fontSize: 18)),
+                onPressed: canStop ? _stop : null,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   String _fmt(int s) => '${s ~/ 60}:${(s % 60).toString().padLeft(2, '0')}';
@@ -176,100 +225,102 @@ class _RecordVoiceScreenState extends ConsumerState<RecordVoiceScreen> {
     final text = parseRecordingScript(source, name: _name.text);
     final busy = ref.watch(voiceProvider.select((s) => s.busy));
     final canRecord = _name.text.trim().isNotEmpty && _consent && !busy;
-    final canStop = _recording && _seconds >= minRecordSeconds;
 
     return Scaffold(
       appBar: AppBar(title: const Text(S.recTitle)),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
-        children: [
-          TextField(
-            key: const ValueKey('rec-name'),
-            controller: _name,
-            enabled: !_recording,
-            textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(labelText: S.recName, hintText: S.recNameHint),
-            onChanged: (_) => setState(() {}),
-          ),
-          if (text.tips.isNotEmpty) ...[
-            const SectionLabel(S.recTips),
-            for (final t in text.tips)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Text('• $t', style: const TextStyle(color: Night.textDim)),
-              ),
-          ],
-          const SectionLabel(S.recRead),
-          Text(text.consent, style: const TextStyle(fontSize: 20, height: 1.5, fontWeight: FontWeight.w600)),
-          const SizedBox(height: 8),
-          for (final l in text.lines)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Text(l, style: const TextStyle(fontSize: 20, height: 1.5)),
+      body: _recording
+          ? _recordingBody(text)
+          : ListView(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
+              children: [
+                TextField(
+                  key: const ValueKey('rec-name'),
+                  controller: _name,
+                  enabled: !_recording,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: const InputDecoration(labelText: S.recName, hintText: S.recNameHint),
+                  onChanged: (_) => setState(() {}),
+                ),
+                if (text.tips.isNotEmpty) ...[
+                  const SectionLabel(S.recTips),
+                  for (final t in text.tips)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Text('• $t', style: const TextStyle(color: Night.textDim)),
+                    ),
+                ],
+                const SectionLabel(S.recRead),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 8),
+                  child: Text(S.recReadHint, style: TextStyle(color: Night.textDim)),
+                ),
+                Text(text.consent, style: const TextStyle(fontSize: 20, height: 1.5, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 8),
+                for (final l in text.lines)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(l, style: const TextStyle(fontSize: 20, height: 1.5)),
+                  ),
+                const SizedBox(height: 16),
+                CheckboxListTile(
+                  key: const ValueKey('rec-consent'),
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: _consent,
+                  onChanged: _recording ? null : (v) => setState(() => _consent = v ?? false),
+                  title: const Text(S.recConsent),
+                ),
+                const SizedBox(height: 16),
+                if (_path != null)
+                  Center(
+                    child: Text(
+                      _fmt(_seconds),
+                      style: const TextStyle(fontSize: 22, fontFeatures: [FontFeature.tabularFigures()]),
+                    ),
+                  ),
+                const SizedBox(height: 16),
+                if (_path == null)
+                  FilledButton.icon(
+                    style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(Night.tap)),
+                    icon: const Icon(Icons.mic),
+                    label: const Text(S.recStart, style: TextStyle(fontSize: 18)),
+                    onPressed: canRecord ? _start : null,
+                  )
+                else ...[
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(Night.tap)),
+                    icon: Icon(_previewPlaying ? Icons.stop : Icons.play_arrow),
+                    label: Text(_previewPlaying ? S.recPause : S.recPlay),
+                    onPressed: busy ? null : _togglePreview,
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(Night.tap)),
+                    icon: const Icon(Icons.replay),
+                    label: const Text(S.recAgain),
+                    onPressed: busy || !canRecord ? null : _start,
+                  ),
+                  const SizedBox(height: 12),
+                  FilledButton.icon(
+                    style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(Night.tap)),
+                    icon: busy
+                        ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Icon(Icons.cloud_upload_outlined),
+                    label: Text(busy ? S.recUploading : S.recUpload, style: const TextStyle(fontSize: 18)),
+                    onPressed: busy || !canRecord ? null : () => _upload(text),
+                  ),
+                ],
+                if (_error != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Text(
+                      _error!,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Night.textDim),
+                    ),
+                  ),
+              ],
             ),
-          const SizedBox(height: 16),
-          CheckboxListTile(
-            key: const ValueKey('rec-consent'),
-            contentPadding: EdgeInsets.zero,
-            controlAffinity: ListTileControlAffinity.leading,
-            value: _consent,
-            onChanged: _recording ? null : (v) => setState(() => _consent = v ?? false),
-            title: const Text(S.recConsent),
-          ),
-          const SizedBox(height: 16),
-          Center(
-            child: Text(
-              _recording ? (canStop ? S.recReadyHint : S.recMinHint(minRecordSeconds)) : '',
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Night.textDim),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Center(
-            child: Text(
-              '${_fmt(_seconds)} / ${_fmt(maxRecordSeconds)}',
-              style: const TextStyle(fontSize: 22, fontFeatures: [FontFeature.tabularFigures()]),
-            ),
-          ),
-          const SizedBox(height: 16),
-          if (_path == null)
-            FilledButton.icon(
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(Night.tap)),
-              icon: Icon(_recording ? Icons.stop : Icons.mic),
-              label: Text(_recording ? S.recStop : S.recStart, style: const TextStyle(fontSize: 18)),
-              onPressed: _recording ? (canStop ? _stop : null) : (canRecord ? _start : null),
-            )
-          else ...[
-            OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(Night.tap)),
-              icon: Icon(_previewPlaying ? Icons.stop : Icons.play_arrow),
-              label: Text(_previewPlaying ? S.recPause : S.recPlay),
-              onPressed: busy ? null : _togglePreview,
-            ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(Night.tap)),
-              icon: const Icon(Icons.replay),
-              label: const Text(S.recAgain),
-              onPressed: busy || !canRecord ? null : _start,
-            ),
-            const SizedBox(height: 12),
-            FilledButton.icon(
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(Night.tap)),
-              icon: busy
-                  ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.cloud_upload_outlined),
-              label: Text(busy ? S.recUploading : S.recUpload, style: const TextStyle(fontSize: 18)),
-              onPressed: busy || !canRecord ? null : () => _upload(text),
-            ),
-          ],
-          if (_error != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: Text(_error!, textAlign: TextAlign.center, style: const TextStyle(color: Night.textDim)),
-            ),
-        ],
-      ),
     );
   }
 }

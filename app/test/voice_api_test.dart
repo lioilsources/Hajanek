@@ -250,7 +250,8 @@ void main() {
     final md = File('assets/voice/recording_script.md').readAsStringSync();
     final t = parseRecordingScript(md, name: ' Jana ');
     expect(t.consent, 'Jsem Jana a souhlasím, aby Hajánek z této nahrávky vytvořil můj hlas.');
-    expect(t.lines, hasLength(6));
+    expect(t.lines, hasLength(12));
+    expect(t.lines.first, startsWith('Byla jednou jedna holčička'));
     expect(t.tips.first, startsWith('Najdi tichou místnost'));
     expect(parseRecordingScript(md, name: '').consent, startsWith('Jsem … a'));
   });
