@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Hajánek: a sleeping moon in a nightcap. Colours are the app's night
+       palette (lib/core/theme.dart), lifted a little so they read on a home screen. -->
+  <defs>
+    <radialGradient id="sky" cx="50%" cy="38%" r="75%">
+      <stop offset="0" stop-color="#1F1B2E"/>
+      <stop offset="1" stop-color="#07070A"/>
+    </radialGradient>
+    <radialGradient id="moon" cx="40%" cy="35%" r="70%">
+      <stop offset="0" stop-color="#F2D9A6"/>
+      <stop offset="1" stop-color="#C9A063"/>
+    </radialGradient>
+    <linearGradient id="cap" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6E86B8"/>
+      <stop offset="1" stop-color="#3E4F7A"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0.55" stop-color="#C9A063" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#C9A063" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1024" height="1024" fill="url(#sky)"/>
+
+  <!-- stars -->
+  <g fill="#E8CF9A">
+    <path d="M196 214 l14 34 34 14 -34 14 -14 34 -14 -34 -34 -14 34 -14z"/>
+    <path d="M872 640 l10 24 24 10 -24 10 -10 24 -10 -24 -24 -10 24 -10z" opacity="0.85"/>
+    <path d="M806 832 l9 21 21 9 -21 9 -9 21 -9 -21 -21 -9 21 -9z" opacity="0.7"/>
+    <circle cx="180" cy="780" r="9" opacity="0.6"/>
+    <circle cx="700" cy="150" r="7" opacity="0.55"/>
+    <circle cx="330" cy="150" r="6" opacity="0.5"/>
+  </g>
+
+  <!-- moon -->
+  <circle cx="512" cy="584" r="330" fill="url(#glow)"/>
+  <circle cx="512" cy="584" r="262" fill="url(#moon)"/>
+
+  <!-- nightcap: drapes over the top of the moon, tip flops to the right -->
+  <path d="M268 520
+           C 290 360, 420 270, 560 262
+           C 680 256, 770 300, 830 400
+           C 790 380, 740 372, 700 388
+           C 730 430, 752 470, 760 520
+           Z" fill="url(#cap)"/>
+  <!-- cap brim -->
+  <path d="M250 520 C 380 470, 650 470, 776 520
+           C 780 548, 772 568, 760 580
+           C 640 534, 390 534, 262 580
+           C 248 566, 244 544, 250 520 Z" fill="#F3EBDD"/>
+  <!-- pompom -->
+  <circle cx="842" cy="414" r="46" fill="#F3EBDD"/>
+
+  <!-- sleeping face -->
+  <g fill="none" stroke="#5A3F1E" stroke-width="20" stroke-linecap="round">
+    <path d="M396 650 q 44 38 88 0"/>
+    <path d="M548 650 q 44 38 88 0"/>
+    <path d="M482 744 q 30 22 60 0" stroke-width="16"/>
+  </g>
+  <g fill="#E39A7A" opacity="0.45">
+    <ellipse cx="380" cy="718" rx="40" ry="24"/>
+    <ellipse cx="652" cy="718" rx="40" ry="24"/>
+  </g>
+
+  <!-- Zzz -->
+  <g fill="none" stroke="#E8CF9A" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M736 214 h44 l-44 50 h44" stroke-width="14"/>
+    <path d="M800 150 h30 l-30 34 h30" stroke-width="10" opacity="0.8"/>
+  </g>
+</svg>
