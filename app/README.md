@@ -149,13 +149,22 @@ assets/
 
 ## Release
 
-Tag `v*` → `.github/workflows/release-android.yml`: podepsané AAB + APK
-(`hajanek-<tag>.apk`, na to odkazuje olin.now/hajanek) na GitHub Release,
-vždy s `INCLUDE_DRAFTS=false`. Secrets jednou:
-`Distribution/scripts/setup-gh-secrets.sh --repo lioilsources/Hajanek --bundle-id com.ol1n.hajanek`
-(vygeneruje upload keystore → commitni ho do Distribution). Firebase se přeskočí,
-dokud není `FIREBASE_ANDROID_APP_ID`. iOS release zatím není (chybí App ID,
-profil a appka v App Store Connect, viz Distribution/SKILL.md).
+Tag `v*` spustí dva workflowy, oba vždy s `INCLUDE_DRAFTS=false`:
+
+- `release-android.yml`: podepsané AAB + APK (`hajanek-<tag>.apk`, na to
+  odkazuje olin.now/hajanek) na GitHub Release. Firebase se přeskočí, dokud
+  není `FIREBASE_ANDROID_APP_ID`.
+- `release-ios.yml`: archiv s ručním podpisem (Release config má
+  `CI_PROFILE_NAME`, CI za něj dosadí UUID profilu) → TestFlight + IPA na
+  GitHub Release.
+
+Secrets jednou, až leží App Store profil v `Distribution/Apple/Hajanek/`:
+`Distribution/scripts/setup-gh-secrets.sh --repo lioilsources/Hajanek --bundle-id com.ol1n.hajanek`.
+Upload keystore se vygeneruje do `Distribution/Android/Hajanek/` a do Bitwardenu
+(`Hajanek Android Signing`); do gitu nepatří a nikdy se nesmí smazat.
+
+Podfile zvedá deployment target všech podů na 15.0: podspec Flutteru má 13.0
+a Xcode 27 pod 15.0 nepostaví.
 
 Ikona: zdroj `assets/icon/icon.svg`, z něj `icon.png` a `icon_foreground.png`
 (adaptivní, průhledná); platformní ikony `dart run flutter_launcher_icons`.
