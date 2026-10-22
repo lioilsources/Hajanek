@@ -23,6 +23,8 @@ abstract final class S {
 
   // Player
   static const playerIntro = 'Jen podkres…';
+  static String playerIntroLeft(String left) => 'Pohádka začne za $left';
+  static const playerStartNow = 'Začít hned';
   static const playerVoice = 'Pohádka';
   static const playerTail = 'Podkres doznívá';
   static const playerFadeOut = 'Utichá…';

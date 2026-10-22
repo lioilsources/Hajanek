@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hajanek/features/player/player_controller.dart';
+import 'package:hajanek/features/player/player_screen.dart';
 import 'package:hajanek/features/player/ritual.dart';
 
 class FakeClock {
@@ -39,6 +41,29 @@ void main() {
     expect(f.ambientGain, closeTo(0.5, 0.01));
     expect(step(m, const Duration(seconds: 30)).phase, RitualPhase.done);
     expect(m.tick(clock.now).ambientGain, 0);
+  });
+
+  test('intro countdown and skip', () {
+    final m = RitualMachine(const RitualConfig())..start(clock.now);
+    step(m, const Duration(seconds: 18));
+    expect(m.introRemaining, const Duration(seconds: 42));
+    clock.advance(const Duration(seconds: 2));
+    m.skipIntro(clock.now);
+    expect(m.introRemaining, isNull);
+    final f = m.tick(clock.now);
+    expect(f.phase, RitualPhase.voice);
+    expect(f.voiceActive, isTrue);
+    // Skipping outside the intro does nothing.
+    m.skipIntro(clock.now);
+    expect(m.phase, RitualPhase.voice);
+  });
+
+  test('intro label counts down to the voice', () {
+    PlayerState intro(Duration? left) =>
+        PlayerState(kind: SessionKind.tale, phase: RitualPhase.intro, introRemaining: left);
+    expect(phaseLabel(intro(const Duration(seconds: 41, milliseconds: 200))), 'Pohádka začne za 0:42');
+    expect(phaseLabel(intro(const Duration(seconds: 90))), 'Pohádka začne za 1:30');
+    expect(phaseLabel(intro(null)), 'Jen podkres…');
   });
 
   test('pause freezes phase time', () {

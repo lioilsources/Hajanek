@@ -69,6 +69,15 @@ class RitualMachine {
     _paused = false;
   }
 
+  /// Time left before the voice starts; null outside the intro.
+  Duration? get introRemaining => _phase == RitualPhase.intro ? config.intro - _inPhase : null;
+
+  /// Parent tapped "start now": end the intro early.
+  void skipIntro(DateTime now) {
+    _advance(now);
+    if (_phase == RitualPhase.intro) _enter(RitualPhase.voice);
+  }
+
   /// The voice track reached its end.
   void voiceCompleted(DateTime now) {
     _advance(now);

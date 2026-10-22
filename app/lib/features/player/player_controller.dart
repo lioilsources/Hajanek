@@ -32,6 +32,7 @@ class PlayerState {
     this.timerRemaining,
     this.progress = 0,
     this.section,
+    this.introRemaining,
   });
 
   final SessionKind? kind;
@@ -50,6 +51,9 @@ class PlayerState {
   /// Script section being read (`uvod` … `dojezd`).
   final String? section;
 
+  /// Countdown to the voice during the ambient-only intro.
+  final Duration? introRemaining;
+
   bool get active => kind != null;
   String get title => tale?.title ?? S.mixerTitle;
 
@@ -62,6 +66,7 @@ class PlayerState {
     Duration? Function()? timerRemaining,
     double? progress,
     String? section,
+    Duration? Function()? introRemaining,
   }) =>
       PlayerState(
         kind: kind,
@@ -75,6 +80,7 @@ class PlayerState {
         timerRemaining: timerRemaining == null ? this.timerRemaining : timerRemaining(),
         progress: progress ?? this.progress,
         section: section ?? this.section,
+        introRemaining: introRemaining == null ? this.introRemaining : introRemaining(),
       );
 }
 
@@ -220,6 +226,12 @@ class PlayerController extends Notifier<PlayerState> {
 
   Future<void> togglePlay() => state.playing ? pause() : resume();
 
+  /// Skip the rest of the ambient-only intro.
+  void startVoiceNow() {
+    _ritual?.skipIntro(_now());
+    _tick();
+  }
+
   Future<void> stop() async {
     _ticker?.cancel();
     _ticker = null;
@@ -284,6 +296,7 @@ class PlayerController extends Notifier<PlayerState> {
     }
     var ambientGain = 1.0;
     var phase = state.phase;
+    Duration? intro;
     final ritual = _ritual;
     if (ritual != null) {
       final frame = ritual.tick(now);
@@ -298,6 +311,7 @@ class PlayerController extends Notifier<PlayerState> {
         _recordStart(now);
       }
       ambientGain = frame.ambientGain;
+      intro = ritual.introRemaining;
     }
 
     final master = _timer.gain(now);
@@ -312,8 +326,10 @@ class PlayerController extends Notifier<PlayerState> {
     }
 
     final remaining = _timer.remaining(now);
-    if (phase != state.phase || remaining?.inSeconds != state.timerRemaining?.inSeconds) {
-      state = state.copyWith(phase: phase, timerRemaining: () => remaining);
+    if (phase != state.phase ||
+        remaining?.inSeconds != state.timerRemaining?.inSeconds ||
+        intro?.inSeconds != state.introRemaining?.inSeconds) {
+      state = state.copyWith(phase: phase, timerRemaining: () => remaining, introRemaining: () => intro);
     }
     _publish();
   }

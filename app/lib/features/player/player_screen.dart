@@ -13,12 +13,21 @@ import 'ritual.dart';
 String phaseLabel(PlayerState p) => switch (p.phase) {
       _ when p.kind == SessionKind.mixer => S.mixerTitle,
       RitualPhase.idle => '',
-      RitualPhase.intro => S.playerIntro,
+      RitualPhase.intro => switch (p.introRemaining) {
+          final left? => S.playerIntroLeft(_clock(left)),
+          null => S.playerIntro,
+        },
       RitualPhase.voice => S.playerVoice,
       RitualPhase.tail => S.playerTail,
       RitualPhase.fadeOut => S.playerFadeOut,
       RitualPhase.done => S.playerDone,
     };
+
+/// m:ss, rounded up so the countdown ends on 0:01, not 0:00.
+String _clock(Duration d) {
+  final s = (d.inMilliseconds / 1000).ceil();
+  return '${s ~/ 60}:${(s % 60).toString().padLeft(2, '0')}';
+}
 
 class PlayerScreen extends ConsumerWidget {
   const PlayerScreen({super.key});
@@ -66,6 +75,8 @@ class PlayerScreen extends ConsumerWidget {
                 ].where((s) => s.isNotEmpty).join(' · '),
                 style: const TextStyle(color: Night.textDim, fontSize: 16),
               ),
+              if (p.kind == SessionKind.tale && p.phase == RitualPhase.intro)
+                TextButton(onPressed: ctrl.startVoiceNow, child: const Text(S.playerStartNow)),
               if (p.kind == SessionKind.tale && p.phase == RitualPhase.voice)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(48, 12, 48, 0),
