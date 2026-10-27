@@ -3,7 +3,8 @@
 Usínací meditace pro děti postavené na klasických pohádkách — čte je hlas
 telefonu, nebo **hlas rodiče** (nahraný v appce, naklonovaný na vlastním
 serveru), s podkresem přírodních zvuků, offline, bez reklam. Plán:
-[`docs/HAJANEK_PLAN.md`](docs/HAJANEK_PLAN.md). Sdílené formáty:
+[`docs/HAJANEK_PLAN.md`](docs/HAJANEK_PLAN.md), TV (Apple TV / Google TV):
+[`docs/HAJANEK_TV_PLAN.md`](docs/HAJANEK_TV_PLAN.md). Sdílené formáty:
 [`docs/CONTRACTS.md`](docs/CONTRACTS.md).
 
 | Adresář | Co | Stav |
