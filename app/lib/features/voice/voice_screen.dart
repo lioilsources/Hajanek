@@ -19,12 +19,13 @@ String voiceStatusText(LocalVoice v) => switch (v.status) {
     };
 
 /// Display name of the selected voice (for the tale detail).
-String voiceLabel(String voiceId, List<LocalVoice> voices) {
-  if (voiceId == systemVoiceId) return S.voiceSystem;
+String voiceLabel(String voiceId, List<LocalVoice> voices, {bool tv = false}) {
+  final system = tv ? S.voiceSystemTv : S.voiceSystem;
+  if (voiceId == systemVoiceId) return system;
   for (final v in voices) {
     if (v.id == voiceId) return v.name;
   }
-  return S.voiceSystem;
+  return system;
 }
 
 class VoiceScreen extends ConsumerStatefulWidget {
@@ -91,11 +92,13 @@ class _VoiceScreenState extends ConsumerState<VoiceScreen> {
               title: Text(v.name, style: const TextStyle(fontSize: 18)),
               subtitle: Text(voiceStatusText(v)),
               leading: v.id == selected ? const Icon(Icons.check, color: Night.accent) : const SizedBox(width: 24),
-              trailing: IconButton(
-                tooltip: S.voiceDelete,
-                icon: const Icon(Icons.delete_outline),
-                onPressed: voices.busy ? null : () => _delete(v),
-              ),
+              trailing: v.owned
+                  ? IconButton(
+                      tooltip: S.voiceDelete,
+                      icon: const Icon(Icons.delete_outline),
+                      onPressed: voices.busy ? null : () => _delete(v),
+                    )
+                  : null,
               onTap: () => select(v.id),
             ),
           if (cloned != null && !cloned.complete)
@@ -113,6 +116,14 @@ class _VoiceScreenState extends ConsumerState<VoiceScreen> {
               onPressed: voices.busy ? null : () => context.push('/voice/record'),
             ),
           ),
+          const SizedBox(height: 16),
+          ListTile(
+            key: const ValueKey('pair-tv'),
+            leading: const Icon(Icons.tv),
+            title: const Text(S.pairTv, style: TextStyle(fontSize: 18)),
+            subtitle: const Text(S.pairTvSub),
+            onTap: () => showDialog<void>(context: context, builder: (_) => const ClaimTvDialog()),
+          ),
           if (voices.message != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
@@ -122,6 +133,77 @@ class _VoiceScreenState extends ConsumerState<VoiceScreen> {
       ),
     );
   }
+}
+
+/// Phone side of pairing: type the code the TV shows.
+class ClaimTvDialog extends ConsumerStatefulWidget {
+  const ClaimTvDialog({super.key});
+
+  @override
+  ConsumerState<ClaimTvDialog> createState() => _ClaimTvDialogState();
+}
+
+class _ClaimTvDialogState extends ConsumerState<ClaimTvDialog> {
+  final _code = TextEditingController();
+  bool _busy = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _code.dispose();
+    super.dispose();
+  }
+
+  String get _digits => _code.text.replaceAll(RegExp(r'\D'), '');
+
+  Future<void> _claim() async {
+    final api = ref.read(voiceApiProvider);
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      if (api == null) throw VoiceApiException(msgOffline);
+      await api.claimPairing(_digits);
+      if (!mounted) return;
+      final messenger = ScaffoldMessenger.of(context);
+      Navigator.of(context).pop();
+      messenger.showSnackBar(const SnackBar(content: Text(S.pairTvDone)));
+    } on VoiceApiException catch (e) {
+      if (mounted) setState(() => _error = e.status == 404 || e.status == 409 ? S.pairBadCode : e.message);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+        title: const Text(S.pairTv),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(S.pairTvHelp, style: TextStyle(color: Night.textDim)),
+            const SizedBox(height: 16),
+            TextField(
+              key: const ValueKey('pair-code-field'),
+              controller: _code,
+              autofocus: true,
+              keyboardType: TextInputType.number,
+              style: const TextStyle(fontSize: 28, letterSpacing: 6),
+              decoration: InputDecoration(labelText: S.pairCode, errorText: _error, errorMaxLines: 3),
+              onChanged: (_) => setState(() {}),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text(S.voiceCancel)),
+          TextButton(
+            onPressed: _busy || _digits.length != 6 ? null : _claim,
+            child: const Text(S.pairConfirm),
+          ),
+        ],
+      );
 }
 
 /// How to install a Czech system voice; shown when flutter_tts finds none.

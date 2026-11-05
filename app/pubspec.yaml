@@ -52,6 +52,7 @@ dependencies:
   flutter_secure_storage: ^11.2.0
   unorm_dart: ^0.3.3
   clock: ^1.1.2
+  wakelock_plus: ^1.8.2
 
 dev_dependencies:
   flutter_test:

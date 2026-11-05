@@ -15,7 +15,8 @@ func TestLoad(t *testing.T) {
 		t.Fatal(err)
 	}
 	if c.Port != "8080" || c.CatalogPoll != 90*time.Second || c.JobMaxAttempts != 3 || c.CatalogURL != DefaultCatalogURL ||
-		c.DataDir != "data" || c.MaxVoicesPerDevice != 3 || c.DeviceRateN != 10 || c.DeviceRatePer != time.Hour {
+		c.DataDir != "data" || c.MaxVoicesPerDevice != 3 || c.DeviceRateN != 10 || c.DeviceRatePer != time.Hour ||
+		c.ClaimRateN != 5 || c.ClaimRatePer != time.Minute {
 		t.Fatalf("unexpected config %+v", c)
 	}
 
@@ -28,6 +29,7 @@ func TestLoad(t *testing.T) {
 		{"ADMIN_TOKEN": "a", "WORKER_TOKEN": "w", "MAX_VOICES_PER_DEVICE": "-1"},
 		{"ADMIN_TOKEN": "a", "WORKER_TOKEN": "w", "DEVICE_RATE_LIMIT": "10"},
 		{"ADMIN_TOKEN": "a", "WORKER_TOKEN": "w", "DEVICE_RATE_LIMIT": "x/1h"},
+		{"ADMIN_TOKEN": "a", "WORKER_TOKEN": "w", "PAIRING_CLAIM_RATE_LIMIT": "5"},
 	}
 	c, err = Load(env(map[string]string{"ADMIN_TOKEN": "a", "WORKER_TOKEN": "w", "DEVICE_RATE_LIMIT": "off", "DATA_DIR": "/data"}))
 	if err != nil || c.DeviceRateN != 0 || c.DataDir != "/data" {

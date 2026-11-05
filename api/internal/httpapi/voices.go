@@ -261,7 +261,7 @@ func (s *Server) createRender(w http.ResponseWriter, r *http.Request, deviceID s
 		writeError(w, http.StatusBadRequest, "tale and length_min are required")
 		return
 	}
-	// Ownership first: a foreign voice is a 404 whatever the tale.
+	// Access first: a foreign voice is a 404 whatever the tale.
 	if _, err := s.Voices.GetVoice(r.Context(), deviceID, voiceID); err != nil {
 		s.voiceError(w, r, err)
 		return
@@ -307,7 +307,7 @@ func (s *Server) getClip(w http.ResponseWriter, r *http.Request, deviceID string
 		writeError(w, http.StatusNotFound, "not found")
 		return
 	}
-	c, path, err := s.Voices.OwnedClip(r.Context(), deviceID, r.PathValue("voice"), key)
+	c, path, err := s.Voices.ReadableClip(r.Context(), deviceID, r.PathValue("voice"), key)
 	if err != nil {
 		s.voiceError(w, r, err)
 		return

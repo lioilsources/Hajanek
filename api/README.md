@@ -63,7 +63,8 @@ migrations/          SQL migrace (embed)
 | `REAPER_INTERVAL` | `30s` | jak často se vrací propadlé lease do fronty |
 | `DATA_DIR` | `data` | vzorky, klipy a cache skriptů (v Dockeru `/data/files`) |
 | `MAX_VOICES_PER_DEVICE` | `3` | max. hlasů na zařízení (mazané se nepočítají) |
-| `DEVICE_RATE_LIMIT` | `10/1h` | registrace zařízení na IP: `N/doba` (token bucket v paměti) nebo `off` |
+| `DEVICE_RATE_LIMIT` | `10/1h` | registrace zařízení na IP: `N/doba` (token bucket v paměti) nebo `off`; stejný limit (zvlášť počítaný) platí pro `POST /v1/pairings` |
+| `PAIRING_CLAIM_RATE_LIMIT` | `5/1m` | pokusy o vyzvednutí párovacího kódu na IP, nebo `off` |
 
 IP klienta se bere z `X-Real-IP` (Caddy ho nastavuje z `CF-Connecting-IP`),
 jinak z TCP spojení. Délku vzorku (5–30 s) kontroluje `ffprobe`, pokud je
@@ -120,8 +121,18 @@ curl -s localhost:8080/v1/voices/<id>/renders/cervena-karkulka/10 -H "$D"
 curl -s -o klip.m4a localhost:8080/v1/clips/<id>/<key>.m4a -H "$D"   # immutable cache
 
 curl -s -X DELETE localhost:8080/v1/voices/<id> -H "$D"   # 204: vzorek a klipy hned pryč, job voice_delete
-curl -s -X DELETE localhost:8080/v1/devices/me -H "$D"    # 204: zařízení + všechny jeho hlasy
+curl -s -X DELETE localhost:8080/v1/devices/me -H "$D"    # 204: zařízení + hlasy, které samo nahrálo
+
+# párování TV do domácnosti telefonu (CONTRACTS §6)
+curl -s -X POST localhost:8080/v1/pairings -H "$TV"                 # 201 {"code":"483920","expires_at":"…"}
+curl -s localhost:8080/v1/pairings/483920 -H "$TV"                  # {"status":"pending"|"claimed","expires_at":"…"}
+curl -s -X POST localhost:8080/v1/pairings/483920/claim -H "$D"     # 200 {"status":"claimed"}; 404 špatný kód, 409 vlastní kód
 ```
+
+- Domácnost: každé zařízení je v jedné (`devices.household_id`). Číst
+  hlasy, rendery a klipy (i `POST …/renders`) smí kdokoli z domácnosti
+  vlastníka hlasu, mazat jen vlastník (`voices.device_id`). `voice.owned`
+  říká, jestli je volající vlastník. Prázdná domácnost se maže.
 
 - Cizí nebo neexistující hlas/klip je vždy `404` (existence se neprozradí).
 - `POST …/renders` je idempotentní: dokud render job čeká nebo běží, vrací

@@ -12,6 +12,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hajanek/core/db/database.dart';
+import 'package:hajanek/core/form_factor.dart';
 import 'package:hajanek/core/providers.dart';
 import 'package:hajanek/core/theme.dart';
 import 'package:hajanek/features/catalog/catalog_controller.dart';
@@ -26,8 +27,13 @@ import 'package:hajanek/features/player/system_tts.dart' show systemVoiceId;
 import 'package:hajanek/features/settings/settings_controller.dart';
 import 'package:hajanek/features/settings/settings_screen.dart';
 import 'package:hajanek/features/timer/sleep_timer.dart';
+import 'package:hajanek/features/tv/tv_home_screen.dart';
+import 'package:hajanek/features/tv/tv_player_screen.dart';
+import 'package:hajanek/features/tv/tv_tale_screen.dart';
+import 'package:hajanek/features/tv/tv_voice_screen.dart';
+import 'package:hajanek/features/tv/tv_widgets.dart';
 import 'package:hajanek/features/voice/record_voice_screen.dart';
-import 'package:hajanek/features/voice/voice_api.dart' show VoiceStatus;
+import 'package:hajanek/features/voice/voice_api.dart';
 import 'package:hajanek/features/voice/voice_controller.dart';
 import 'package:hajanek/features/voice/voice_screen.dart';
 
@@ -45,6 +51,8 @@ final _dir = Platform.environment['SCREENSHOT_DIR'];
 
 const _phone = Size(390, 844); // iPhone 14/15, rendered @3x
 const _ratio = 3.0;
+const _tv = Size(960, 540); // 1080p TV, rendered @2x = 1920×1080
+const _tvRatio = 2.0;
 
 final _shotKey = GlobalKey();
 
@@ -64,8 +72,8 @@ Future<void> _loadFonts() async {
 
 /// The theme's button text has no family, which a phone resolves to its
 /// system font and the test environment to boxes; name the one it would be.
-ThemeData _theme() {
-  final t = buildNightTheme();
+ThemeData _theme({bool tv = false}) {
+  final t = buildNightTheme(tv: tv);
   return t.copyWith(
     filledButtonTheme: FilledButtonThemeData(
       style: t.filledButtonTheme.style!.copyWith(
@@ -81,6 +89,17 @@ class _FixedPlayer extends PlayerController {
 
   @override
   PlayerState build() => fixed;
+}
+
+class _PairingApi extends VoiceApi {
+  _PairingApi() : super(tokens: MemoryTokenStore());
+  @override
+  Future<PairingCode> createPairing() async =>
+      PairingCode(code: '483920', expiresAt: DateTime.now().add(const Duration(minutes: 10)));
+  @override
+  Future<bool> pairingClaimed(String code) async => false;
+  @override
+  Future<bool> hasDevice() async => false;
 }
 
 void main() {
@@ -104,13 +123,18 @@ void main() {
     String? voiceId,
     Future<void> Function()? then,
     bool animated = false,
+    bool tv = false,
+    List<LocalVoice> voices = voices,
   }) async {
-    tester.view.physicalSize = _phone * _ratio;
-    tester.view.devicePixelRatio = _ratio;
+    final ratio = tv ? _tvRatio : _ratio;
+    tester.view.physicalSize = (tv ? _tv : _phone) * ratio;
+    tester.view.devicePixelRatio = ratio;
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(ProviderScope(
       overrides: [
+        formFactorProvider.overrideWithValue(tv ? FormFactor.tv : FormFactor.phone),
+        if (tv) voiceApiProvider.overrideWithValue(_PairingApi()),
         databaseProvider.overrideWithValue(db),
         initialCatalogProvider.overrideWithValue(snapshot),
         favouritesProvider.overrideWithValue(const AsyncValue.data({'cervena-karkulka', 'o-smolickovi'})),
@@ -124,7 +148,13 @@ void main() {
         key: _shotKey,
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: _theme(),
+          theme: _theme(tv: tv),
+          builder: tv
+              ? (context, child) => MediaQuery(
+                    data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(Tv.textScale)),
+                    child: child!,
+                  )
+              : null,
           home: home,
         ),
       ),
@@ -135,7 +165,7 @@ void main() {
 
     final boundary = tester.renderObject<RenderRepaintBoundary>(find.byKey(_shotKey));
     await tester.runAsync(() async {
-      final image = await boundary.toImage(pixelRatio: _ratio);
+      final image = await boundary.toImage(pixelRatio: ratio);
       final png = await image.toByteData(format: ui.ImageByteFormat.png);
       File('$_dir/$name.png')
         ..createSync(recursive: true)
@@ -227,5 +257,62 @@ void main() {
 
   testWidgets('08 settings', skip: skip, (tester) async {
     await shoot(tester, '08-nastaveni', const SettingsScreen(), voiceId: 'mama');
+  });
+
+  // Android TV / Google TV listing (1920×1080) and a check of the 10-foot UI.
+  const tvVoices = [
+    LocalVoice(id: 'mama', name: 'Máma', status: VoiceStatus.ready, done: 412, total: 412, owned: false),
+  ];
+
+  testWidgets('tv 01 home', skip: skip, (tester) async {
+    await shoot(tester, 'tv-01-domu', const TvHomeScreen(), tv: true, voices: tvVoices);
+  });
+
+  testWidgets('tv 02 tale', skip: skip, (tester) async {
+    await shoot(tester, 'tv-02-pohadka', TvTaleScreen(taleId: karkulka.id),
+        tv: true, voices: tvVoices, voiceId: 'mama');
+  });
+
+  testWidgets('tv 03 night picture', skip: skip, (tester) async {
+    await shoot(
+      tester,
+      'tv-03-prehravac',
+      const TvPlayerScreen(),
+      tv: true,
+      voices: tvVoices,
+      animated: true,
+      player: PlayerState(
+        kind: SessionKind.tale,
+        tale: karkulka,
+        voiceId: 'mama',
+        playing: true,
+        phase: RitualPhase.voice,
+        timer: const SleepTimerOption.minutes(30),
+        timerRemaining: const Duration(minutes: 21, seconds: 7),
+        section: 'pribeh',
+      ),
+    );
+  });
+
+  testWidgets('tv 04 voices', skip: skip, (tester) async {
+    await shoot(tester, 'tv-04-hlas', const TvVoiceScreen(), tv: true, voices: tvVoices, voiceId: 'mama');
+  });
+
+  testWidgets('tv 05 pairing code', skip: skip, (tester) async {
+    await shoot(
+      tester,
+      'tv-05-propojeni',
+      const TvVoiceScreen(),
+      tv: true,
+      voices: const [],
+      then: () async {
+        await tester.tap(find.byKey(const ValueKey('tv-pair')));
+        await tester.pumpAndSettle();
+      },
+    );
+  });
+
+  testWidgets('tv 06 settings', skip: skip, (tester) async {
+    await shoot(tester, 'tv-06-nastaveni', const SettingsScreen(), tv: true, voices: tvVoices, voiceId: 'mama');
   });
 }

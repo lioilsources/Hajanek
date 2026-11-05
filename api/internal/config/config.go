@@ -26,8 +26,12 @@ type Config struct {
 	MaxVoicesPerDevice int
 	// DeviceRate limits POST /v1/devices per client IP: DeviceRateN
 	// registrations per DeviceRatePer (token bucket). N = 0 disables it.
+	// The same limit applies, in a separate bucket, to POST /v1/pairings.
 	DeviceRateN   int
 	DeviceRatePer time.Duration
+	// ClaimRate limits POST /v1/pairings/{code}/claim per client IP.
+	ClaimRateN   int
+	ClaimRatePer time.Duration
 }
 
 // ParseRate parses "N/duration" (e.g. "10/1h") or "off".
@@ -105,6 +109,11 @@ func Load(getenv func(string) string) (Config, error) {
 		errs = append(errs, fmt.Errorf("DEVICE_RATE_LIMIT: %w", err))
 	}
 	c.DeviceRateN, c.DeviceRatePer = n, per
+	n, per, err = ParseRate(str("PAIRING_CLAIM_RATE_LIMIT", "5/1m"))
+	if err != nil {
+		errs = append(errs, fmt.Errorf("PAIRING_CLAIM_RATE_LIMIT: %w", err))
+	}
+	c.ClaimRateN, c.ClaimRatePer = n, per
 	if c.AdminToken == "" {
 		errs = append(errs, errors.New("ADMIN_TOKEN is required"))
 	}

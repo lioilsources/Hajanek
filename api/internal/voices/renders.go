@@ -48,17 +48,14 @@ type Manifest struct {
 // ClipURL is the device-facing URL of a clip (relative to the API host).
 func ClipURL(voiceID, key string) string { return "/v1/clips/" + voiceID + "/" + key + ".m4a" }
 
-// RequestRender enqueues a render of tale/length for an owned, ready voice.
+// RequestRender enqueues a render of tale/length for a readable, ready voice.
 // keys are the distinct utterance keys of the current script. While a
 // render job is queued or running the same job is reused; a finished render
 // of the same script with every clip present is returned without new work.
 func (s *Store) RequestRender(ctx context.Context, deviceID, voiceID, tale string, length int, scriptSHA string, keys []string) (Render, error) {
 	var out Render
 	err := s.inTx(ctx, func(q *db.Queries) error {
-		v, err := q.GetDeviceVoice(ctx, db.GetDeviceVoiceParams{ID: voiceID, DeviceID: nullStr(deviceID)})
-		if errors.Is(err, sql.ErrNoRows) {
-			return ErrNotFound
-		}
+		v, err := s.readableVoice(ctx, q, deviceID, voiceID)
 		if err != nil {
 			return err
 		}
@@ -125,7 +122,7 @@ func countPresent(ctx context.Context, q *db.Queries, voiceID string, keys []str
 // Total are counted live from the clips, so the manifest never disagrees
 // with its own clip map.
 func (s *Store) Manifest(ctx context.Context, deviceID, voiceID, tale string, length int, scriptSHA string, keys []string) (Manifest, error) {
-	if _, err := s.ownedVoice(ctx, deviceID, voiceID); err != nil {
+	if _, err := s.readableVoice(ctx, s.q, deviceID, voiceID); err != nil {
 		return Manifest{}, err
 	}
 	m := Manifest{Status: RenderNone, ScriptSHA256: scriptSHA, Total: len(keys), Clips: map[string]ManifestClip{}}

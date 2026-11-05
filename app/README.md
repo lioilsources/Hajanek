@@ -30,6 +30,7 @@ flutter analyze
 |---|---|---|
 | `CATALOG_URL` | `https://lioilsources.github.io/hajanek-content/catalog.json` | odkud se stahuje katalog |
 | `API_URL` | `https://hajanek-api.ol1n.com` | hajanek-api (registrace zařízení, hlasy rodičů, klipy) |
+| `FORM_FACTOR` | – | `tv` vynutí TV rozhraní (např. na telefonním emulátoru), `phone` telefonní. Bez něj rozhoduje platforma: Android `UiModeManager` (kanál `com.ol1n.hajanek/device`, `isTv`). |
 | `INCLUDE_DRAFTS` | `true` | ukázat pohádky, jejichž skript v bundlu má `status: draft`. **Pro release musí být `false`** (`flutter build ipa --dart-define=INCLUDE_DRAFTS=false`). Drafty jsou zatím i v publikovaném katalogu (`forge publish --drafts`, kvůli testu s Alexkem); appka je pozná podle `status` skriptu. |
 
 Appka mluví jen s Pages (katalog) a s `hajanek-api`; nikdy s `llm.ol1n.com`
@@ -115,6 +116,35 @@ assets/
   Dojezd), play/pause/stop.
 - **Bez českého hlasu** v telefonu ukáže Domů (a obrazovka Hlas) návod, jak ho
   doinstalovat.
+
+## Televize (Google TV / Android TV; Apple TV podle ADR-004)
+
+Plán: [`docs/HAJANEK_TV_PLAN.md`](../docs/HAJANEK_TV_PLAN.md). Jeden APK/AAB
+pro telefon i TV; manifest má `LEANBACK_LAUNCHER`, banner
+(`res/drawable-xhdpi/tv_banner.png`) a mikrofon/dotyk jako nepovinné.
+
+- **Větvit podle `formFactorProvider`** (`core/form_factor.dart`), ne podle OS.
+  Na TV má router vlastní obrazovky (`features/tv/`: Domů s mřížkou, detail,
+  noční obraz přehrávače, podkres jen z předvoleb, Hlas s párováním); nastavení
+  je sdílené (na TV navíc krokový posuvník hlas↔podkres). Trasa nahrávání na TV
+  není.
+- **Ovladač**: všechno, co něco dělá, je `TvButton` (rámeček + zvětšení při
+  fokusu, select/enter aktivuje). Šipky řeší Flutter geometricky. Texty
+  jsou na TV ×1.25 (`Tv.textScale`).
+- **Noční obraz**: černá, název, sekce, časovač; po 10 s bez ovladače
+  zmizí i to, první klávesa jen probudí. Play/pause na ovladači funguje vždy,
+  Back odejde na detail a zvuk hraje dál.
+- **Wakelock** (`wakelock_plus`) jen na TV a jen když něco hraje, takže po
+  dohrání nebo časovači může televize usnout.
+- **Párování**: TV ukáže 6místný kód (`POST /v1/pairings`, polling po 3 s), na
+  telefonu Hlas → Propojit televizi. TV pak polluje `GET /v1/voices` (hlasy
+  domácnosti, `owned:false` = nejde smazat), stahuje klipy stejně jako telefon
+  a hlasy, které telefon smazal, zahodí i s klipy.
+- **Grafika pro Play**: `tools/render_tv_banner.sh` (banner 1280×720 + 320×180)
+  a TV screenshoty 1920×1080 ze `SCREENSHOT_DIR=… flutter test
+  test/screenshots_test.dart --plain-name tv` → `store/tv/`.
+- **TTS sonda**: `flutter test integration_test/tts_probe_test.dart -d <TV>`
+  vypíše české hlasy a jestli hlas opravdu mluví (řádky `TTS_PROBE` → ADR-004).
 
 ## Co je potřeba ověřit na zařízení
 

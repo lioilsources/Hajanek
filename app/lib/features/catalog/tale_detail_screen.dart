@@ -16,6 +16,37 @@ import 'catalog_models.dart';
 const _recommended = '_recommended';
 const _none = '_none';
 
+/// Background choices for a tale: (id, label), the recommended sound first.
+/// The id is [_recommended], [_none] or a preset id.
+List<(String, String)> backgroundChoices(Catalog catalog, Tale tale, List<MixPreset> presets) => [
+      (_recommended, '${S.detailRecommended}: ${catalog.ambientById(tale.ambient)?.title ?? tale.ambient}'),
+      for (final p in presets) (p.id, p.title),
+      (_none, S.detailNoBackground),
+    ];
+
+const defaultBackground = _recommended;
+
+List<MixLayer> backgroundLayers(String background, Tale tale, List<MixPreset> presets) =>
+    switch (background) {
+      _recommended => [MixLayer(ambient: tale.ambient, volume: 0.7)],
+      _none => const [],
+      final id => presets.firstWhere((p) => p.id == id, orElse: () => presets.first).layers,
+    };
+
+/// Starts the tale and opens the player; tells the parent when the script
+/// can't be loaded.
+Future<void> playTale(BuildContext context, WidgetRef ref,
+    {required Tale tale, required List<MixLayer> layers, required bool ritual}) async {
+  ref.read(settingsProvider.notifier).update((s) => s.copyWith(ritual: ritual));
+  final ok = await ref.read(playerProvider.notifier).startTale(tale: tale, layers: layers, ritual: ritual);
+  if (!context.mounted) return;
+  if (ok) {
+    context.push('/player');
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(S.detailNoScript)));
+  }
+}
+
 class TaleDetailScreen extends ConsumerStatefulWidget {
   const TaleDetailScreen({super.key, required this.taleId});
   final String taleId;
@@ -26,13 +57,7 @@ class TaleDetailScreen extends ConsumerStatefulWidget {
 
 class _TaleDetailScreenState extends ConsumerState<TaleDetailScreen> {
   late bool _ritual = ref.read(settingsProvider).ritual;
-  String _background = _recommended;
-
-  List<MixLayer> _layers(Tale tale, List<MixPreset> presets) => switch (_background) {
-        _recommended => [MixLayer(ambient: tale.ambient, volume: 0.7)],
-        _none => const [],
-        final id => presets.firstWhere((p) => p.id == id, orElse: () => presets.first).layers,
-      };
+  String _background = defaultBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -44,13 +69,7 @@ class _TaleDetailScreenState extends ConsumerState<TaleDetailScreen> {
     final favourite = ref.watch(favouritesProvider).value?.contains(tale.id) ?? false;
     final voiceId = ref.watch(settingsProvider.select((s) => s.voiceId));
     final voices = ref.watch(voiceProvider.select((s) => s.voices));
-    final recommendedTitle = catalog.ambientById(tale.ambient)?.title ?? tale.ambient;
-
-    final backgroundChoices = <(String, String)>[
-      (_recommended, '${S.detailRecommended}: $recommendedTitle'),
-      for (final p in presets) (p.id, p.title),
-      (_none, S.detailNoBackground),
-    ];
+    final choices = backgroundChoices(catalog, tale, presets);
 
     return Scaffold(
       appBar: AppBar(
@@ -84,8 +103,7 @@ class _TaleDetailScreenState extends ConsumerState<TaleDetailScreen> {
           const SectionLabel(S.detailBackground),
           ListTile(
             title: Text(
-              backgroundChoices.firstWhere((c) => c.$1 == _background,
-                  orElse: () => backgroundChoices.first).$2,
+              choices.firstWhere((c) => c.$1 == _background, orElse: () => choices.first).$2,
               style: const TextStyle(fontSize: 18),
             ),
             trailing: const Icon(Icons.expand_more),
@@ -93,8 +111,8 @@ class _TaleDetailScreenState extends ConsumerState<TaleDetailScreen> {
               final picked = await showChoiceSheet<String>(
                 context: context,
                 title: S.detailBackground,
-                choices: [for (final c in backgroundChoices) c.$1],
-                label: (id) => backgroundChoices.firstWhere((c) => c.$1 == id).$2,
+                choices: [for (final c in choices) c.$1],
+                label: (id) => choices.firstWhere((c) => c.$1 == id).$2,
                 selected: _background,
               );
               if (picked != null) setState(() => _background = picked);
@@ -113,21 +131,8 @@ class _TaleDetailScreenState extends ConsumerState<TaleDetailScreen> {
               style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(72)),
               icon: const Icon(Icons.play_arrow, size: 32),
               label: const Text(S.detailPlay, style: TextStyle(fontSize: 22)),
-              onPressed: () async {
-                ref.read(settingsProvider.notifier).update((s) => s.copyWith(ritual: _ritual));
-                final ok = await ref.read(playerProvider.notifier).startTale(
-                      tale: tale,
-                      layers: _layers(tale, presets),
-                      ritual: _ritual,
-                    );
-                if (!context.mounted) return;
-                if (ok) {
-                  context.push('/player');
-                } else {
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(const SnackBar(content: Text(S.detailNoScript)));
-                }
-              },
+              onPressed: () => playTale(context, ref,
+                  tale: tale, layers: backgroundLayers(_background, tale, presets), ritual: _ritual),
             ),
           ),
         ],

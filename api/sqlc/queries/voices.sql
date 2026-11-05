@@ -1,11 +1,25 @@
+-- name: InsertHousehold :exec
+INSERT INTO households (id, created_at) VALUES (?, ?);
+
 -- name: InsertDevice :exec
-INSERT INTO devices (id, token_hash, created_at) VALUES (?, ?, ?);
+INSERT INTO devices (id, token_hash, household_id, created_at) VALUES (?, ?, ?, ?);
 
 -- name: GetDeviceByTokenHash :one
 SELECT id FROM devices WHERE token_hash = ?;
 
+-- name: GetDevice :one
+SELECT * FROM devices WHERE id = ?;
+
 -- name: DeleteDevice :exec
 DELETE FROM devices WHERE id = ?;
+
+-- name: SetDeviceHousehold :exec
+UPDATE devices SET household_id = ? WHERE id = ?;
+
+-- name: DeleteHouseholdIfEmpty :exec
+DELETE FROM households
+WHERE households.id = sqlc.arg(id)
+  AND NOT EXISTS (SELECT 1 FROM devices d WHERE d.household_id = sqlc.arg(id));
 
 -- name: CountActiveVoices :one
 SELECT COUNT(*) FROM voices WHERE device_id = ? AND status != 'deleting';
@@ -24,6 +38,20 @@ SELECT * FROM voices WHERE id = ? AND device_id = ?;
 
 -- name: ListDeviceVoices :many
 SELECT * FROM voices WHERE device_id = ? ORDER BY created_at, id;
+
+-- name: GetHouseholdVoice :one
+-- A voice whose owner shares a household with device_id.
+SELECT v.* FROM voices v
+JOIN devices owner ON owner.id = v.device_id
+JOIN devices me ON me.household_id = owner.household_id
+WHERE v.id = sqlc.arg(id) AND me.id = sqlc.arg(device_id);
+
+-- name: ListHouseholdVoices :many
+SELECT v.* FROM voices v
+JOIN devices owner ON owner.id = v.device_id
+JOIN devices me ON me.household_id = owner.household_id
+WHERE me.id = sqlc.arg(device_id)
+ORDER BY v.created_at, v.id;
 
 -- name: SetVoiceStatus :one
 UPDATE voices SET status = ?, error = ?, updated_at = ?

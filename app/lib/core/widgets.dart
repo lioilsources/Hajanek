@@ -145,6 +145,8 @@ Future<T?> showChoiceSheet<T>({
               for (final (i, c) in choices.indexed) ...[
                 if (group != null && (i == 0 || group(choices[i - 1]) != group(c))) SectionLabel(group(c)),
                 ListTile(
+                  // A remote (TV) starts on the current value.
+                  autofocus: selected == null ? i == 0 : c == selected,
                   title: Text(label(c), style: const TextStyle(fontSize: 18)),
                   trailing: c == selected ? const Icon(Icons.check, color: Night.accent) : null,
                   onTap: () => Navigator.of(context).pop(c),

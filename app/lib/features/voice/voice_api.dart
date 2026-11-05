@@ -42,11 +42,20 @@ class MemoryTokenStore implements TokenStore {
 enum VoiceStatus { pending, ready, failed, deleting, unknown }
 
 class RemoteVoice {
-  const RemoteVoice({required this.id, required this.name, required this.status, this.error});
+  const RemoteVoice({
+    required this.id,
+    required this.name,
+    required this.status,
+    this.error,
+    this.owned = true,
+  });
   final String id;
   final String name;
   final VoiceStatus status;
   final String? error;
+
+  /// Recorded on this device (may delete it); false = a household member's.
+  final bool owned;
 
   factory RemoteVoice.fromJson(Map<String, dynamic> j) {
     // Accept both `{voice: {...}}` and the bare object.
@@ -56,8 +65,22 @@ class RemoteVoice {
       name: v['name'] as String? ?? '',
       status: VoiceStatus.values.asNameMap()[v['status']] ?? VoiceStatus.unknown,
       error: v['error'] as String?,
+      owned: v['owned'] as bool? ?? true,
     );
   }
+}
+
+/// `POST /v1/pairings`: the code a TV shows until a phone claims it.
+class PairingCode {
+  const PairingCode({required this.code, required this.expiresAt});
+  final String code;
+  final DateTime expiresAt;
+
+  factory PairingCode.fromJson(Map<String, dynamic> j) => PairingCode(
+        code: j['code'] as String,
+        expiresAt: DateTime.tryParse(j['expires_at'] as String? ?? '') ??
+            DateTime.now().add(const Duration(minutes: 10)),
+      );
 }
 
 class ClipInfo {
@@ -125,6 +148,28 @@ class VoiceApi {
     await tokens.write(token);
     return token;
   }
+
+  /// Whether this device ever registered (a TV that never paired hasn't).
+  Future<bool> hasDevice() async => (await tokens.read())?.isNotEmpty ?? false;
+
+  /// All voices of this device's household (own and paired devices').
+  Future<List<RemoteVoice>> listVoices() async {
+    final j = _json(await _authed('GET', '/v1/voices')) as Map<String, dynamic>;
+    return [for (final v in (j['voices'] as List? ?? const [])) RemoteVoice.fromJson(v as Map<String, dynamic>)];
+  }
+
+  /// TV: a fresh pairing code (replaces the previous one).
+  Future<PairingCode> createPairing() async =>
+      PairingCode.fromJson(_json(await _authed('POST', '/v1/pairings')) as Map<String, dynamic>);
+
+  /// TV: true once a phone claimed [code]. Throws 404 when it expired.
+  Future<bool> pairingClaimed(String code) async {
+    final j = _json(await _authed('GET', '/v1/pairings/$code')) as Map<String, dynamic>;
+    return j['status'] == 'claimed';
+  }
+
+  /// Phone: brings the TV showing [code] into this phone's household.
+  Future<void> claimPairing(String code) => _authed('POST', '/v1/pairings/$code/claim');
 
   Future<RemoteVoice> createVoice({
     required String samplePath,

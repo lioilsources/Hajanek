@@ -46,7 +46,7 @@ func (s *Server) registerDevice(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) deleteDevice(w http.ResponseWriter, r *http.Request, deviceID string) {
 	if err := s.Voices.DeleteDevice(r.Context(), deviceID); err != nil {
-		s.internal(w, r, err)
+		s.voiceError(w, r, err)
 		return
 	}
 	s.Log.Info("device deleted", "device", deviceID)

@@ -42,12 +42,14 @@ const (
 	StatusDeleting Status = "deleting"
 )
 
-// Voice is the public view of a voice.
+// Voice is the public view of a voice. Owned is true when the requesting
+// device recorded it (and so may delete it); household members only read.
 type Voice struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
 	Status    Status    `json:"status"`
 	Error     string    `json:"error,omitempty"`
+	Owned     bool      `json:"owned"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -96,10 +98,17 @@ func hashToken(token string) string {
 	return hex.EncodeToString(sum[:])
 }
 
-// RegisterDevice creates an anonymous device and returns its bearer token.
+// RegisterDevice creates an anonymous device in a new household of its own
+// and returns its bearer token.
 func (s *Store) RegisterDevice(ctx context.Context) (id, token string, err error) {
 	id, token = ids.NewUUID(), ids.NewToken()
-	err = s.q.InsertDevice(ctx, db.InsertDeviceParams{ID: id, TokenHash: hashToken(token), CreatedAt: s.nowMs()})
+	err = s.inTx(ctx, func(q *db.Queries) error {
+		now, hh := s.nowMs(), ids.NewUUID()
+		if err := q.InsertHousehold(ctx, db.InsertHouseholdParams{ID: hh, CreatedAt: now}); err != nil {
+			return err
+		}
+		return q.InsertDevice(ctx, db.InsertDeviceParams{ID: id, TokenHash: hashToken(token), HouseholdID: hh, CreatedAt: now})
+	})
 	return id, token, err
 }
 
@@ -112,10 +121,19 @@ func (s *Store) DeviceByToken(ctx context.Context, token string) (string, error)
 	return id, err
 }
 
-// DeleteDevice deletes the device and starts deletion of all its voices.
+// DeleteDevice deletes the device and starts deletion of the voices it
+// owns. Voices of its household mates stay; a household left without
+// devices is deleted.
 func (s *Store) DeleteDevice(ctx context.Context, deviceID string) error {
 	var deleted []string
 	err := s.inTx(ctx, func(q *db.Queries) error {
+		dev, err := q.GetDevice(ctx, deviceID)
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrNotFound
+		}
+		if err != nil {
+			return err
+		}
 		vs, err := q.ListDeviceVoices(ctx, nullStr(deviceID))
 		if err != nil {
 			return err
@@ -129,7 +147,10 @@ func (s *Store) DeleteDevice(ctx context.Context, deviceID string) error {
 		if err := q.DetachDeviceVoices(ctx, nullStr(deviceID)); err != nil {
 			return err
 		}
-		return q.DeleteDevice(ctx, deviceID)
+		if err := q.DeleteDevice(ctx, deviceID); err != nil { // pairings cascade
+			return err
+		}
+		return q.DeleteHouseholdIfEmpty(ctx, dev.HouseholdID)
 	})
 	if err != nil {
 		return err
@@ -193,44 +214,46 @@ func (s *Store) CreateVoice(ctx context.Context, deviceID string, nv NewVoice) (
 		s.removeFiles(id)
 		return Voice{}, err
 	}
-	return toVoice(row), nil
+	return toVoice(row, deviceID), nil
 }
 
-// ListVoices returns the device's voices, oldest first.
+// ListVoices returns the voices of the device's household, oldest first.
 func (s *Store) ListVoices(ctx context.Context, deviceID string) ([]Voice, error) {
-	rows, err := s.q.ListDeviceVoices(ctx, nullStr(deviceID))
+	rows, err := s.q.ListHouseholdVoices(ctx, deviceID)
 	if err != nil {
 		return nil, err
 	}
 	out := make([]Voice, len(rows))
 	for i, r := range rows {
-		out[i] = toVoice(r)
+		out[i] = toVoice(r, deviceID)
 	}
 	return out, nil
 }
 
-// GetVoice returns a voice owned by deviceID; ErrNotFound otherwise, so
-// other devices cannot probe for existence.
+// GetVoice returns a voice readable by deviceID (same household as its
+// owner); ErrNotFound otherwise, so other devices cannot probe for
+// existence.
 func (s *Store) GetVoice(ctx context.Context, deviceID, id string) (Voice, error) {
-	row, err := s.ownedVoice(ctx, deviceID, id)
+	row, err := s.readableVoice(ctx, s.q, deviceID, id)
 	if err != nil {
 		return Voice{}, err
 	}
-	return toVoice(row), nil
+	return toVoice(row, deviceID), nil
 }
 
-func (s *Store) ownedVoice(ctx context.Context, deviceID, id string) (db.Voice, error) {
+// readableVoice is a voice whose owner shares deviceID's household.
+func (s *Store) readableVoice(ctx context.Context, q *db.Queries, deviceID, id string) (db.Voice, error) {
 	if !ids.IsUUID(id) {
 		return db.Voice{}, ErrNotFound
 	}
-	row, err := s.q.GetDeviceVoice(ctx, db.GetDeviceVoiceParams{ID: id, DeviceID: nullStr(deviceID)})
+	row, err := q.GetHouseholdVoice(ctx, db.GetHouseholdVoiceParams{ID: id, DeviceID: deviceID})
 	if errors.Is(err, sql.ErrNoRows) {
 		return db.Voice{}, ErrNotFound
 	}
 	return row, err
 }
 
-// DeleteVoice removes sample and clips now and enqueues voice_delete; the
+// DeleteVoice (owner only) removes sample and clips now and enqueues voice_delete; the
 // row disappears when that job finishes.
 func (s *Store) DeleteVoice(ctx context.Context, deviceID, id string) error {
 	err := s.inTx(ctx, func(q *db.Queries) error {
@@ -332,7 +355,7 @@ func (s *Store) SetStatus(ctx context.Context, id string, st Status, msg string)
 		row, err = q.SetVoiceStatus(ctx, db.SetVoiceStatusParams{Status: string(st), Error: msg, UpdatedAt: s.nowMs(), ID: id})
 		return err
 	})
-	return toVoice(row), err
+	return toVoice(row, ""), err
 }
 
 // ClipKeys lists the utterance keys that already have a clip.
@@ -416,12 +439,12 @@ type Clip struct {
 	CreatedAt time.Time
 }
 
-// OwnedClip returns the clip file of a voice owned by deviceID.
-func (s *Store) OwnedClip(ctx context.Context, deviceID, id, key string) (Clip, string, error) {
+// ReadableClip returns the clip file of a voice readable by deviceID.
+func (s *Store) ReadableClip(ctx context.Context, deviceID, id, key string) (Clip, string, error) {
 	if !ids.IsHex64(key) {
 		return Clip{}, "", ErrNotFound
 	}
-	if _, err := s.ownedVoice(ctx, deviceID, id); err != nil {
+	if _, err := s.readableVoice(ctx, s.q, deviceID, id); err != nil {
 		return Clip{}, "", err
 	}
 	c, err := s.q.GetClip(ctx, db.GetClipParams{VoiceID: id, Key: key})
@@ -506,8 +529,10 @@ func nullStr(s string) sql.NullString { return sql.NullString{String: s, Valid: 
 
 func msTime(ms int64) time.Time { return time.UnixMilli(ms).UTC() }
 
-func toVoice(r db.Voice) Voice {
-	return Voice{ID: r.ID, Name: r.Name, Status: Status(r.Status), Error: r.Error, CreatedAt: msTime(r.CreatedAt)}
+// toVoice is the view of r for deviceID ("" for the worker).
+func toVoice(r db.Voice, deviceID string) Voice {
+	return Voice{ID: r.ID, Name: r.Name, Status: Status(r.Status), Error: r.Error,
+		Owned: deviceID != "" && r.DeviceID.Valid && r.DeviceID.String == deviceID, CreatedAt: msTime(r.CreatedAt)}
 }
 
 func toClip(c db.Clip) Clip {

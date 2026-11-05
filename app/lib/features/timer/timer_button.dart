@@ -12,6 +12,22 @@ String timerLabel(SleepTimerOption o) => switch (o.kind) {
       SleepTimerKind.minutes => S.timerMinutes(o.minutes),
     };
 
+/// Picker for the sleep timer of the current session.
+Future<void> pickTimer(BuildContext context, WidgetRef ref) async {
+  final p = ref.read(playerProvider);
+  final choice = await showChoiceSheet<SleepTimerOption>(
+    context: context,
+    title: S.timerTitle,
+    choices: [
+      for (final c in SleepTimerOption.choices)
+        if (c.kind != SleepTimerKind.endOfTale || p.kind != SessionKind.mixer) c,
+    ],
+    label: timerLabel,
+    selected: p.timer,
+  );
+  if (choice != null) ref.read(playerProvider.notifier).setTimer(choice);
+}
+
 /// Shows the remaining time (or the chosen option) and opens the picker.
 class TimerButton extends ConsumerWidget {
   const TimerButton({super.key});
@@ -26,19 +42,7 @@ class TimerButton extends ConsumerWidget {
             ? S.timerTitle
             : timerLabel(p.timer);
     return TextButton.icon(
-      onPressed: () async {
-        final choice = await showChoiceSheet<SleepTimerOption>(
-          context: context,
-          title: S.timerTitle,
-          choices: [
-            for (final c in SleepTimerOption.choices)
-              if (c.kind != SleepTimerKind.endOfTale || p.kind != SessionKind.mixer) c,
-          ],
-          label: timerLabel,
-          selected: p.timer,
-        );
-        if (choice != null) ref.read(playerProvider.notifier).setTimer(choice);
-      },
+      onPressed: () => pickTimer(context, ref),
       icon: const Icon(Icons.bedtime_outlined),
       label: Text(text, style: const TextStyle(fontSize: 16)),
     );

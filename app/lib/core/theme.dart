@@ -19,7 +19,8 @@ abstract final class Night {
   static const tap = 56.0;
 }
 
-ThemeData buildNightTheme() {
+/// [tv]: a visible focus on stock widgets (list tiles, switches) for the remote.
+ThemeData buildNightTheme({bool tv = false}) {
   const scheme = ColorScheme.dark(
     surface: Night.background,
     surfaceContainerLowest: Night.background,
@@ -47,6 +48,7 @@ ThemeData buildNightTheme() {
     // No ripples/splashes flashing in a dark room.
     splashFactory: NoSplash.splashFactory,
     highlightColor: Colors.transparent,
+    focusColor: tv ? Night.accentDim : null,
     materialTapTargetSize: MaterialTapTargetSize.padded,
   );
   return base.copyWith(

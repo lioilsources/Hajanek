@@ -28,8 +28,14 @@ type Clip struct {
 }
 
 type Device struct {
+	ID          string
+	TokenHash   string
+	HouseholdID string
+	CreatedAt   int64
+}
+
+type Household struct {
 	ID        string
-	TokenHash string
 	CreatedAt int64
 }
 
@@ -52,6 +58,15 @@ type Job struct {
 	UpdatedAt      int64
 	StartedAt      sql.NullInt64
 	FinishedAt     sql.NullInt64
+}
+
+type Pairing struct {
+	Code      string
+	DeviceID  string
+	CreatedAt int64
+	ExpiresAt int64
+	ClaimedAt sql.NullInt64
+	ClaimedBy sql.NullString
 }
 
 type Render struct {

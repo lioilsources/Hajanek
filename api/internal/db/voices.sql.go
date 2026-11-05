@@ -46,6 +46,17 @@ func (q *Queries) DeleteDevice(ctx context.Context, id string) error {
 	return err
 }
 
+const deleteHouseholdIfEmpty = `-- name: DeleteHouseholdIfEmpty :exec
+DELETE FROM households
+WHERE households.id = ?1
+  AND NOT EXISTS (SELECT 1 FROM devices d WHERE d.household_id = ?1)
+`
+
+func (q *Queries) DeleteHouseholdIfEmpty(ctx context.Context, id string) error {
+	_, err := q.db.ExecContext(ctx, deleteHouseholdIfEmpty, id)
+	return err
+}
+
 const deleteVoiceClips = `-- name: DeleteVoiceClips :exec
 DELETE FROM clips WHERE voice_id = ?
 `
@@ -111,6 +122,22 @@ func (q *Queries) GetClip(ctx context.Context, arg GetClipParams) (Clip, error) 
 	return i, err
 }
 
+const getDevice = `-- name: GetDevice :one
+SELECT id, token_hash, household_id, created_at FROM devices WHERE id = ?
+`
+
+func (q *Queries) GetDevice(ctx context.Context, id string) (Device, error) {
+	row := q.db.QueryRowContext(ctx, getDevice, id)
+	var i Device
+	err := row.Scan(
+		&i.ID,
+		&i.TokenHash,
+		&i.HouseholdID,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getDeviceByTokenHash = `-- name: GetDeviceByTokenHash :one
 SELECT id FROM devices WHERE token_hash = ?
 `
@@ -133,6 +160,39 @@ type GetDeviceVoiceParams struct {
 
 func (q *Queries) GetDeviceVoice(ctx context.Context, arg GetDeviceVoiceParams) (Voice, error) {
 	row := q.db.QueryRowContext(ctx, getDeviceVoice, arg.ID, arg.DeviceID)
+	var i Voice
+	err := row.Scan(
+		&i.ID,
+		&i.DeviceID,
+		&i.Name,
+		&i.Status,
+		&i.Error,
+		&i.SampleExt,
+		&i.SampleBytes,
+		&i.SampleDurationS,
+		&i.ConsentText,
+		&i.ConsentAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getHouseholdVoice = `-- name: GetHouseholdVoice :one
+SELECT v.id, v.device_id, v.name, v.status, v.error, v.sample_ext, v.sample_bytes, v.sample_duration_s, v.consent_text, v.consent_at, v.created_at, v.updated_at FROM voices v
+JOIN devices owner ON owner.id = v.device_id
+JOIN devices me ON me.household_id = owner.household_id
+WHERE v.id = ?1 AND me.id = ?2
+`
+
+type GetHouseholdVoiceParams struct {
+	ID       string
+	DeviceID string
+}
+
+// A voice whose owner shares a household with device_id.
+func (q *Queries) GetHouseholdVoice(ctx context.Context, arg GetHouseholdVoiceParams) (Voice, error) {
+	row := q.db.QueryRowContext(ctx, getHouseholdVoice, arg.ID, arg.DeviceID)
 	var i Voice
 	err := row.Scan(
 		&i.ID,
@@ -257,17 +317,37 @@ func (q *Queries) InsertClip(ctx context.Context, arg InsertClipParams) error {
 }
 
 const insertDevice = `-- name: InsertDevice :exec
-INSERT INTO devices (id, token_hash, created_at) VALUES (?, ?, ?)
+INSERT INTO devices (id, token_hash, household_id, created_at) VALUES (?, ?, ?, ?)
 `
 
 type InsertDeviceParams struct {
-	ID        string
-	TokenHash string
-	CreatedAt int64
+	ID          string
+	TokenHash   string
+	HouseholdID string
+	CreatedAt   int64
 }
 
 func (q *Queries) InsertDevice(ctx context.Context, arg InsertDeviceParams) error {
-	_, err := q.db.ExecContext(ctx, insertDevice, arg.ID, arg.TokenHash, arg.CreatedAt)
+	_, err := q.db.ExecContext(ctx, insertDevice,
+		arg.ID,
+		arg.TokenHash,
+		arg.HouseholdID,
+		arg.CreatedAt,
+	)
+	return err
+}
+
+const insertHousehold = `-- name: InsertHousehold :exec
+INSERT INTO households (id, created_at) VALUES (?, ?)
+`
+
+type InsertHouseholdParams struct {
+	ID        string
+	CreatedAt int64
+}
+
+func (q *Queries) InsertHousehold(ctx context.Context, arg InsertHouseholdParams) error {
+	_, err := q.db.ExecContext(ctx, insertHousehold, arg.ID, arg.CreatedAt)
 	return err
 }
 
@@ -395,6 +475,50 @@ func (q *Queries) ListDeviceVoices(ctx context.Context, deviceID sql.NullString)
 	return items, nil
 }
 
+const listHouseholdVoices = `-- name: ListHouseholdVoices :many
+SELECT v.id, v.device_id, v.name, v.status, v.error, v.sample_ext, v.sample_bytes, v.sample_duration_s, v.consent_text, v.consent_at, v.created_at, v.updated_at FROM voices v
+JOIN devices owner ON owner.id = v.device_id
+JOIN devices me ON me.household_id = owner.household_id
+WHERE me.id = ?1
+ORDER BY v.created_at, v.id
+`
+
+func (q *Queries) ListHouseholdVoices(ctx context.Context, deviceID string) ([]Voice, error) {
+	rows, err := q.db.QueryContext(ctx, listHouseholdVoices, deviceID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Voice{}
+	for rows.Next() {
+		var i Voice
+		if err := rows.Scan(
+			&i.ID,
+			&i.DeviceID,
+			&i.Name,
+			&i.Status,
+			&i.Error,
+			&i.SampleExt,
+			&i.SampleBytes,
+			&i.SampleDurationS,
+			&i.ConsentText,
+			&i.ConsentAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const markVoiceDeleting = `-- name: MarkVoiceDeleting :exec
 UPDATE voices SET status = 'deleting', error = '', updated_at = ? WHERE id = ?
 `
@@ -406,6 +530,20 @@ type MarkVoiceDeletingParams struct {
 
 func (q *Queries) MarkVoiceDeleting(ctx context.Context, arg MarkVoiceDeletingParams) error {
 	_, err := q.db.ExecContext(ctx, markVoiceDeleting, arg.UpdatedAt, arg.ID)
+	return err
+}
+
+const setDeviceHousehold = `-- name: SetDeviceHousehold :exec
+UPDATE devices SET household_id = ? WHERE id = ?
+`
+
+type SetDeviceHouseholdParams struct {
+	HouseholdID string
+	ID          string
+}
+
+func (q *Queries) SetDeviceHousehold(ctx context.Context, arg SetDeviceHouseholdParams) error {
+	_, err := q.db.ExecContext(ctx, setDeviceHousehold, arg.HouseholdID, arg.ID)
 	return err
 }
 

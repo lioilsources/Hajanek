@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/form_factor.dart';
 import '../../core/strings.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
 import '../catalog/catalog_controller.dart';
+import '../player/player_controller.dart';
 import '../timer/sleep_timer.dart';
 import '../timer/timer_button.dart';
 import '../voice/voice_controller.dart';
@@ -20,6 +22,7 @@ class SettingsScreen extends ConsumerWidget {
     final s = ref.watch(settingsProvider);
     final ctrl = ref.read(settingsProvider.notifier);
     final catalog = ref.watch(catalogProvider);
+    final tv = ref.watch(formFactorProvider) == FormFactor.tv;
 
     Future<void> pick<T>(String title, List<T> choices, String Function(T) label, T selected,
         AppSettings Function(AppSettings, T) apply) async {
@@ -39,14 +42,17 @@ class SettingsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text(S.settingsTitle)),
       body: ListView(
-        padding: const EdgeInsets.only(bottom: 32),
+        // TVs cut the screen edges (overscan).
+        padding: tv ? const EdgeInsets.fromLTRB(32, 0, 32, 32) : const EdgeInsets.only(bottom: 32),
         children: [
-          SwitchListTile(
-            title: const Text(S.settingsBreathing, style: TextStyle(fontSize: 18)),
-            subtitle: const Text(S.settingsBreathingSub),
-            value: s.breathing,
-            onChanged: (v) => ctrl.update((s) => s.copyWith(breathing: v)),
-          ),
+          // The TV night picture has no breathing circle.
+          if (!tv)
+            SwitchListTile(
+              title: const Text(S.settingsBreathing, style: TextStyle(fontSize: 18)),
+              subtitle: const Text(S.settingsBreathingSub),
+              value: s.breathing,
+              onChanged: (v) => ctrl.update((s) => s.copyWith(breathing: v)),
+            ),
           ListTile(
             title: const Text(S.settingsIntro, style: TextStyle(fontSize: 18)),
             trailing: Text(S.settingsSeconds(s.introSeconds), style: const TextStyle(fontSize: 16)),
@@ -67,10 +73,26 @@ class SettingsScreen extends ConsumerWidget {
           ),
           ListTile(
             title: const Text(S.settingsVoice, style: TextStyle(fontSize: 18)),
-            trailing: Text(voiceLabel(s.voiceId, ref.watch(voiceProvider).voices),
+            trailing: Text(voiceLabel(s.voiceId, ref.watch(voiceProvider).voices, tv: tv),
                 style: const TextStyle(fontSize: 16)),
             onTap: () => context.push('/voice'),
           ),
+          // On a phone this is a slider in the player; a remote gets steps.
+          if (tv)
+            ListTile(
+              title: const Text(S.tvBalance, style: TextStyle(fontSize: 18)),
+              trailing: Text(S.tvBalanceLabel(s.balance), style: const TextStyle(fontSize: 16)),
+              onTap: () async {
+                final v = await showChoiceSheet<double>(
+                  context: context,
+                  title: S.tvBalance,
+                  choices: const [0, 0.25, 0.5, 0.75, 1],
+                  label: S.tvBalanceLabel,
+                  selected: (s.balance * 4).round() / 4,
+                );
+                if (v != null) ref.read(playerProvider.notifier).setBalance(v);
+              },
+            ),
           ListTile(
             title: const Text(S.settingsVocative, style: TextStyle(fontSize: 18)),
             subtitle: const Text(S.settingsVocativeSub),
