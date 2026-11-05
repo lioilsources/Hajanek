@@ -3,6 +3,7 @@ package httpapi
 import (
 	"context"
 	"crypto/sha256"
+	"database/sql"
 	"encoding/hex"
 	"encoding/json"
 	"io"
@@ -29,6 +30,7 @@ const (
 type env struct {
 	t       *testing.T
 	h       http.Handler
+	sqldb   *sql.DB
 	cat     *catalog.Service
 	pages   *httptest.Server
 	voices  *voices.Store
@@ -38,8 +40,14 @@ type env struct {
 
 func newEnv(t *testing.T, withCatalog bool) *env {
 	t.Helper()
+	return newEnvAt(t, filepath.Join(t.TempDir(), "api.db"), t.TempDir(), withCatalog)
+}
+
+// newEnvAt opens (and migrates) the database at dbPath with files in dataDir.
+func newEnvAt(t *testing.T, dbPath, dataDir string, withCatalog bool) *env {
+	t.Helper()
 	ctx := context.Background()
-	sqldb, err := db.Open(ctx, filepath.Join(t.TempDir(), "api.db"))
+	sqldb, err := db.Open(ctx, dbPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -73,13 +81,13 @@ func newEnv(t *testing.T, withCatalog bool) *env {
 	}
 	store := jobs.NewStore(sqldb, time.Minute, 3)
 	store.Log = quiet
-	dataDir := t.TempDir()
 	vs := voices.NewStore(sqldb, store, dataDir, 3)
 	vs.Log = quiet
 	store.OnFinish = vs.OnJobFinished
 	s := &Server{DB: sqldb, Catalog: cat, Jobs: store, AdminToken: adminToken, WorkerToken: workerToken, Log: quiet,
-		Voices: vs, Probe: fakeProbe, DeviceLimiter: NewRateLimiter(5, time.Hour)}
-	return &env{t: t, h: s.Handler(), cat: cat, pages: pages, voices: vs, dataDir: dataDir, script: scriptBody}
+		Voices: vs, Probe: fakeProbe, DeviceLimiter: NewRateLimiter(5, time.Hour),
+		PairingLimiter: NewRateLimiter(5, time.Hour), ClaimLimiter: NewRateLimiter(5, time.Minute)}
+	return &env{t: t, h: s.Handler(), sqldb: sqldb, cat: cat, pages: pages, voices: vs, dataDir: dataDir, script: scriptBody}
 }
 
 // goldenScript is the script from docs/testdata/utterances.golden.json.

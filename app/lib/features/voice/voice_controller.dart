@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/form_factor.dart';
 import '../../core/providers.dart';
 import '../catalog/catalog_controller.dart';
 import '../player/player_controller.dart';
@@ -22,6 +23,7 @@ class LocalVoice {
     this.requested = const {},
     this.done = 0,
     this.total = 0,
+    this.owned = true,
   });
 
   final String id;
@@ -35,6 +37,9 @@ class LocalVoice {
   /// Sentences downloaded / sentences the server plans for all tales.
   final int done;
   final int total;
+
+  /// Recorded on this device; false = came with pairing (TV), can't delete.
+  final bool owned;
 
   bool get complete => status == VoiceStatus.ready && total > 0 && done >= total;
 
@@ -53,6 +58,7 @@ class LocalVoice {
         requested: requested ?? this.requested,
         done: done ?? this.done,
         total: total ?? this.total,
+        owned: owned,
       );
 
   Map<String, dynamic> toJson() => {
@@ -63,6 +69,7 @@ class LocalVoice {
         'requested': requested,
         'done': done,
         'total': total,
+        'owned': owned,
       };
 
   factory LocalVoice.fromJson(Map<String, dynamic> j) => LocalVoice(
@@ -75,6 +82,7 @@ class LocalVoice {
         },
         done: (j['done'] as num?)?.toInt() ?? 0,
         total: (j['total'] as num?)?.toInt() ?? 0,
+        owned: j['owned'] as bool? ?? true,
       );
 
   static List<LocalVoice> decodeList(String? s) {
@@ -106,6 +114,20 @@ List<(String, ClipInfo)> planClipDownloads(
     }
   }
   return out;
+}
+
+/// Local voice list after the server listed the household's voices: new
+/// ones are added, ones that came with pairing and are gone are dropped
+/// (the phone deleted them); own voices are kept (a 404 marks them failed).
+List<LocalVoice> mergeHouseholdVoices(List<LocalVoice> local, List<RemoteVoice> remote) {
+  final byId = {for (final r in remote) r.id: r};
+  return [
+    for (final v in local)
+      if (v.owned || byId.containsKey(v.id)) v,
+    for (final r in remote)
+      if (!local.any((v) => v.id == r.id) && r.status != VoiceStatus.deleting)
+        LocalVoice(id: r.id, name: r.name, status: r.status, error: r.error, owned: r.owned),
+  ];
 }
 
 /// (downloaded, planned) sentences over all manifests.
@@ -163,13 +185,19 @@ class VoiceController extends Notifier<VoiceState> {
 
   VoiceApi? get _api => ref.read(voiceApiProvider);
 
+  /// A TV keeps polling: voices recorded on the paired phone appear and
+  /// disappear there.
+  bool get _tv => ref.read(formFactorProvider) == FormFactor.tv;
+
+  bool get _settled => !_tv && state.voices.every((v) => v.complete || v.status == VoiceStatus.failed);
+
   /// Polls while some voice is still being prepared or downloaded.
   void startPolling() {
     if (_poll != null || _api == null) return;
-    if (state.voices.every((v) => v.complete || v.status == VoiceStatus.failed)) return;
+    if (_settled) return;
     unawaited(refresh());
     _poll = Timer.periodic(pollEvery, (_) {
-      if (state.voices.every((v) => v.complete || v.status == VoiceStatus.failed)) {
+      if (_settled) {
         _poll?.cancel();
         _poll = null;
         return;
@@ -203,11 +231,7 @@ class VoiceController extends Notifier<VoiceState> {
     state = state.copyWith(busy: true, message: () => null);
     try {
       await api.deleteVoice(id);
-      final dir = ref.read(voicesDirProvider);
-      if (dir != null) {
-        final d = Directory('$dir/$id');
-        if (await d.exists()) await d.delete(recursive: true);
-      }
+      await _deleteClips(id);
       _save([for (final v in state.voices) if (v.id != id) v]);
       if (ref.read(settingsProvider).voiceId == id) {
         ref.read(settingsProvider.notifier).update((s) => s.copyWith(voiceId: systemVoiceId));
@@ -225,6 +249,16 @@ class VoiceController extends Notifier<VoiceState> {
     final api = _api;
     if (api == null) return;
     String? message;
+    // Never registered (no recording, no pairing): nothing on the server.
+    if (!await api.hasDevice()) return;
+    try {
+      _mergeHousehold(await api.listVoices());
+    } on VoiceApiException catch (e) {
+      debugPrint('$e');
+      if (ref.mounted) state = state.copyWith(message: () => e.message);
+      return;
+    }
+    if (!ref.mounted) return;
     for (final v in [...state.voices]) {
       try {
         await _refreshOne(api, v);
@@ -277,6 +311,27 @@ class VoiceController extends Notifier<VoiceState> {
       (done, total) = clipProgress(manifests, sizes.keys.toSet());
       _update(v.id, (x) => x.copyWith(done: done, total: total));
     }
+  }
+
+  void _mergeHousehold(List<RemoteVoice> remote) {
+    if (!ref.mounted) return;
+    final next = mergeHouseholdVoices(state.voices, remote);
+    final gone = state.voices.where((v) => !next.contains(v)).map((v) => v.id).toSet();
+    if (gone.isEmpty && next.length == state.voices.length) return;
+    _save(next);
+    for (final id in gone) {
+      unawaited(_deleteClips(id));
+    }
+    if (gone.contains(ref.read(settingsProvider).voiceId)) {
+      ref.read(settingsProvider.notifier).update((s) => s.copyWith(voiceId: systemVoiceId));
+    }
+  }
+
+  Future<void> _deleteClips(String id) async {
+    final dir = ref.read(voicesDirProvider);
+    if (dir == null) return;
+    final d = Directory('$dir/$id');
+    if (await d.exists()) await d.delete(recursive: true);
   }
 
   static Future<Map<String, int>> _localSizes(Directory dir) async {

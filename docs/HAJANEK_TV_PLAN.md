@@ -3,6 +3,13 @@
 > Návrh z 27. 10. 2026 (Fable). Stav: **Ol1n 27. 10. 2026 rozhodl, že volbu
 > Apple TV cesty 3A/3B dělá spike** (§3 Doporučení, §8 krok 2). Ostatní otázky
 > §10 čekají; §8 kroky 1–2 se mohou dělat hned.
+>
+> **Průběh (27. 10. 2026, Opus):** §8 krok 1 je hotový pro Google TV
+> emulátor (ADR-004, reálné krabičky čekají). Kroky 3, 4 a 5 jsou hotové:
+> TV rozhraní, manifest a banner, párování v API i appce, ověřeno na Google
+> TV emulátoru proti lokálnímu API. Krok 2 (spike `flutter-tvos`) proběhl
+> 28. 10. na simulátoru tvOS 27: všechna kritéria prošla, ADR-004 = 3A (přijato 5. 11.).
+> Kroky 6–7 pro Apple TV jsou na řadě.
 > Navazuje na [`HAJANEK_PLAN.md`](HAJANEK_PLAN.md), [`CONTRACTS.md`](CONTRACTS.md)
 > a [ADR-003](adr/ADR-003-voice-architecture.md). Výstupem spiku má být
 > **ADR-004 (platforma pro Apple TV)** a změna CONTRACTS §6 (párování).

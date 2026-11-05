@@ -5,9 +5,11 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'app.dart';
 import 'core/db/database.dart';
+import 'core/form_factor.dart';
 import 'core/providers.dart';
 import 'features/catalog/catalog_controller.dart';
 import 'features/catalog/catalog_repository.dart';
@@ -33,6 +35,7 @@ class SecureTokenStore implements TokenStore {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  final formFactor = await detectFormFactor();
   final db = AppDatabase();
   final values = await db.readAllValues();
   final settings = AppSettings.fromValues(values);
@@ -69,6 +72,11 @@ Future<void> main() async {
 
   runApp(ProviderScope(
     overrides: [
+      formFactorProvider.overrideWithValue(formFactor),
+      if (formFactor == FormFactor.tv)
+        wakelockProvider.overrideWithValue((on) => WakelockPlus.toggle(enable: on).catchError(
+              (Object e) => debugPrint('wakelock: $e'),
+            )),
       databaseProvider.overrideWithValue(db),
       initialSettingsProvider.overrideWithValue(settings),
       initialCatalogProvider.overrideWithValue(snapshot),

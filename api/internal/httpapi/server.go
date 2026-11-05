@@ -30,9 +30,11 @@ type Server struct {
 	WorkerToken string
 	Log         *slog.Logger
 
-	Voices        *voices.Store
-	Probe         voices.Prober // nil: sample duration is not checked
-	DeviceLimiter *RateLimiter  // nil: no limit on POST /v1/devices
+	Voices         *voices.Store
+	Probe          voices.Prober // nil: sample duration is not checked
+	DeviceLimiter  *RateLimiter  // nil: no limit on POST /v1/devices
+	PairingLimiter *RateLimiter  // nil: no limit on POST /v1/pairings
+	ClaimLimiter   *RateLimiter  // nil: no limit on POST /v1/pairings/{code}/claim
 }
 
 // Handler returns the routed, logged HTTP handler.
@@ -62,6 +64,9 @@ func (s *Server) Handler() http.Handler {
 	mux.Handle("POST /v1/voices/{id}/renders", s.device(s.createRender))
 	mux.Handle("GET /v1/voices/{id}/renders/{tale}/{length}", s.device(s.getRender))
 	mux.Handle("GET /v1/clips/{voice}/{file}", s.device(s.getClip))
+	mux.Handle("POST /v1/pairings", s.device(s.createPairing))
+	mux.Handle("GET /v1/pairings/{code}", s.device(s.getPairing))
+	mux.Handle("POST /v1/pairings/{code}/claim", s.device(s.claimPairing))
 
 	mux.Handle("GET /v1/worker/voices/{id}/sample", worker(s.workerSample))
 	mux.Handle("POST /v1/worker/voices/{id}/status", worker(s.workerVoiceStatus))

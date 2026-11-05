@@ -73,21 +73,27 @@ func run(log *slog.Logger) (retErr error) {
 	if probe == nil {
 		log.Warn("ffprobe not found; voice sample durations will not be checked")
 	}
-	var limiter *httpapi.RateLimiter
+	var limiter, pairingLimiter, claimLimiter *httpapi.RateLimiter
 	if cfg.DeviceRateN > 0 {
 		limiter = httpapi.NewRateLimiter(cfg.DeviceRateN, cfg.DeviceRatePer)
+		pairingLimiter = httpapi.NewRateLimiter(cfg.DeviceRateN, cfg.DeviceRatePer)
+	}
+	if cfg.ClaimRateN > 0 {
+		claimLimiter = httpapi.NewRateLimiter(cfg.ClaimRateN, cfg.ClaimRatePer)
 	}
 
 	api := &httpapi.Server{
-		DB:            sqldb,
-		Catalog:       cat,
-		Jobs:          store,
-		AdminToken:    cfg.AdminToken,
-		WorkerToken:   cfg.WorkerToken,
-		Log:           log,
-		Voices:        vs,
-		Probe:         probe,
-		DeviceLimiter: limiter,
+		DB:             sqldb,
+		Catalog:        cat,
+		Jobs:           store,
+		AdminToken:     cfg.AdminToken,
+		WorkerToken:    cfg.WorkerToken,
+		Log:            log,
+		Voices:         vs,
+		Probe:          probe,
+		DeviceLimiter:  limiter,
+		PairingLimiter: pairingLimiter,
+		ClaimLimiter:   claimLimiter,
 	}
 	srv := &http.Server{
 		Addr:              net.JoinHostPort("", cfg.Port),

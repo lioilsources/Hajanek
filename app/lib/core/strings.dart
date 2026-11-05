@@ -138,4 +138,52 @@ abstract final class S {
   static const recUploading = 'Odesílám…';
   static const recNoMic = 'Bez přístupu k mikrofonu to nejde — povol ho v Nastavení.';
   static const recFailed = 'Nahrávání se nepodařilo. Zkus to prosím znovu.';
+
+  // Pairing a TV with the phone that recorded the voice (CONTRACTS §6)
+  static const pairTv = 'Propojit televizi';
+  static const pairTvSub = 'Tvůj hlas pak bude číst pohádky i v televizi';
+  static const pairTvHelp = 'Na televizi otevři Hajánek → Hlas → Propojit s telefonem. '
+      'Ukáže se šestimístný kód.';
+  static const pairCode = 'Kód z televize';
+  static const pairConfirm = 'Propojit';
+  static const pairTvDone = 'Televize je propojená, hlasy se do ní stáhnou samy.';
+  static const pairBadCode = 'Tenhle kód nesedí nebo už vypršel. Zkontroluj ho na televizi.';
+
+  // TV (10-foot UI, docs/HAJANEK_TV_PLAN.md §6)
+  static const tvVoice = 'Hlas';
+  static const tvBackground = 'Podkres';
+  static const tvSettings = 'Nastavení';
+  static const tvOn = 'zapnuto';
+  static const tvOff = 'vypnuto';
+  static String tvRitual(bool on) => '$detailRitual: ${on ? tvOn : tvOff}';
+  static const tvPause = 'Pauza';
+  static const tvResume = 'Pokračovat';
+  static const tvFavourite = 'Oblíbená';
+  static const tvUnfavourite = 'Odebrat z oblíbených';
+  static const tvJukeboxSub = 'Vyber podkres, hraje bez pohádky';
+  static const tvBalance = 'Hlas ↔ podkres';
+  static String tvBalanceLabel(double b) => switch ((b * 4).round()) {
+        0 => 'Jen hlas',
+        1 => 'Víc hlasu',
+        2 => 'Vyrovnaně',
+        3 => 'Víc podkresu',
+        _ => 'Jen podkres',
+      };
+  static const voiceSystemTv = 'Hlas televize';
+  static const voiceSystemTvSub = 'Bez internetu, pokud televize umí česky';
+  static const voiceParentTvHint = 'Hlas rodiče se nahrává v telefonu. Propoj televizi s telefonem '
+      'a hlasy se sem stáhnou samy.';
+  static const czechHintTitleTv = 'Televize nemá český hlas';
+  static const czechHintTv = 'Pohádky přečte hlas rodiče: nahraj ho v telefonu a propoj televizi '
+      '(Hlas → Propojit s telefonem). Bez něj hraje jen podkres.';
+  static const pairTitle = 'Propojit s telefonem';
+  static const pairSub = 'Hlas rodiče se nahrává v telefonu';
+  static const pairInstructions = 'V telefonu otevři Hajánek → Hlas → Propojit televizi a zadej kód';
+  static const pairWaiting = 'Čekám na telefon…';
+  static const pairDone = 'Propojeno. Hlasy se teď stahují do televize.';
+  static const pairExpired = 'Kód vypršel.';
+  static const pairNewCode = 'Nový kód';
+  static const pairClose = 'Hotovo';
+  static String pairCodeSpaced(String code) =>
+      code.length == 6 ? '${code.substring(0, 3)} ${code.substring(3)}' : code;
 }

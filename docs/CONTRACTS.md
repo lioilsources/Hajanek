@@ -183,15 +183,18 @@ v nastavení ukáže jako „hlas se ještě připravuje“).
 | GET | `/healthz` | – | `{"ok":true}` |
 | GET | `/v1/catalog` | – | 302 na aktuální `catalog.json` na Pages (nebo JSON, pokud `?inline=1`) |
 | GET | `/v1/catalog/version` | – | `{"version":3,"url":"…"}` |
-| POST | `/v1/devices` | – (rate limit / IP) | anonymní registrace → `{device_id, token}` |
-| DELETE | `/v1/devices/me` | device | smaže zařízení i všechny jeho hlasy a klipy |
+| POST | `/v1/devices` | – (rate limit / IP) | anonymní registrace → `{device_id, token}`; zařízení dostane vlastní novou domácnost |
+| DELETE | `/v1/devices/me` | device | smaže zařízení a hlasy, které **samo nahrálo** (hlasy ostatních členů domácnosti zůstanou) |
+| POST | `/v1/pairings` | device (TV; rate limit / IP jako `/v1/devices`) | nový párovací kód → `201 {code, expires_at}` |
+| GET | `/v1/pairings/{code}` | device (jen TV, která kód vytvořila) | `{status: pending|claimed, expires_at}` |
+| POST | `/v1/pairings/{code}/claim` | device (telefon; 5 pokusů / min / IP) | TV přejde do domácnosti volajícího → `200 {status: "claimed"}` |
 | POST | `/v1/voices` | device | multipart `sample` (wav/m4a, 5–30 s), `name`, `consent=true`, `consent_text` → `201 {voice}` (`status: pending`) |
-| GET | `/v1/voices` | device | hlasy zařízení |
-| GET | `/v1/voices/{id}` | device (vlastník) | `{id, name, status: pending|ready|failed|deleting, error?, created_at}` |
+| GET | `/v1/voices` | device (domácnost) | `{voices: [voice]}` — hlasy celé domácnosti |
+| GET | `/v1/voices/{id}` | device (domácnost) | `{id, name, status: pending|ready|failed|deleting, error?, owned, created_at}` |
 | DELETE | `/v1/voices/{id}` | device (vlastník) | okamžitě smaže vzorek a klipy u nás, zařadí `voice_delete` na Sparku |
-| POST | `/v1/voices/{id}/renders` | device (vlastník) | `{tale, length_min}` → zařadí `render` (idempotentní) → `{render}` |
-| GET | `/v1/voices/{id}/renders/{tale}/{length}` | device (vlastník) | `{status, script_sha256, done, total, clips: {utterance_key: {url, duration_s, bytes}}}` |
-| GET | `/v1/clips/{voice_id}/{utterance_key}.m4a` | device (vlastník) | klip |
+| POST | `/v1/voices/{id}/renders` | device (domácnost) | `{tale, length_min}` → zařadí `render` (idempotentní) → `{render}` |
+| GET | `/v1/voices/{id}/renders/{tale}/{length}` | device (domácnost) | `{status, script_sha256, done, total, clips: {utterance_key: {url, duration_s, bytes}}}` |
+| GET | `/v1/clips/{voice_id}/{utterance_key}.m4a` | device (domácnost) | klip |
 | POST | `/v1/jobs` | admin | zařadí job `{kind, …}` |
 | GET | `/v1/jobs/{id}`, `/v1/jobs?status=` | admin/worker | stav a výpis |
 | POST | `/v1/jobs/claim` | worker | `{worker, kinds?}` → job s leasem; 204 = fronta prázdná |
@@ -206,9 +209,44 @@ v nastavení ukáže jako „hlas se ještě připravuje“).
 `device` = `Authorization: Bearer <device token>`. Token je náhodných 32 B,
 server drží jen jeho sha256. Žádné e-maily ani účty.
 
+Domácnost a párování (TV):
+
+- Každé zařízení patří právě do jedné **domácnosti** (`devices.household_id`,
+  migrace `0003_households` založila každému dosavadnímu zařízení vlastní).
+  **Vlastník** hlasu = zařízení, které ho nahrálo (`voices.device_id`).
+  „device (domácnost)“ = volající je ve stejné domácnosti jako vlastník
+  hlasu; „device (vlastník)“ = jen vlastník. Limit hlasů
+  (`MAX_VOICES_PER_DEVICE`) se dál počítá na vlastníka.
+- `voice.owned` (bool) = volající je vlastník (smí mazat). TV dostává
+  `owned: false` a tlačítko Smazat skryje. Mazání cizího hlasu z domácnosti
+  = `404`, stejně jako u úplně cizího hlasu.
+- `POST /v1/pairings` (tělo prázdné) → `201 {"code":"483920","expires_at":"2026-10-27T18:40:00Z"}`.
+  Kód je 6 číslic (vždy jako string, i s úvodními nulami), platí 10 min;
+  zařízení má nejvýš jeden kód — nový `POST` ten předchozí zneplatní.
+  Rate limit `DEVICE_RATE_LIMIT` (výchozí 10/h na IP, vlastní počítadlo)
+  → `429` + `Retry-After: 60`; appka proto kód po vypršení neobnovuje
+  donekonečna (obnova na akci uživatele nebo nejvýš párkrát).
+- `GET /v1/pairings/{code}` → `200 {"status":"pending","expires_at":"…"}`
+  nebo `{"status":"claimed",…}`. `404`, když kód neexistuje, patří jinému
+  zařízení, byl nahrazen novým, nebo vypršel nevyzvednutý (TV si pak vyžádá
+  nový). Vyzvednutý kód hlásí `claimed` i po `expires_at` (ještě ~24 h).
+  TV polluje po 3 s, dokud je obrazovka s kódem otevřená.
+- `POST /v1/pairings/{code}/claim` (tělo prázdné) → `200 {"status":"claimed"}`:
+  zařízení, které kód vytvořilo, přejde do domácnosti volajícího (i s
+  hlasy, které samo nahrálo — TV žádné nemá); kód se spálí. Volající
+  domácnost nemění nikdy. Chyby: špatný formát / neexistující / vypršelý /
+  už použitý kód = `404 {"error":"not found"}`; vlastní kód volajícího =
+  `409 {"error":"cannot claim your own pairing code"}` (kód zůstává
+  platný); víc než `PAIRING_CLAIM_RATE_LIMIT` (výchozí 5/min) z jedné IP =
+  `429` + `Retry-After: 60`. Opakované párování TV s jiným telefonem ji
+  přestěhuje do nové domácnosti.
+- `DELETE /v1/devices/me` z TV smaže jen TV (a její kód); hlasy rodičů
+  zůstávají. Domácnost, ve které nezbylo žádné zařízení, se smaže. Smaže-li
+  se telefon (vlastník), jeho hlasy se mažou i pro spárované TV.
+
 Upřesnění k hlasům:
 
-- Cizí i neexistující hlas/klip = `404` (existence se neprozradí).
+- Hlas/klip mimo domácnost i neexistující = `404` (existence se neprozradí).
 - Joby hlasů: `voice_create`, `voice_delete` (`voice_id` = UUID), `render`
   (`voice_id`, `tale`, `length_min`); job JSON nese `voice_id`, ne `voice`. `POST …/renders` je idempotentní (týž job,
   dokud čeká/běží) → `202 {voice_id, tale, length_min, script_sha256, status,
@@ -254,8 +292,14 @@ utterance_key = hex(sha256(utf8(voice_id + "\x1f" + tone + "\x1f" + text)))
    mono 48 kHz, −23 LUFS, a nahraje `PUT /v1/worker/clips/…`.
 5. App stahuje klipy podle manifestu do `applicationSupport/voices/{id}/`
    a přehrává je přehrávačem z §5.
-6. Smazání: `DELETE /v1/voices/{id}` → u nás hned pryč, job `voice_delete`
-   smaže hlas i v audio službě.
+6. Párování TV (volitelné): TV → `POST /v1/pairings`, ukáže kód a polluje
+   `GET /v1/pairings/{code}`; rodič v telefonu (Hlas → Propojit televizi)
+   zadá kód → `POST /v1/pairings/{code}/claim`. Po `claimed` vidí TV v
+   `GET /v1/voices` hlasy domácnosti (`owned: false`), sama si smí vyžádat
+   render a stahuje klipy stejně jako telefon (krok 4–5). Hlas nikdy
+   nenahrává ani nemaže.
+7. Smazání: `DELETE /v1/voices/{id}` (jen vlastník) → u nás hned pryč, job
+   `voice_delete` smaže hlas i v audio službě; zmizí tím i ze spárovaných TV.
 
 GPU klonovací enginy na Sparku neběží pořád (rozvrh paměti v AiStack). Worker
 proto bere `render` joby jen v okně, kdy je engine nahoře; když audio služba

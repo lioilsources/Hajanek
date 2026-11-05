@@ -5,6 +5,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hajanek/core/db/database.dart';
+import 'package:hajanek/core/form_factor.dart';
 import 'package:hajanek/core/providers.dart';
 import 'package:hajanek/features/catalog/catalog_controller.dart';
 import 'package:hajanek/features/catalog/catalog_models.dart';
@@ -27,6 +28,16 @@ class FakeApi {
 
   /// Bytes the manifest claims (to simulate a truncated download).
   final claimed = <String, int>{};
+
+  /// v1 exists on the server (uploaded, not deleted).
+  var hasV1 = false;
+
+  /// Voices of other household devices (`GET /v1/voices`, owned: false).
+  final household = <Map<String, Object>>[];
+
+  /// Pairing (code 483920): status the TV sees, codes phones claimed.
+  var pairingStatus = 'pending';
+  final claims = <String>[];
 
   Uri get url => Uri.parse('http://${server.address.host}:${server.port}');
 
@@ -60,6 +71,7 @@ class FakeApi {
         fields[m.group(1)!] = m.group(2)!;
       }
       uploads.add(fields);
+      hasV1 = true;
       return json({
         'voice': {'id': 'v1', 'name': fields['name'], 'status': 'pending', 'created_at': 'x'},
       }, 201);
@@ -67,7 +79,34 @@ class FakeApi {
     if (req.method == 'GET' && path == '/v1/voices/v1') {
       return json({'id': 'v1', 'name': 'Jana', 'status': voiceStatus});
     }
-    if (req.method == 'DELETE' && path == '/v1/voices/v1') return json({'ok': true});
+    for (final h in household) {
+      if (req.method == 'GET' && path == '/v1/voices/${h['id']}') return json(h);
+    }
+    if (req.method == 'GET' && path == '/v1/voices') {
+      return json({
+        'voices': [
+          if (hasV1) {'id': 'v1', 'name': 'Jana', 'status': voiceStatus, 'owned': true},
+          ...household,
+        ],
+      });
+    }
+    if (req.method == 'DELETE' && path == '/v1/voices/v1') {
+      hasV1 = false;
+      return json({'ok': true});
+    }
+    if (req.method == 'POST' && path == '/v1/pairings') {
+      return json({
+        'code': '483920',
+        'expires_at': DateTime.now().toUtc().add(const Duration(minutes: 10)).toIso8601String(),
+      }, 201);
+    }
+    if (req.method == 'GET' && path == '/v1/pairings/483920') return json({'status': pairingStatus});
+    final claim = RegExp(r'^/v1/pairings/(\d+)/claim$').firstMatch(path);
+    if (req.method == 'POST' && claim != null) {
+      if (claim.group(1) != '483920') return json({'error': 'not found'}, 404);
+      claims.add(claim.group(1)!);
+      return json({'ok': true});
+    }
     if (req.method == 'POST' && path == '/v1/voices/v1/renders') {
       final b = jsonDecode(await utf8.decodeStream(req)) as Map<String, dynamic>;
       renders.add('${b['tale']}/${b['length_min']}');
@@ -244,6 +283,82 @@ void main() {
     expect(c.read(voiceProvider).voices, isEmpty);
     expect(Directory('${tmp.path}/v1').existsSync(), isFalse);
     expect(c.read(settingsProvider).voiceId, 'system');
+  });
+
+  test('pairing: TV gets a code and sees the claim; a wrong code is 404', () async {
+    final tv = api();
+    final code = await tv.createPairing();
+    expect(code.code, '483920');
+    expect(code.expiresAt.isAfter(DateTime.now()), isTrue);
+    expect(await tv.pairingClaimed('483920'), isFalse);
+
+    final phone = api();
+    await phone.claimPairing('483920');
+    expect(fake.claims, ['483920']);
+    fake.pairingStatus = 'claimed';
+    expect(await tv.pairingClaimed('483920'), isTrue);
+
+    final e = await phone.claimPairing('111111').then<Object?>((_) => null, onError: (Object e) => e);
+    expect((e! as VoiceApiException).status, 404);
+  });
+
+  test('household list: owned flag, missing flag means own', () async {
+    fake.hasV1 = true;
+    fake.household.add({'id': 'p1', 'name': 'Máma', 'status': 'ready', 'owned': false});
+    final list = await api().listVoices();
+    expect([for (final v in list) (v.id, v.owned)], [('v1', true), ('p1', false)]);
+    expect(RemoteVoice.fromJson({'id': 'x', 'status': 'ready'}).owned, isTrue);
+  });
+
+  test('mergeHouseholdVoices adds new, drops gone paired voices, keeps own', () {
+    const own = LocalVoice(id: 'v1', name: 'Jana');
+    const paired = LocalVoice(id: 'p1', name: 'Máma', owned: false);
+    final out = mergeHouseholdVoices(
+      [own, paired],
+      const [RemoteVoice(id: 'p2', name: 'Táta', status: VoiceStatus.ready, owned: false)],
+    );
+    expect([for (final v in out) v.id], ['v1', 'p2']);
+    expect(out.last.owned, isFalse);
+    expect(out.last.status, VoiceStatus.ready);
+    expect(mergeHouseholdVoices(const [], const [
+      RemoteVoice(id: 'd', name: '', status: VoiceStatus.deleting),
+    ]), isEmpty);
+  });
+
+  test('TV controller: silent until paired, then follows the household', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final tokens = MemoryTokenStore();
+    final c = ProviderContainer(overrides: [
+      formFactorProvider.overrideWithValue(FormFactor.tv),
+      databaseProvider.overrideWithValue(db),
+      initialCatalogProvider.overrideWithValue(CatalogSnapshot(
+        catalog: miniCatalog(),
+        local: const LocalContent(bundled: {}, blobs: {}, blobDir: '/'),
+      )),
+      voiceApiProvider.overrideWithValue(api(tokens)),
+      voicesDirProvider.overrideWithValue(tmp.path),
+    ]);
+    addTearDown(c.dispose);
+    final ctrl = c.read(voiceProvider.notifier);
+
+    await ctrl.refresh();
+    expect(fake.requests, isEmpty, reason: 'no device registered before pairing');
+
+    tokens.token = 'tok-1'; // pairing registered the TV
+    fake.household.add({'id': 'p1', 'name': 'Máma', 'status': 'pending', 'owned': false});
+    await ctrl.refresh();
+    final v = c.read(voiceProvider).voices.single;
+    expect((v.id, v.name, v.owned), ('p1', 'Máma', false));
+
+    c.read(settingsProvider.notifier).update((s) => s.copyWith(voiceId: 'p1'));
+    Directory('${tmp.path}/p1').createSync();
+    fake.household.clear(); // the phone deleted it
+    await ctrl.refresh();
+    await Future<void>.delayed(Duration.zero);
+    expect(c.read(voiceProvider).voices, isEmpty);
+    expect(c.read(settingsProvider).voiceId, 'system');
+    expect(Directory('${tmp.path}/p1').existsSync(), isFalse);
   });
 
   test('recording text: consent first, name filled in, tips separate', () {
