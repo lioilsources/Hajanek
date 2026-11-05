@@ -1,0 +1,8 @@
+audio_service_tvos=/Users/ol1n/Dev/GitHub/Hajanek/.claude/worktrees/agent-a44f228639d89a986/spikes/tvos/packages/audio_service_tvos
+audio_session_tvos=/Users/ol1n/Dev/GitHub/Hajanek/.claude/worktrees/agent-a44f228639d89a986/spikes/tvos/packages/audio_session_tvos
+flutter_secure_storage_tvos=/Users/ol1n/.pub-cache/hosted/pub.dev/flutter_secure_storage_tvos-0.0.2
+flutter_tts_tvos=/Users/ol1n/.pub-cache/hosted/pub.dev/flutter_tts_tvos-0.0.1
+just_audio_tvos=/Users/ol1n/Dev/GitHub/Hajanek/.claude/worktrees/agent-a44f228639d89a986/spikes/tvos/packages/just_audio_tvos
+path_provider_tvos=/Users/ol1n/.pub-cache/hosted/pub.dev/path_provider_tvos-0.0.3
+sqflite_tvos=/Users/ol1n/.pub-cache/hosted/pub.dev/sqflite_tvos-0.0.2
+wakelock_plus_tvos=/Users/ol1n/.pub-cache/hosted/pub.dev/wakelock_plus_tvos-0.0.1

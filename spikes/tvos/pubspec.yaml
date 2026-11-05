@@ -1,0 +1,52 @@
+name: tvos_spike
+description: "ADR-004 spike: Hajanek plugin set on tvOS via flutter-tvos."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.2
+
+# Same plugin versions as app/pubspec.yaml, plus *_tvos federated packages.
+dependencies:
+  flutter:
+    sdk: flutter
+  just_audio: ^0.10.6
+  audio_session: ^0.2.4
+  audio_service: ^0.18.19
+  drift: ^2.35.2
+  drift_flutter: ^0.3.1
+  path_provider: ^2.1.6
+  flutter_tts: ^4.2.5
+  flutter_secure_storage: ^11.2.0
+  wakelock_plus: ^1.2.0
+
+  # tvOS implementations
+  just_audio_tvos:
+    path: packages/just_audio_tvos
+  audio_session_tvos:
+    path: packages/audio_session_tvos
+  audio_service_tvos:
+    path: packages/audio_service_tvos
+  path_provider_tvos: any
+  flutter_tts_tvos: any
+  flutter_secure_storage_tvos: any
+  wakelock_plus_tvos: any
+  sqflite_tvos: any # audio_service -> flutter_cache_manager -> sqflite
+
+dependency_overrides:
+  # upstream 1.8.2 declares `tvos:` but ships its tvOS code under ios/, which
+  # flutter-tvos cannot find (Module wakelock_plus not found). Copy with the
+  # tvos key removed; wakelock_plus_tvos provides the native side.
+  wakelock_plus:
+    path: packages/wakelock_plus
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
