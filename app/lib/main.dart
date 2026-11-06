@@ -87,7 +87,7 @@ Future<void> main() async {
       clipOutputProvider.overrideWithValue(JustAudioClipOutput()),
       voicesDirProvider.overrideWithValue(voicesDir),
       initialVoicesProvider.overrideWithValue(LocalVoice.decodeList(values[parentVoicesKey])),
-      voiceApiProvider.overrideWithValue(VoiceApi(tokens: SecureTokenStore())),
+      if (voiceCloningEnabled) voiceApiProvider.overrideWithValue(VoiceApi(tokens: SecureTokenStore())),
     ],
     child: const HajanekApp(),
   ));

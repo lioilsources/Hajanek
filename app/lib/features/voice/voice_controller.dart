@@ -160,7 +160,14 @@ class VoiceState {
 /// Overridden in main() with what drift holds under [parentVoicesKey].
 final initialVoicesProvider = Provider<List<LocalVoice>>((ref) => const []);
 
-/// Null in tests unless a mock is injected.
+/// Parent voice cloning, and TV pairing, which only shares cloned voices.
+/// Off in store builds until cloning has a commercial engine and its
+/// purchase (docs/IAP_PLAN.md); `--dart-define=VOICE_CLONING=true` turns it
+/// on as a free beta. Off means the app never talks to hajanek-api.
+const voiceCloningEnabled = bool.fromEnvironment('VOICE_CLONING');
+final voiceCloningProvider = Provider<bool>((ref) => voiceCloningEnabled);
+
+/// Null in tests unless a mock is injected, and when cloning is off.
 final voiceApiProvider = Provider<VoiceApi?>((ref) => null);
 
 /// True / false once flutter_tts has listed voices; null = unknown.

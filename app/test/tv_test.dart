@@ -63,6 +63,7 @@ void main() {
     VoiceApi? api,
     PlayerController Function()? player,
     void Function(bool)? wakelock,
+    bool cloning = true,
   }) =>
       ProviderScope(
         overrides: [
@@ -73,6 +74,7 @@ void main() {
           userPresetsProvider.overrideWithValue(const AsyncValue.data([])),
           czechVoiceAvailableProvider.overrideWith((ref) async => true),
           voiceApiProvider.overrideWithValue(api),
+          voiceCloningProvider.overrideWithValue(cloning),
           if (player != null) playerProvider.overrideWith(player),
           if (wakelock != null) wakelockProvider.overrideWithValue(wakelock),
         ],
@@ -227,6 +229,15 @@ void main() {
     expect(find.text(S.pairDone), findsOneWidget);
     await tester.tap(find.text(S.pairClose));
     await tester.pumpAndSettle();
+  });
+
+  testWidgets('TV without cloning has no pairing', (tester) async {
+    tvSize(tester);
+    await tester.pumpWidget(app(home: const TvVoiceScreen(), cloning: false));
+    await tester.pumpAndSettle();
+    expect(find.text(S.voiceSystemTv), findsOneWidget);
+    expect(find.byKey(const ValueKey('tv-pair')), findsNothing);
+    expect(find.text(S.voiceParentTvHint), findsNothing);
   });
 
   testWidgets('phone: Propojit televizi claims the typed code; wrong code explains', (tester) async {

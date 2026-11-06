@@ -69,12 +69,13 @@ class _TvVoiceScreenState extends ConsumerState<TvVoiceScreen> {
     return TvPage(
       title: const Text(S.voiceTitle, style: TextStyle(fontSize: Tv.title)),
       actions: [
-        TvButton.icon(
-          key: const ValueKey('tv-pair'),
-          icon: Icons.phonelink,
-          label: S.pairTitle,
-          onPressed: () => showDialog<void>(context: context, builder: (_) => const PairingDialog()),
-        ),
+        if (ref.watch(voiceCloningProvider))
+          TvButton.icon(
+            key: const ValueKey('tv-pair'),
+            icon: Icons.phonelink,
+            label: S.pairTitle,
+            onPressed: () => showDialog<void>(context: context, builder: (_) => const PairingDialog()),
+          ),
       ],
       child: ListView(
         clipBehavior: Clip.none,
@@ -84,11 +85,13 @@ class _TvVoiceScreenState extends ConsumerState<TvVoiceScreen> {
               czech == false ? S.czechHintTitleTv : S.voiceSystemTvSub, systemVoiceId,
               autofocus: true),
           for (final v in voices.voices) choice('voice-${v.id}', v.name, voiceStatusText(v), v.id),
-          const SizedBox(height: 12),
-          Text(
-            czech == false ? S.czechHintTv : S.voiceParentTvHint,
-            style: const TextStyle(color: Night.textDim, fontSize: Tv.textSmall),
-          ),
+          if (czech == false || ref.watch(voiceCloningProvider)) ...[
+            const SizedBox(height: 12),
+            Text(
+              czech == false ? S.czechHintTv : S.voiceParentTvHint,
+              style: const TextStyle(color: Night.textDim, fontSize: Tv.textSmall),
+            ),
+          ],
           if (voices.message != null)
             Padding(
               padding: const EdgeInsets.only(top: 16),
