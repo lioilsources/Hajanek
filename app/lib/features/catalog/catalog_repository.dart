@@ -66,7 +66,7 @@ class CatalogRepository {
   File get _catalogFile => File('${_root.path}/catalog.json');
 
   Future<CatalogSnapshot> init() async {
-    var bundled = Catalog.fromJson(
+    final bundled = Catalog.fromJson(
         jsonDecode(await loadAsset(bundledCatalogAsset)) as Map<String, dynamic>);
     final assets = await listBundledAssets();
     final bundledFiles = {
@@ -79,16 +79,6 @@ class CatalogRepository {
     if (await _tmp.exists()) await _tmp.delete(recursive: true);
     await _tmp.create(recursive: true);
 
-    if (!drafts) {
-      final hidden = <String>{};
-      for (final t in bundled.tales) {
-        final s = t.script();
-        if (!assets.contains('assets/${s.path}')) continue;
-        if (parseScript(await loadAsset('assets/${s.path}')).isDraft) hidden.add(t.id);
-      }
-      bundled = bundled.withoutTales(hidden);
-    }
-
     var catalog = bundled;
     if (await _catalogFile.exists()) {
       try {
@@ -100,10 +90,22 @@ class CatalogRepository {
       }
     }
 
-    return CatalogSnapshot(
-      catalog: catalog,
-      local: LocalContent(bundled: bundledFiles, blobs: await _listBlobs(), blobDir: _blobs.path),
-    );
+    final local = LocalContent(bundled: bundledFiles, blobs: await _listBlobs(), blobDir: _blobs.path);
+    return CatalogSnapshot(catalog: await _withoutDrafts(catalog, local), local: local);
+  }
+
+  /// Hides draft tales unless [drafts]. Applies to the bundled catalog and
+  /// to every downloaded one: the published catalog carries drafts while
+  /// they are being tested.
+  Future<Catalog> _withoutDrafts(Catalog catalog, LocalContent local) async {
+    if (drafts) return catalog;
+    final hidden = <String>{};
+    for (final t in catalog.tales) {
+      final ref = local.resolve(t.script());
+      if (ref == null) continue;
+      if (parseScript(await loadText(ref)).isDraft) hidden.add(t.id);
+    }
+    return catalog.withoutTales(hidden);
   }
 
   Future<Set<String>> _listBlobs() async {
@@ -150,7 +152,7 @@ class CatalogRepository {
       }
     }
     local = local.withBlobs(local.blobs.difference(plan.garbage));
-    return (SyncResult.updated, CatalogSnapshot(catalog: remote, local: local));
+    return (SyncResult.updated, CatalogSnapshot(catalog: await _withoutDrafts(remote, local), local: local));
   }
 
   /// Text of a script (bundled or downloaded).

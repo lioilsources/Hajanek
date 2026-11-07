@@ -16,7 +16,9 @@ import 'package:hajanek/core/form_factor.dart';
 import 'package:hajanek/core/providers.dart';
 import 'package:hajanek/core/theme.dart';
 import 'package:hajanek/features/catalog/catalog_controller.dart';
+import 'package:hajanek/core/script/script.dart';
 import 'package:hajanek/features/catalog/catalog_models.dart';
+import 'package:hajanek/features/catalog/catalog_repository.dart';
 import 'package:hajanek/features/catalog/home_screen.dart';
 import 'package:hajanek/features/catalog/tale_detail_screen.dart';
 import 'package:hajanek/features/mixer/mixer_screen.dart';
@@ -119,7 +121,17 @@ void main() {
   setUp(() => db = AppDatabase(NativeDatabase.memory()));
   tearDown(() => db.close());
 
-  final snapshot = bundledSnapshot();
+  // A store build hides draft tales (INCLUDE_DRAFTS=false).
+  final bundled = bundledSnapshot();
+  final snapshot = !_store
+      ? bundled
+      : CatalogSnapshot(
+          catalog: bundled.catalog.withoutTales({
+            for (final t in bundled.catalog.tales)
+              if (parseScript(File('assets/${t.script().path}').readAsStringSync()).isDraft) t.id,
+          }),
+          local: bundled.local,
+        );
   final karkulka = snapshot.catalog.tale('cervena-karkulka')!;
   const voices = [
     LocalVoice(id: 'mama', name: 'Máma', status: VoiceStatus.ready, done: 412, total: 412),
