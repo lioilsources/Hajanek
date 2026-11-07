@@ -98,6 +98,7 @@ abstract final class S {
   static const voiceSystem = 'Hlas telefonu';
   static const voiceSystemSub = 'Funguje hned a bez internetu';
   static const voiceRecord = 'Nahrát můj hlas';
+  static const voiceBeta = 'Zkušební verze zdarma. Hlas se připravuje několik hodin.';
   static const voicePending = 'Hlas se připravuje, bude hotový do rána';
   static String voiceDownloading(int done, int total) => 'Stahuji hlas: $done z $total vět';
   static const voiceReady = 'Připraveno';

@@ -36,7 +36,8 @@ void main() {
   setUp(() => db = AppDatabase(NativeDatabase.memory()));
   tearDown(() => db.close());
 
-  Widget app({bool? czech, List<LocalVoice> voices = const [], Widget? home}) => ProviderScope(
+  Widget app({bool? czech, List<LocalVoice> voices = const [], Widget? home, bool cloning = true}) =>
+      ProviderScope(
         overrides: [
           databaseProvider.overrideWithValue(db),
           initialCatalogProvider.overrideWithValue(bundledSnapshot()),
@@ -44,6 +45,7 @@ void main() {
           userPresetsProvider.overrideWithValue(const AsyncValue.data([])),
           czechVoiceAvailableProvider.overrideWith((ref) async => czech),
           initialVoicesProvider.overrideWithValue(voices),
+          voiceCloningProvider.overrideWithValue(cloning),
         ],
         child: home == null ? const HajanekApp() : MaterialApp(home: home),
       );
@@ -102,6 +104,14 @@ void main() {
     expect(check('voice-system'), findsNothing);
     expect(check('voice-v2'), findsOneWidget);
     expect(find.text(S.voiceMissingClips), findsOneWidget);
+  });
+
+  testWidgets('voice screen without cloning: phone voice only, no recording or pairing', (tester) async {
+    await tester.pumpWidget(app(czech: true, home: const VoiceScreen(), cloning: false));
+    await tester.pumpAndSettle();
+    expect(find.text('Hlas telefonu'), findsOneWidget);
+    expect(find.text(S.voiceRecord), findsNothing);
+    expect(find.byKey(const ValueKey('pair-tv')), findsNothing);
   });
 
   testWidgets('record screen fills the name into the consent sentence', (tester) async {

@@ -31,9 +31,10 @@ flutter analyze
 | `CATALOG_URL` | `https://lioilsources.github.io/hajanek-content/catalog.json` | odkud se stahuje katalog |
 | `API_URL` | `https://hajanek-api.ol1n.com` | hajanek-api (registrace zařízení, hlasy rodičů, klipy) |
 | `FORM_FACTOR` | – | `tv` vynutí TV rozhraní (např. na telefonním emulátoru), `phone` telefonní. Bez něj rozhoduje platforma: Android `UiModeManager` (kanál `com.ol1n.hajanek/device`, `isTv`). |
+| `VOICE_CLONING` | `false` | klonování hlasu rodiče a párování TV jako beta zdarma (`true` pro vývoj a TestFlight betu). Vypnuté = appka vůbec nemluví s `hajanek-api` a nenabízí nahrávání. Placená verze viz [`docs/IAP_PLAN.md`](../docs/IAP_PLAN.md). |
 | `INCLUDE_DRAFTS` | `true` | ukázat pohádky, jejichž skript v bundlu má `status: draft`. **Pro release musí být `false`** (`flutter build ipa --dart-define=INCLUDE_DRAFTS=false`). Drafty jsou zatím i v publikovaném katalogu (`forge publish --drafts`, kvůli testu s Alexkem); appka je pozná podle `status` skriptu. |
 
-Appka mluví jen s Pages (katalog) a s `hajanek-api`; nikdy s `llm.ol1n.com`
+Appka mluví jen s Pages (katalog) a, se zapnutým `VOICE_CLONING`, s `hajanek-api`; nikdy s `llm.ol1n.com`
 a nepotřebuje žádné CF Access tajnosti.
 
 ### Obsah v bundlu

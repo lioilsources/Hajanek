@@ -72,6 +72,7 @@ class _VoiceScreenState extends ConsumerState<VoiceScreen> {
     final czech = ref.watch(czechVoiceAvailableProvider).value;
     void select(String id) => ref.read(settingsProvider.notifier).update((s) => s.copyWith(voiceId: id));
     final cloned = voices.voices.where((v) => v.id == selected).firstOrNull;
+    final cloning = ref.watch(voiceCloningProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text(S.voiceTitle)),
@@ -106,24 +107,30 @@ class _VoiceScreenState extends ConsumerState<VoiceScreen> {
               padding: EdgeInsets.fromLTRB(20, 8, 20, 0),
               child: Text(S.voiceMissingClips, style: TextStyle(color: Night.textDim)),
             ),
-          const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: FilledButton.icon(
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(Night.tap)),
-              icon: const Icon(Icons.mic_none),
-              label: const Text(S.voiceRecord, style: TextStyle(fontSize: 18)),
-              onPressed: voices.busy ? null : () => context.push('/voice/record'),
+          if (cloning) ...[
+            const SizedBox(height: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: FilledButton.icon(
+                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(Night.tap)),
+                icon: const Icon(Icons.mic_none),
+                label: const Text(S.voiceRecord, style: TextStyle(fontSize: 18)),
+                onPressed: voices.busy ? null : () => context.push('/voice/record'),
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          ListTile(
-            key: const ValueKey('pair-tv'),
-            leading: const Icon(Icons.tv),
-            title: const Text(S.pairTv, style: TextStyle(fontSize: 18)),
-            subtitle: const Text(S.pairTvSub),
-            onTap: () => showDialog<void>(context: context, builder: (_) => const ClaimTvDialog()),
-          ),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(20, 8, 20, 0),
+              child: Text(S.voiceBeta, style: TextStyle(color: Night.textDim)),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              key: const ValueKey('pair-tv'),
+              leading: const Icon(Icons.tv),
+              title: const Text(S.pairTv, style: TextStyle(fontSize: 18)),
+              subtitle: const Text(S.pairTvSub),
+              onTap: () => showDialog<void>(context: context, builder: (_) => const ClaimTvDialog()),
+            ),
+          ],
           if (voices.message != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
