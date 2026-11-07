@@ -54,6 +54,17 @@ const _ratio = 3.0;
 const _tv = Size(960, 540); // 1080p TV, rendered @2x = 1920×1080
 const _tvRatio = 2.0;
 
+/// Store listing: SCREENSHOT_DEVICE=iphone|ipad|android picks the canvas
+/// the store asks for, SCREENSHOT_STORE=1 shows what a store build has
+/// (VOICE_CLONING off: phone voice only, no recording, no pairing).
+const _devices = {
+  'iphone': (Size(440, 956), 3.0), // 6.9" 1320×2868
+  'ipad': (Size(516, 688), 4.0), // 13" 2064×2752, phone-sized type
+  'android': (Size(360, 720), 3.0), // 1080×2160, Play's 2:1 limit
+};
+final _device = _devices[Platform.environment['SCREENSHOT_DEVICE']] ?? (_phone, _ratio);
+final _store = Platform.environment['SCREENSHOT_STORE'] == '1';
+
 final _shotKey = GlobalKey();
 
 Future<void> _loadFonts() async {
@@ -126,8 +137,12 @@ void main() {
     bool tv = false,
     List<LocalVoice> voices = voices,
   }) async {
-    final ratio = tv ? _tvRatio : _ratio;
-    tester.view.physicalSize = (tv ? _tv : _phone) * ratio;
+    final ratio = tv ? _tvRatio : _device.$2;
+    tester.view.physicalSize = (tv ? _tv : _device.$1) * ratio;
+    if (_store) {
+      voices = const [];
+      voiceId = null;
+    }
     tester.view.devicePixelRatio = ratio;
     addTearDown(tester.view.reset);
 
@@ -135,6 +150,7 @@ void main() {
       overrides: [
         formFactorProvider.overrideWithValue(tv ? FormFactor.tv : FormFactor.phone),
         if (tv) voiceApiProvider.overrideWithValue(_PairingApi()),
+        voiceCloningProvider.overrideWithValue(!_store),
         databaseProvider.overrideWithValue(db),
         initialCatalogProvider.overrideWithValue(snapshot),
         favouritesProvider.overrideWithValue(const AsyncValue.data({'cervena-karkulka', 'o-smolickovi'})),
@@ -238,11 +254,11 @@ void main() {
     );
   });
 
-  testWidgets('06 voices: phone and parents', skip: skip, (tester) async {
+  testWidgets('06 voices: phone and parents', skip: skip || _store, (tester) async {
     await shoot(tester, '06-hlas', const VoiceScreen(), voiceId: 'mama');
   });
 
-  testWidgets('07 recording a parent voice', skip: skip, (tester) async {
+  testWidgets('07 recording a parent voice', skip: skip || _store, (tester) async {
     await shoot(
       tester,
       '07-nahravani',
@@ -294,11 +310,11 @@ void main() {
     );
   });
 
-  testWidgets('tv 04 voices', skip: skip, (tester) async {
+  testWidgets('tv 04 voices', skip: skip || _store, (tester) async {
     await shoot(tester, 'tv-04-hlas', const TvVoiceScreen(), tv: true, voices: tvVoices, voiceId: 'mama');
   });
 
-  testWidgets('tv 05 pairing code', skip: skip, (tester) async {
+  testWidgets('tv 05 pairing code', skip: skip || _store, (tester) async {
     await shoot(
       tester,
       'tv-05-propojeni',

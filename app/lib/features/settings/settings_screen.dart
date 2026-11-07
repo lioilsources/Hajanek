@@ -117,9 +117,12 @@ class SettingsScreen extends ConsumerWidget {
               child: const Text(S.settingsCheckUpdates),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(20, 32, 20, 0),
-            child: Text(S.settingsPrivacy, style: TextStyle(color: Night.textDim)),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 32, 20, 0),
+            child: Text(
+              ref.watch(voiceCloningProvider) ? S.settingsPrivacyCloning : S.settingsPrivacy,
+              style: const TextStyle(color: Night.textDim),
+            ),
           ),
         ],
       ),

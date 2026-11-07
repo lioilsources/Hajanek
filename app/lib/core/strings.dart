@@ -89,7 +89,8 @@ abstract final class S {
   static const settingsVocative = 'Oslovení dítěte';
   static const settingsVocativeSub = 'V 5. pádě, např. „Aničko“. Zatím se nepoužívá.';
   static const settingsVocativeNone = 'Nenastaveno';
-  static const settingsPrivacy =
+  static const settingsPrivacy = 'Žádný účet, žádná analytika. Síť se používá jen pro aktualizaci katalogu.';
+  static const settingsPrivacyCloning =
       'Žádný účet, žádná analytika. Síť se používá jen pro aktualizaci katalogu '
       'a pro tvůj nahraný hlas.';
 
