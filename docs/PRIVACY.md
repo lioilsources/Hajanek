@@ -1,76 +1,47 @@
 # Hajánek: zásady ochrany soukromí
 
-Platné od 6. 11. 2026.
+Platné od 7. 11. 2026.
 
 Hajánek je aplikace s pohádkami a zvuky na usínání pro děti. Je zdarma, bez
 reklam, bez účtu a bez sledování.
 
-**Provozovatel:** {{PROVOZOVATEL}}, kontakt {{EMAIL}}.
-
-## Co appka nesbírá
+## Appka nesbírá žádné osobní údaje
 
 - Žádný účet, jméno, e-mail ani telefonní číslo.
-- Žádnou reklamu, analytiku, sledování ani identifikátory pro reklamu.
+- Žádná reklama, analytika, sledování ani reklamní identifikátory.
 - Nic o dítěti. Dítě appku jen poslouchá.
+- Appka nepoužívá mikrofon.
 
-## Co zůstává jen v telefonu
+## Co zůstává jen v zařízení
 
 Oblíbené pohádky, vlastní mixy zvuků a nastavení (časovač, hlasitost,
-rituál). Smažou se s odinstalováním appky.
+rituál). Nikam se neposílají a smažou se s odinstalováním appky.
 
-## Stahování pohádek
+## Stahování nových pohádek
 
-Appka si stahuje katalog pohádek a zvuky z GitHub Pages
-(`lioilsources.github.io`). GitHub přitom vidí IP adresu zařízení, jako
-u každé webové stránky. Zásady GitHubu:
+Appka si občas stáhne katalog pohádek ze služby GitHub Pages
+(`lioilsources.github.io`). Neposílá při tom nic o sobě ani o vás. GitHub
+ale vidí IP adresu zařízení, stejně jako u každé webové stránky. Zásady
+GitHubu:
 <https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement>.
 
 ## Hlas, který čte pohádky
 
-Pohádky čte hlas, který je součástí telefonu nebo televize (iOS, Android,
-Google TV, Apple TV). Text pohádky zpracuje řečový engine zařízení. Podle
-nastavení zařízení ho může poslat i výrobci (Apple, Google); tím se řídí
-jejich zásady, ne naše.
+Pohádky čte řečový engine, který je součástí telefonu nebo televize. Řídí ho
+výrobce zařízení (Apple, Google) a platí pro něj jeho zásady. Podle
+nastavení zařízení může text pohádky zpracovat i online.
 
-## Hlas rodiče (zkušební verze)
+## Kontakt
 
-Tato část platí jen tehdy, když si rodič v appce sám nahraje svůj hlas.
-Funkce je zkušební a zdarma.
-
-- **Co se odesílá:** nahrávka hlasu (5–30 s), jméno hlasu, které rodič
-  zadá, a text souhlasu, který rodič nahlas přečte. Appka si při tom vytvoří
-  anonymní identifikátor zařízení. Ten se uloží do zabezpečeného úložiště
-  telefonu a není svázaný s žádnou osobou.
-- **K čemu:** jen k vytvoření hlasu, kterým appka čte pohádky tomuto
-  zařízení. Případně také spárované televizi. Nahrávka ani hlas se nepoužijí
-  k ničemu jinému. Neprodáváme je, nesdílíme a netrénujeme na nich modely.
-- **Kde:** na serverech provozovatele ({{UMISTENI}}). Hlas se vytváří na vlastním
-  počítači provozovatele, ne u cizí cloudové služby. Spojení jde přes síť
-  Cloudflare (šifrované HTTPS).
-- **Jak dlouho:** dokud hlas rodič nesmaže. Tlačítkem Smazat v appce se
-  nahrávka i hotové části hlasu hned smažou ze serveru. Do několika hodin
-  zmizí i z počítače, kde se hlas vytváří, a ze spárovaných televizí.
-  Technické záznamy serveru (IP adresa, čas požadavku) se uchovávají
-  {{LOGY_DNI}} dní kvůli provozu a ochraně před zneužitím.
-- **Souhlas:** nahrávat smí jen ten, komu hlas patří. Souhlas potvrzuje
-  zaškrtnutím a přečtením souhlasné věty. Souhlas lze kdykoli odvolat
-  smazáním hlasu.
-
-## Párování s televizí
-
-Když rodič propojí televizi s telefonem šestimístným kódem, uvidí televize
-hlasy z telefonu a bude jimi číst. Kód platí 10 minut. Hlas smazaný
-v telefonu zmizí i z televize.
-
-## Vaše práva
-
-Podle GDPR máte právo na přístup k údajům, jejich opravu, výmaz, omezení
-zpracování a přenositelnost. Máte také právo podat stížnost u Úřadu pro
-ochranu osobních údajů (<https://uoou.gov.cz>). Hlas smažete přímo v appce.
-Kvůli ostatnímu napište na {{EMAIL}}. Protože nemáme účty, uveďte prosím
-přibližný čas nahrání a jméno hlasu.
+Dotazy a žádosti podle GDPR posílejte přes
+<https://github.com/lioilsources/Hajanek/issues> nebo přes
+<https://olin.now/hajanek>.
 
 ## Změny
 
-Když se zásady změní, změní se datum nahoře. Placené funkce, pokud přibudou,
-budou popsané tady dřív, než se v appce objeví.
+Pokud appka začne cokoli sbírat (například zkušební funkce s hlasem
+rodiče), zásady se tu doplní dřív, než se funkce v appce objeví, a změní se
+datum nahoře.
+
+<!-- Oddíl pro hlas rodiče (VOICE_CLONING) je v historii tohoto souboru,
+     commit z PR #5; vrátit ho před zapnutím bety. -->
