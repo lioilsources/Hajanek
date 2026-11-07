@@ -328,5 +328,21 @@ void main() {
       expect((await repo(client).init()).catalog.tales, hasLength(1));
       expect((await repo(client, drafts: false).init()).catalog.tales, isEmpty);
     });
+
+    test('INCLUDE_DRAFTS=false also hides drafts in a downloaded catalog', () async {
+      final v2 = miniJson(version: 2, seaSha: sha('sea-v2'));
+      final client = MockClient((req) async => switch (req.url.path) {
+            '/c/catalog.json' => http.Response.bytes(utf8.encode(jsonEncode(v2)), 200),
+            '/c/ambient/sea.opus' => http.Response('sea-v2', 200),
+            _ => http.Response('', 404),
+          });
+      final r = repo(client, drafts: false);
+      final (result, next) = await r.sync(await r.init());
+      expect(result, SyncResult.updated);
+      expect(next.catalog.version, 2);
+      expect(next.catalog.tales, isEmpty);
+      // ...and after a restart, from the stored copy.
+      expect((await repo(client, drafts: false).init()).catalog.tales, isEmpty);
+    });
   });
 }
