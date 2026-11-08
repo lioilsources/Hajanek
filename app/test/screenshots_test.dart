@@ -266,7 +266,7 @@ void main() {
       const MixerScreen(),
       player: const PlayerState(layers: [MixLayer(ambient: 'sea', volume: 0.7)]),
       then: () async {
-        await tester.tap(find.text('Moře'));
+        await tester.tap(find.text(bundled.catalog.ambient.firstWhere((a) => a.id == 'sea').title));
         await tester.pumpAndSettle();
         await tester.drag(find.byType(Scrollable).last, const Offset(0, -260));
         await tester.pumpAndSettle();
