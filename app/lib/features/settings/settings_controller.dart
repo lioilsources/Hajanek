@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:ui' show PlatformDispatcher;
+import 'package:flutter/widgets.dart' show WidgetsBinding;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -147,7 +147,7 @@ class SettingsController extends Notifier<AppSettings> {
 }
 
 /// The phone's preferred supported language; overridden in tests.
-final deviceLangProvider = Provider<String>((ref) => langFor(PlatformDispatcher.instance.locales));
+final deviceLangProvider = Provider<String>((ref) => langFor(WidgetsBinding.instance.platformDispatcher.locales));
 
 /// The language in use: the parent's choice, else the phone's.
 final contentLangProvider = Provider<String>((ref) {

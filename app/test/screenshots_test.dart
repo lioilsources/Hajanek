@@ -11,6 +11,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hajanek/core/strings.dart';
 import 'package:hajanek/core/db/database.dart';
 import 'package:hajanek/core/form_factor.dart';
 import 'package:hajanek/core/providers.dart';
@@ -121,6 +122,9 @@ class _PairingApi extends VoiceApi {
 void main() {
   late AppDatabase db;
   setUpAll(_loadFonts);
+  // The harness pumps screens without HajanekApp, which sets this in the app.
+  setUpAll(() => setStringsLang(_lang));
+  tearDownAll(() => setStringsLang('cs'));
   setUp(() => db = AppDatabase(NativeDatabase.memory()));
   tearDown(() => db.close());
 
