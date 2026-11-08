@@ -23,7 +23,7 @@ class TvHomeScreen extends ConsumerWidget {
     final catalog = ref.watch(catalogProvider);
     final favourites = ref.watch(favouritesProvider).value ?? const <String>{};
     final hintDismissed = ref.watch(settingsProvider.select((s) => s.czechHintDismissed));
-    final czech = ref.watch(czechVoiceAvailableProvider).value;
+    final czech = ref.watch(systemVoiceAvailableProvider).value;
     final player = ref.watch(playerProvider);
 
     final tales = [...catalog.catalog.tales]
@@ -34,7 +34,7 @@ class TvHomeScreen extends ConsumerWidget {
       });
 
     return TvPage(
-      title: Text(S.appName, style: kidTitleStyle(size: Tv.kidTitle, color: Night.accent)),
+      title: Text(appName, style: kidTitleStyle(size: Tv.kidTitle, color: Night.accent)),
       actions: [
         TvButton.icon(icon: Icons.record_voice_over_outlined, label: S.tvVoice, onPressed: () => context.push('/voice')),
         TvButton.icon(icon: Icons.waves, label: S.tvBackground, onPressed: () => context.push('/mixer')),
@@ -136,18 +136,18 @@ class _CzechHintTv extends StatelessWidget {
         decoration: BoxDecoration(color: Night.surface, borderRadius: BorderRadius.circular(16)),
         child: Row(
           children: [
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(S.czechHintTitleTv, style: TextStyle(fontSize: Tv.text)),
+                  Text(S.voiceHintTitleTv, style: TextStyle(fontSize: Tv.text)),
                   SizedBox(height: 8),
-                  Text(S.czechHintTv, style: TextStyle(color: Night.textDim, fontSize: Tv.textSmall)),
+                  Text(S.voiceHintTv, style: TextStyle(color: Night.textDim, fontSize: Tv.textSmall)),
                 ],
               ),
             ),
             const SizedBox(width: 24),
-            TvButton(onPressed: onDismiss, child: const Text(S.czechHintOk, style: TextStyle(fontSize: Tv.text))),
+            TvButton(onPressed: onDismiss, child: Text(S.voiceHintOk, style: TextStyle(fontSize: Tv.text))),
           ],
         ),
       );

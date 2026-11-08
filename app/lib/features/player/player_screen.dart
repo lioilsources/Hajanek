@@ -76,7 +76,7 @@ class PlayerScreen extends ConsumerWidget {
                 style: const TextStyle(color: Night.textDim, fontSize: 16),
               ),
               if (p.kind == SessionKind.tale && p.phase == RitualPhase.intro)
-                TextButton(onPressed: ctrl.startVoiceNow, child: const Text(S.playerStartNow)),
+                TextButton(onPressed: ctrl.startVoiceNow, child: Text(S.playerStartNow)),
               if (p.kind == SessionKind.tale && p.phase == RitualPhase.voice)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(48, 12, 48, 0),
@@ -121,7 +121,7 @@ class PlayerScreen extends ConsumerWidget {
               ),
               if (p.kind == SessionKind.tale) ...[
                 const SizedBox(height: 16),
-                const Text(S.playerBalance, style: TextStyle(color: Night.textDim)),
+                Text(S.playerBalance, style: TextStyle(color: Night.textDim)),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Slider(value: p.balance, onChanged: ctrl.setBalance),

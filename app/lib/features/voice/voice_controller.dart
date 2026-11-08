@@ -170,11 +170,13 @@ final voiceCloningProvider = Provider<bool>((ref) => voiceCloningEnabled);
 /// Null in tests unless a mock is injected, and when cloning is off.
 final voiceApiProvider = Provider<VoiceApi?>((ref) => null);
 
-/// True / false once flutter_tts has listed voices; null = unknown.
-final czechVoiceAvailableProvider = FutureProvider<bool?>((ref) async {
+/// Whether the phone has a voice for the current language: true / false
+/// once flutter_tts has listed voices; null = unknown.
+final systemVoiceAvailableProvider = FutureProvider<bool?>((ref) async {
   final tts = ref.watch(systemTtsProvider);
   if (tts == null) return null;
-  return await tts.czechVoice() != null;
+  tts.setLang(ref.watch(contentLangProvider));
+  return await tts.voice() != null;
 });
 
 final voiceProvider = NotifierProvider<VoiceController, VoiceState>(VoiceController.new);

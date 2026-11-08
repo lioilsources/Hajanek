@@ -37,7 +37,7 @@ class _TvVoiceScreenState extends ConsumerState<TvVoiceScreen> {
   Widget build(BuildContext context) {
     final voices = ref.watch(voiceProvider);
     final selected = ref.watch(settingsProvider.select((s) => s.voiceId));
-    final czech = ref.watch(czechVoiceAvailableProvider).value;
+    final czech = ref.watch(systemVoiceAvailableProvider).value;
     void select(String id) => ref.read(settingsProvider.notifier).update((s) => s.copyWith(voiceId: id));
 
     Widget choice(String key, String title, String sub, String id, {bool autofocus = false}) => Padding(
@@ -67,7 +67,7 @@ class _TvVoiceScreenState extends ConsumerState<TvVoiceScreen> {
         );
 
     return TvPage(
-      title: const Text(S.voiceTitle, style: TextStyle(fontSize: Tv.title)),
+      title: Text(S.voiceTitle, style: TextStyle(fontSize: Tv.title)),
       actions: [
         if (ref.watch(voiceCloningProvider))
           TvButton.icon(
@@ -82,13 +82,13 @@ class _TvVoiceScreenState extends ConsumerState<TvVoiceScreen> {
         padding: const EdgeInsets.only(bottom: 48),
         children: [
           choice('voice-system', S.voiceSystemTv,
-              czech == false ? S.czechHintTitleTv : S.voiceSystemTvSub, systemVoiceId,
+              czech == false ? S.voiceHintTitleTv : S.voiceSystemTvSub, systemVoiceId,
               autofocus: true),
           for (final v in voices.voices) choice('voice-${v.id}', v.name, voiceStatusText(v), v.id),
           if (czech == false || ref.watch(voiceCloningProvider)) ...[
             const SizedBox(height: 12),
             Text(
-              czech == false ? S.czechHintTv : S.voiceParentTvHint,
+              czech == false ? S.voiceHintTv : S.voiceParentTvHint,
               style: const TextStyle(color: Night.textDim, fontSize: Tv.textSmall),
             ),
           ],
@@ -195,7 +195,7 @@ class _PairingDialogState extends ConsumerState<PairingDialog> {
       _Pairing.waiting => Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(S.pairInstructions, textAlign: TextAlign.center, style: TextStyle(fontSize: Tv.text)),
+            Text(S.pairInstructions, textAlign: TextAlign.center, style: TextStyle(fontSize: Tv.text)),
             const SizedBox(height: 24),
             Text(
               S.pairCodeSpaced(code!.code),
@@ -203,23 +203,23 @@ class _PairingDialogState extends ConsumerState<PairingDialog> {
               style: const TextStyle(fontSize: 64, letterSpacing: 8, color: Night.accent),
             ),
             const SizedBox(height: 16),
-            const Text(S.pairWaiting, style: TextStyle(color: Night.textDim, fontSize: Tv.textSmall)),
+            Text(S.pairWaiting, style: TextStyle(color: Night.textDim, fontSize: Tv.textSmall)),
           ],
         ),
-      _Pairing.claimed => const Text(S.pairDone, textAlign: TextAlign.center, style: TextStyle(fontSize: Tv.text)),
-      _Pairing.expired => const Text(S.pairExpired, textAlign: TextAlign.center, style: TextStyle(fontSize: Tv.text)),
+      _Pairing.claimed => Text(S.pairDone, textAlign: TextAlign.center, style: TextStyle(fontSize: Tv.text)),
+      _Pairing.expired => Text(S.pairExpired, textAlign: TextAlign.center, style: TextStyle(fontSize: Tv.text)),
       _Pairing.failed => Text(_message ?? msgServer, textAlign: TextAlign.center, style: const TextStyle(fontSize: Tv.text)),
     };
     final retry = _state == _Pairing.expired || _state == _Pairing.failed;
     return AlertDialog(
-      title: const Text(S.pairTitle, style: TextStyle(fontSize: Tv.title)),
+      title: Text(S.pairTitle, style: TextStyle(fontSize: Tv.title)),
       content: SizedBox(width: 560, child: body),
       actions: [
-        if (retry) TvButton(autofocus: true, onPressed: _start, child: const Text(S.pairNewCode)),
+        if (retry) TvButton(autofocus: true, onPressed: _start, child: Text(S.pairNewCode)),
         TvButton(
           autofocus: !retry,
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text(S.pairClose),
+          child: Text(S.pairClose),
         ),
       ],
     );

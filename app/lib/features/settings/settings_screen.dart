@@ -40,7 +40,7 @@ class SettingsScreen extends ConsumerWidget {
     };
 
     return Scaffold(
-      appBar: AppBar(title: const Text(S.settingsTitle)),
+      appBar: AppBar(title: Text(S.settingsTitle)),
       body: ListView(
         // TVs cut the screen edges (overscan).
         padding: tv ? const EdgeInsets.fromLTRB(32, 0, 32, 32) : const EdgeInsets.only(bottom: 32),
@@ -48,31 +48,47 @@ class SettingsScreen extends ConsumerWidget {
           // The TV night picture has no breathing circle.
           if (!tv)
             SwitchListTile(
-              title: const Text(S.settingsBreathing, style: TextStyle(fontSize: 18)),
-              subtitle: const Text(S.settingsBreathingSub),
+              title: Text(S.settingsBreathing, style: TextStyle(fontSize: 18)),
+              subtitle: Text(S.settingsBreathingSub),
               value: s.breathing,
               onChanged: (v) => ctrl.update((s) => s.copyWith(breathing: v)),
             ),
           ListTile(
-            title: const Text(S.settingsIntro, style: TextStyle(fontSize: 18)),
+            title: Text(S.settingsIntro, style: TextStyle(fontSize: 18)),
             trailing: Text(S.settingsSeconds(s.introSeconds), style: const TextStyle(fontSize: 16)),
             onTap: () => pick<int>(S.settingsIntro, AppSettings.introChoices, S.settingsSeconds,
                 s.introSeconds, (s, v) => s.copyWith(introSeconds: v)),
           ),
           ListTile(
-            title: const Text(S.settingsTail, style: TextStyle(fontSize: 18)),
+            title: Text(S.settingsTail, style: TextStyle(fontSize: 18)),
             trailing: Text(S.settingsMinutes(s.tailMinutes), style: const TextStyle(fontSize: 16)),
             onTap: () => pick<int>(S.settingsTail, AppSettings.tailChoices, S.settingsMinutes,
                 s.tailMinutes, (s, v) => s.copyWith(tailMinutes: v)),
           ),
           ListTile(
-            title: const Text(S.settingsTimer, style: TextStyle(fontSize: 18)),
+            title: Text(S.settingsTimer, style: TextStyle(fontSize: 18)),
             trailing: Text(timerLabel(s.timer), style: const TextStyle(fontSize: 16)),
             onTap: () => pick<SleepTimerOption>(S.settingsTimer, SleepTimerOption.choices,
                 timerLabel, s.timer, (s, v) => s.copyWith(timer: v)),
           ),
           ListTile(
-            title: const Text(S.settingsVoice, style: TextStyle(fontSize: 18)),
+            title: Text(S.languageTitle, style: TextStyle(fontSize: 18)),
+            subtitle: Text(S.languageSub),
+            trailing: Text(s.lang.isEmpty ? S.languageSystem : langNames[s.lang]!,
+                style: const TextStyle(fontSize: 16)),
+            onTap: () async {
+              final v = await showChoiceSheet<String>(
+                context: context,
+                title: S.languageTitle,
+                choices: ['', ...supportedLangs],
+                label: (l) => l.isEmpty ? S.languageSystem : langNames[l]!,
+                selected: s.lang,
+              );
+              if (v != null) ref.read(settingsProvider.notifier).update((s) => s.copyWith(lang: v));
+            },
+          ),
+          ListTile(
+            title: Text(S.settingsVoice, style: TextStyle(fontSize: 18)),
             trailing: Text(voiceLabel(s.voiceId, ref.watch(voiceProvider).voices, tv: tv),
                 style: const TextStyle(fontSize: 16)),
             onTap: () => context.push('/voice'),
@@ -80,7 +96,7 @@ class SettingsScreen extends ConsumerWidget {
           // On a phone this is a slider in the player; a remote gets steps.
           if (tv)
             ListTile(
-              title: const Text(S.tvBalance, style: TextStyle(fontSize: 18)),
+              title: Text(S.tvBalance, style: TextStyle(fontSize: 18)),
               trailing: Text(S.tvBalanceLabel(s.balance), style: const TextStyle(fontSize: 16)),
               onTap: () async {
                 final v = await showChoiceSheet<double>(
@@ -94,8 +110,8 @@ class SettingsScreen extends ConsumerWidget {
               },
             ),
           ListTile(
-            title: const Text(S.settingsVocative, style: TextStyle(fontSize: 18)),
-            subtitle: const Text(S.settingsVocativeSub),
+            title: Text(S.settingsVocative, style: TextStyle(fontSize: 18)),
+            subtitle: Text(S.settingsVocativeSub),
             trailing: Text(s.vocative.isEmpty ? S.settingsVocativeNone : s.vocative,
                 style: const TextStyle(fontSize: 16)),
             onTap: () async {
@@ -103,7 +119,7 @@ class SettingsScreen extends ConsumerWidget {
               if (v != null) ctrl.update((s) => s.copyWith(vocative: v.trim()));
             },
           ),
-          const SectionLabel(S.settingsCatalog),
+          SectionLabel(S.settingsCatalog),
           ListTile(
             title: Text(S.settingsCatalogVersion(catalog.catalog.version)),
             subtitle: syncText == null ? null : Text(syncText),
@@ -114,7 +130,7 @@ class SettingsScreen extends ConsumerWidget {
               onPressed: catalog.sync == SyncStatus.checking
                   ? null
                   : () => ref.read(catalogProvider.notifier).sync(),
-              child: const Text(S.settingsCheckUpdates),
+              child: Text(S.settingsCheckUpdates),
             ),
           ),
           Padding(
@@ -135,7 +151,7 @@ Future<String?> _askVocative(BuildContext context, String current) {
   return showDialog<String>(
     context: context,
     builder: (context) => AlertDialog(
-      title: const Text(S.settingsVocative),
+      title: Text(S.settingsVocative),
       content: TextField(
         controller: c,
         autofocus: true,
@@ -143,8 +159,8 @@ Future<String?> _askVocative(BuildContext context, String current) {
         decoration: const InputDecoration(hintText: 'Aničko'),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text(S.mixerCancel)),
-        TextButton(onPressed: () => Navigator.pop(context, c.text), child: const Text(S.mixerSave)),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(S.mixerCancel)),
+        TextButton(onPressed: () => Navigator.pop(context, c.text), child: Text(S.mixerSave)),
       ],
     ),
   );

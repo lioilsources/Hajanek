@@ -9,9 +9,19 @@ import 'voice_source.dart';
 
 const systemVoiceId = 'system';
 
-bool _isCzech(Map<String, String> v) {
+/// flutter_tts locale for each app language (docs/I18N_PLAN.md).
+const ttsLocales = {
+  'cs': 'cs-CZ', 'en': 'en-US', 'de': 'de-DE', 'es': 'es-ES', 'fr': 'fr-FR',
+  'pt-BR': 'pt-BR', 'it': 'it-IT', 'pl': 'pl-PL', 'sk': 'sk-SK',
+};
+
+/// Whether voice [v] speaks [lang]. `pt-BR` needs the Brazilian voice;
+/// other languages take any region.
+bool _speaks(Map<String, String> v, String lang) {
   final l = (v['locale'] ?? '').toLowerCase().replaceAll('_', '-');
-  return l == 'cs' || l.startsWith('cs-');
+  final want = lang.toLowerCase();
+  if (want.contains('-')) return l == want;
+  return l == want || l.startsWith('$want-');
 }
 
 int _qualityRank(String? q) => switch (q) {
@@ -23,15 +33,18 @@ int _qualityRank(String? q) => switch (q) {
       _ => 0,
     };
 
-/// Best installed Czech voice from flutter_tts `getVoices`: iOS premium >
-/// enhanced > default, Android by quality, voices needing network last.
-/// Null = no Czech voice on this phone.
-Map<String, String>? pickCzechVoice(Iterable<Map<String, String>> voices) {
+/// Best installed voice for [lang] from flutter_tts `getVoices`: iOS
+/// premium > enhanced > default, Android by quality, voices needing network
+/// last, the language's main region ([ttsLocales]) breaking ties.
+/// Null = no voice for [lang] on this phone.
+Map<String, String>? pickVoice(Iterable<Map<String, String>> voices, String lang) {
+  final main = (ttsLocales[lang] ?? lang).toLowerCase();
   Map<String, String>? best;
   var bestScore = -1;
-  for (final v in voices.where(_isCzech)) {
-    final offline = v['network_required'] == '1' ? 0 : 10;
-    final score = offline + _qualityRank(v['quality']);
+  for (final v in voices.where((v) => _speaks(v, lang))) {
+    final offline = v['network_required'] == '1' ? 0 : 20;
+    final region = (v['locale'] ?? '').toLowerCase().replaceAll('_', '-') == main ? 1 : 0;
+    final score = offline + 2 * _qualityRank(v['quality']) + region;
     if (score > bestScore) {
       best = v;
       bestScore = score;
@@ -39,6 +52,8 @@ Map<String, String>? pickCzechVoice(Iterable<Map<String, String>> voices) {
   }
   return best;
 }
+
+Map<String, String>? pickCzechVoice(Iterable<Map<String, String>> voices) => pickVoice(voices, 'cs');
 
 List<Map<String, String>> _voiceMaps(Object? raw) => [
       if (raw is List)
@@ -48,13 +63,15 @@ List<Map<String, String>> _voiceMaps(Object? raw) => [
 
 /// The phone's own TTS (`flutter_tts`), one utterance at a time.
 class SystemTtsSource implements VoiceSource {
-  SystemTtsSource({FlutterTts? tts, bool? ios})
+  SystemTtsSource({FlutterTts? tts, bool? ios, this._lang = 'cs'})
       : _tts = tts ?? FlutterTts(),
         _ios = ios ?? defaultTargetPlatform == TargetPlatform.iOS;
 
   final FlutterTts _tts;
   final bool _ios;
+  String _lang;
   Future<Map<String, String>?>? _setup;
+  Future<void>? _handlers;
   Completer<void>? _current;
 
   /// A cancel event for an utterance we stopped ourselves is still on its
@@ -62,10 +79,37 @@ class SystemTtsSource implements VoiceSource {
   bool _expectCancel = false;
   double _gain = 1;
 
-  /// The Czech voice in use, or null when the phone has none.
-  Future<Map<String, String>?> czechVoice() => _setup ??= _init();
+  /// The voice in use for the current language, or null when the phone has none.
+  Future<Map<String, String>?> voice() => _setup ??= _init();
+
+  /// Switch to [lang]; the next utterance picks its voice.
+  void setLang(String lang) {
+    if (lang == _lang) return;
+    _lang = lang;
+    _setup = null;
+  }
 
   Future<Map<String, String>?> _init() async {
+    await (_handlers ??= _initHandlers());
+    final locale = ttsLocales[_lang] ?? _lang;
+    await _tts.setLanguage(locale);
+    try {
+      final voice = pickVoice(_voiceMaps(await _tts.getVoices), _lang);
+      if (voice != null) {
+        await _tts.setVoice({
+          'name': voice['name'] ?? '',
+          'locale': voice['locale'] ?? locale,
+          if (voice['identifier'] != null) 'identifier': voice['identifier']!,
+        });
+      }
+      return voice;
+    } on Object catch (e) {
+      debugPrint('TTS voices: $e');
+      return null;
+    }
+  }
+
+  Future<void> _initHandlers() async {
     _tts
       ..setCompletionHandler(_finish)
       ..setCancelHandler(() {
@@ -88,26 +132,11 @@ class SystemTtsSource implements VoiceSource {
         IosTextToSpeechAudioMode.spokenAudio,
       );
     }
-    await _tts.setLanguage('cs-CZ');
-    try {
-      final voice = pickCzechVoice(_voiceMaps(await _tts.getVoices));
-      if (voice != null) {
-        await _tts.setVoice({
-          'name': voice['name'] ?? '',
-          'locale': voice['locale'] ?? 'cs-CZ',
-          if (voice['identifier'] != null) 'identifier': voice['identifier']!,
-        });
-      }
-      return voice;
-    } on Object catch (e) {
-      debugPrint('TTS voices: $e');
-      return null;
-    }
   }
 
   @override
   Future<void> speak(Utterance u, ToneParams tone) async {
-    await czechVoice();
+    await voice();
     _finish();
     final c = _current = Completer<void>();
     await _tts.setSpeechRate(platformSpeechRate(tone.rate, ios: _ios));

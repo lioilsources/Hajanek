@@ -30,12 +30,12 @@ class TvMixerScreen extends ConsumerWidget {
     }
 
     return TvPage(
-      title: const Text(S.mixerTitle, style: TextStyle(fontSize: Tv.title)),
+      title: Text(S.mixerTitle, style: TextStyle(fontSize: Tv.title)),
       child: ListView(
         clipBehavior: Clip.none,
         padding: const EdgeInsets.only(bottom: 48),
         children: [
-          const Text(S.tvJukeboxSub, style: TextStyle(color: Night.textDim, fontSize: Tv.textSmall)),
+          Text(S.tvJukeboxSub, style: TextStyle(color: Night.textDim, fontSize: Tv.textSmall)),
           const SizedBox(height: 24),
           Wrap(
             spacing: Tv.gap,

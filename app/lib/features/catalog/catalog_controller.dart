@@ -40,8 +40,10 @@ class CatalogController extends Notifier<CatalogState> {
     final repo = ref.read(catalogRepositoryProvider);
     if (repo == null || state.sync == SyncStatus.checking) return;
     state = state.copyWith(sync: SyncStatus.checking);
+    final lang = repo.lang;
     try {
       final (result, snap) = await repo.sync(state.snapshot);
+      if (repo.lang != lang) return; // switched language meanwhile
       state = state.copyWith(
         snapshot: snap,
         sync: result == SyncResult.updated ? SyncStatus.updated : SyncStatus.upToDate,
@@ -49,6 +51,14 @@ class CatalogController extends Notifier<CatalogState> {
     } on Object {
       state = state.copyWith(sync: SyncStatus.offline);
     }
+  }
+
+  /// Reopen the catalog in [lang] and check for its updates.
+  Future<void> switchLang(String lang) async {
+    final repo = ref.read(catalogRepositoryProvider);
+    if (repo == null || repo.lang == lang) return;
+    state = CatalogState(snapshot: await repo.init(lang));
+    await sync();
   }
 
   /// Script text of [f]; null when it isn't available locally.

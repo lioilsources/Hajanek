@@ -20,7 +20,7 @@ class HomeScreen extends ConsumerWidget {
     final catalog = ref.watch(catalogProvider);
     final favourites = ref.watch(favouritesProvider).value ?? const <String>{};
     final hintDismissed = ref.watch(settingsProvider.select((s) => s.czechHintDismissed));
-    final czech = ref.watch(czechVoiceAvailableProvider).value;
+    final czech = ref.watch(systemVoiceAvailableProvider).value;
     final player = ref.watch(playerProvider);
 
     final tales = [...catalog.catalog.tales]
@@ -32,7 +32,7 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(S.appName, style: kidTitleStyle(size: 26, color: Night.accent)),
+        title: Text(appName, style: kidTitleStyle(size: 26, color: Night.accent)),
         actions: [
           IconButton(
             tooltip: S.settingsTitle,
@@ -55,16 +55,16 @@ class HomeScreen extends ConsumerWidget {
             ListTile(
               leading: Icon(player.playing ? Icons.graphic_eq : Icons.pause, color: Night.accent),
               title: Text(player.title, style: kidTitleStyle(size: 20)),
-              subtitle: const Text(S.homeNowPlaying),
+              subtitle: Text(S.homeNowPlaying),
               onTap: () => context.push('/player'),
             ),
           ListTile(
             leading: const Icon(Icons.waves),
-            title: const Text(S.homeJukebox, style: TextStyle(fontSize: 18)),
-            subtitle: const Text(S.homeJukeboxSub),
+            title: Text(S.homeJukebox, style: TextStyle(fontSize: 18)),
+            subtitle: Text(S.homeJukeboxSub),
             onTap: () => context.push('/mixer'),
           ),
-          const SectionLabel(S.homeTales),
+          SectionLabel(S.homeTales),
           for (final t in tales)
             ListTile(
               key: ValueKey('tale-${t.id}'),

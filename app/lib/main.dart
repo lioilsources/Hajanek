@@ -11,6 +11,7 @@ import 'app.dart';
 import 'core/db/database.dart';
 import 'core/form_factor.dart';
 import 'core/providers.dart';
+import 'core/strings.dart';
 import 'features/catalog/catalog_controller.dart';
 import 'features/catalog/catalog_repository.dart';
 import 'features/player/audio_engine.dart';
@@ -39,6 +40,8 @@ Future<void> main() async {
   final db = AppDatabase();
   final values = await db.readAllValues();
   final settings = AppSettings.fromValues(values);
+  final lang = settings.lang.isEmpty ? langFor(WidgetsBinding.instance.platformDispatcher.locales) : settings.lang;
+  setStringsLang(lang);
 
   final repo = CatalogRepository(
     loadAsset: rootBundle.loadString,
@@ -46,7 +49,7 @@ Future<void> main() async {
         (await AssetManifest.loadFromAssetBundle(rootBundle)).listAssets().toSet(),
     docsDir: getApplicationDocumentsDirectory,
   );
-  final snapshot = await repo.init();
+  final snapshot = await repo.init(lang);
   final voicesDir = '${(await getApplicationSupportDirectory()).path}/voices';
 
   // Category playback: ambient and speech (system TTS too) keep going with
@@ -58,9 +61,9 @@ Future<void> main() async {
   try {
     handler = await AudioService.init(
       builder: HajanekAudioHandler.new,
-      config: const AudioServiceConfig(
+      config: AudioServiceConfig(
         androidNotificationChannelId: 'com.ol1n.hajanek.audio',
-        androidNotificationChannelName: 'Přehrávání',
+        androidNotificationChannelName: S.playerChannel,
         androidNotificationOngoing: true,
         androidStopForegroundOnPause: true,
       ),
@@ -83,7 +86,7 @@ Future<void> main() async {
       catalogRepositoryProvider.overrideWithValue(repo),
       audioEngineProvider.overrideWithValue(JustAudioEngine()),
       audioHandlerProvider.overrideWithValue(handler),
-      systemTtsProvider.overrideWithValue(SystemTtsSource()),
+      systemTtsProvider.overrideWithValue(SystemTtsSource(lang: lang)),
       clipOutputProvider.overrideWithValue(JustAudioClipOutput()),
       voicesDirProvider.overrideWithValue(voicesDir),
       initialVoicesProvider.overrideWithValue(LocalVoice.decodeList(values[parentVoicesKey])),

@@ -165,7 +165,7 @@ class _RecordVoiceScreenState extends ConsumerState<RecordVoiceScreen> {
           .read(voiceProvider.notifier)
           .upload(samplePath: path, name: _name.text.trim(), consentText: text.consent);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(S.voicePending)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.voicePending)));
       context.pop();
     } on VoiceApiException catch (e) {
       if (mounted) setState(() => _error = e.message);
@@ -207,7 +207,7 @@ class _RecordVoiceScreenState extends ConsumerState<RecordVoiceScreen> {
               FilledButton.icon(
                 style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(Night.tap)),
                 icon: const Icon(Icons.stop),
-                label: const Text(S.recStop, style: TextStyle(fontSize: 18)),
+                label: Text(S.recStop, style: TextStyle(fontSize: 18)),
                 onPressed: canStop ? _stop : null,
               ),
             ],
@@ -227,7 +227,7 @@ class _RecordVoiceScreenState extends ConsumerState<RecordVoiceScreen> {
     final canRecord = _name.text.trim().isNotEmpty && _consent && !busy;
 
     return Scaffold(
-      appBar: AppBar(title: const Text(S.recTitle)),
+      appBar: AppBar(title: Text(S.recTitle)),
       body: _recording
           ? _recordingBody(text)
           : ListView(
@@ -238,19 +238,19 @@ class _RecordVoiceScreenState extends ConsumerState<RecordVoiceScreen> {
                   controller: _name,
                   enabled: !_recording,
                   textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(labelText: S.recName, hintText: S.recNameHint),
+                  decoration: InputDecoration(labelText: S.recName, hintText: S.recNameHint),
                   onChanged: (_) => setState(() {}),
                 ),
                 if (text.tips.isNotEmpty) ...[
-                  const SectionLabel(S.recTips),
+                  SectionLabel(S.recTips),
                   for (final t in text.tips)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 6),
                       child: Text('• $t', style: const TextStyle(color: Night.textDim)),
                     ),
                 ],
-                const SectionLabel(S.recRead),
-                const Padding(
+                SectionLabel(S.recRead),
+                Padding(
                   padding: EdgeInsets.only(bottom: 8),
                   child: Text(S.recReadHint, style: TextStyle(color: Night.textDim)),
                 ),
@@ -268,7 +268,7 @@ class _RecordVoiceScreenState extends ConsumerState<RecordVoiceScreen> {
                   controlAffinity: ListTileControlAffinity.leading,
                   value: _consent,
                   onChanged: _recording ? null : (v) => setState(() => _consent = v ?? false),
-                  title: const Text(S.recConsent),
+                  title: Text(S.recConsent),
                 ),
                 const SizedBox(height: 16),
                 if (_path != null)
@@ -283,7 +283,7 @@ class _RecordVoiceScreenState extends ConsumerState<RecordVoiceScreen> {
                   FilledButton.icon(
                     style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(Night.tap)),
                     icon: const Icon(Icons.mic),
-                    label: const Text(S.recStart, style: TextStyle(fontSize: 18)),
+                    label: Text(S.recStart, style: TextStyle(fontSize: 18)),
                     onPressed: canRecord ? _start : null,
                   )
                 else ...[
@@ -297,7 +297,7 @@ class _RecordVoiceScreenState extends ConsumerState<RecordVoiceScreen> {
                   OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(Night.tap)),
                     icon: const Icon(Icons.replay),
-                    label: const Text(S.recAgain),
+                    label: Text(S.recAgain),
                     onPressed: busy || !canRecord ? null : _start,
                   ),
                   const SizedBox(height: 12),

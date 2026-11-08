@@ -43,7 +43,7 @@ void main() {
           initialCatalogProvider.overrideWithValue(bundledSnapshot()),
           favouritesProvider.overrideWithValue(const AsyncValue.data({'zlatovlaska'})),
           userPresetsProvider.overrideWithValue(const AsyncValue.data([])),
-          czechVoiceAvailableProvider.overrideWith((ref) async => czech),
+          systemVoiceAvailableProvider.overrideWith((ref) async => czech),
           initialVoicesProvider.overrideWithValue(voices),
           voiceCloningProvider.overrideWithValue(cloning),
         ],

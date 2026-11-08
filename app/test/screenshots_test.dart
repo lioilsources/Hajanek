@@ -167,7 +167,7 @@ void main() {
         initialCatalogProvider.overrideWithValue(snapshot),
         favouritesProvider.overrideWithValue(const AsyncValue.data({'cervena-karkulka', 'o-smolickovi'})),
         userPresetsProvider.overrideWithValue(const AsyncValue.data([])),
-        czechVoiceAvailableProvider.overrideWith((ref) async => true),
+        systemVoiceAvailableProvider.overrideWith((ref) async => true),
         initialVoicesProvider.overrideWithValue(voices),
         initialSettingsProvider.overrideWithValue(AppSettings(voiceId: voiceId ?? systemVoiceId)),
         if (player != null) playerProvider.overrideWith(() => _FixedPlayer(player)),

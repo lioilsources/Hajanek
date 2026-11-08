@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/providers.dart';
+import '../../core/strings.dart';
 import '../catalog/catalog_models.dart';
 import '../player/ritual.dart';
 import '../player/system_tts.dart';
@@ -19,6 +21,7 @@ class AppSettings {
     this.voiceId = systemVoiceId,
     this.vocative = '',
     this.czechHintDismissed = false,
+    this.lang = '',
     this.lastMix = const [MixLayer(ambient: 'sea', volume: 0.7)],
   });
 
@@ -37,6 +40,10 @@ class AppSettings {
   /// The child's name in the 5th case (“Aničko”); empty = script fallback.
   final String vocative;
   final bool czechHintDismissed;
+
+  /// Language of the UI, tales and system voice (docs/I18N_PLAN.md);
+  /// empty = follow the phone.
+  final String lang;
   final List<MixLayer> lastMix;
 
   static const introChoices = [30, 60, 90, 120];
@@ -59,6 +66,7 @@ class AppSettings {
     String? voiceId,
     String? vocative,
     bool? czechHintDismissed,
+    String? lang,
     List<MixLayer>? lastMix,
   }) =>
       AppSettings(
@@ -71,6 +79,7 @@ class AppSettings {
         voiceId: voiceId ?? this.voiceId,
         vocative: vocative ?? this.vocative,
         czechHintDismissed: czechHintDismissed ?? this.czechHintDismissed,
+        lang: lang ?? this.lang,
         lastMix: lastMix ?? this.lastMix,
       );
 
@@ -84,6 +93,7 @@ class AppSettings {
         'voice_id': voiceId,
         'vocative': vocative,
         'czech_hint_dismissed': '$czechHintDismissed',
+        'lang': lang,
         'last_mix': jsonEncode([for (final l in lastMix) l.toJson()]),
       };
 
@@ -111,6 +121,7 @@ class AppSettings {
       voiceId: v['voice_id'] ?? d.voiceId,
       vocative: v['vocative'] ?? d.vocative,
       czechHintDismissed: v['czech_hint_dismissed'] == 'true',
+      lang: supportedLangs.contains(v['lang']) ? v['lang']! : '',
       lastMix: v['last_mix'] == null ? d.lastMix : mix(),
     );
   }
@@ -134,3 +145,12 @@ class SettingsController extends Notifier<AppSettings> {
     }
   }
 }
+
+/// The phone's preferred supported language; overridden in tests.
+final deviceLangProvider = Provider<String>((ref) => langFor(PlatformDispatcher.instance.locales));
+
+/// The language in use: the parent's choice, else the phone's.
+final contentLangProvider = Provider<String>((ref) {
+  final chosen = ref.watch(settingsProvider.select((s) => s.lang));
+  return chosen.isEmpty ? ref.watch(deviceLangProvider) : chosen;
+});
