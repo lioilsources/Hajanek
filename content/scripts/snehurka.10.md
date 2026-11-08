@@ -56,6 +56,7 @@ Půjdete spolu lesem, pomalu, krok za krokem.
 
 ## pribeh
 [soft] Sněhurka jde lesem přes sedm hor.
+Jde na návštěvu a těší se, kam ji cestička dovede.
 Les je tichý. Jen sem tam zapípá sýkorka.
 [pause 4s]
 Mech pod nohama je měkký.
@@ -79,13 +80,13 @@ Každá má jinou barevnou peřinku.
 [pause 5s]
 A všechno je v pořádku.
 [pause 5s]
-Na podlaze je trochu smítek.
+Na podlaze je pár smítek.
 Sněhurka vezme koště a zametá. Šu… šu…
 [pause 4s]
 Pak rozdělá v kamnech oheň. Prask… prask…
 V domečku je hned teplo.
 [pause 4s]
-Na plotně se vaří polévka.
+Sněhurka postaví na plotnu hrnec s polévkou.
 Voní mrkví a bylinkami.
 [pause 4s]
 Sněhurka načechrá všech sedm polštářků.
@@ -119,7 +120,7 @@ U kamen dřímá Sněhurka.
 Horníčci mluví potichu, aby ji nevzbudili.
 [pause 4s]
 Sněhurka otevře oči a usměje se.
-„Já jsem Sněhurka. Šla jsem lesem a našla jsem váš domeček.“
+„Já jsem Sněhurka. Šla jsem na procházku a našla jsem váš domeček.“
 [pause 3s]
 „Zůstaň u nás,“ řeknou horníčci.
 „U nás je teplo a místa je dost.“

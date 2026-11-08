@@ -29,7 +29,7 @@ A pomalé foukání na lžičku. Fúúú…
 Teď je celé tělíčko měkké.
 Měkké jako máslo, které taje v teplé kaši.
 [pause 4s]
-Ruce tají. Nohy tají. Bříško taje.
+Ruce jsou měkké. Nohy jsou měkké. Bříško je měkké.
 [pause 3s]
 A víčka klesají, pomalu, až se zavřou.
 [pause 5s]
@@ -89,6 +89,8 @@ Holčička a maminka jedí a usmívají se.
 [pause 4s]
 „Hrnečku, dost,“ řekne holčička.
 A hrneček přestane.
+[pause 5s]
+A všechno je v pořádku.
 [pause 5s]
 Druhý den jde holčička zase do lesa na šišky.
 A ty jdeš s ní.
