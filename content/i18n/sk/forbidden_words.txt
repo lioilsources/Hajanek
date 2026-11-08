@@ -1,0 +1,91 @@
+# Zakázané kmene slov (forge judge, sk). Jeden na riadok, porovnáva sa ako
+# prefix slova bez ohľadu na veľkosť písmen. Prázdne riadky a # sa ignorujú.
+pozor
+strach
+strašn
+straš
+vystraš
+preľak
+zľakol
+zľakla
+zľakli
+bojí
+boja sa
+bál sa
+bála sa
+báli sa
+desiv
+hrôz
+hroziv
+hrozb
+krv
+krvav
+zabi
+zabíj
+zožer
+zožra
+zjesť
+zje ho
+zje ju
+zjedol
+zjedla
+prehltol
+smrť
+smrti
+zomr
+umrel
+umrie
+mŕtv
+kričí
+kričal
+kričať
+krik
+revať
+reval
+nebezpeč
+ponáhľaj
+rýchlo
+zrazu
+naraz
+uteč
+utekaj
+zablúd
+zablúdil
+stratil sa
+stratila sa
+plač
+plakal
+plakala
+plače
+zlý
+zlá
+zlé
+zlou
+zlého
+zlej
+čarodejn
+ježibab
+strig
+zakliat
+kliatb
+trest
+potresta
+obes
+upál
+klietk
+do pece
+nôž
+sekeru
+sekera
+sekerou
+zbraň
+puška
+strieľ
+zastrel
+zranil
+bolesť
+bolí
+ublíž
+príšer
+netvor
+strašidl

@@ -41,7 +41,7 @@ A víčka jsou tak těžká, že se zavírají sama.
 Dnes ti budu vyprávět o perníkové chaloupce.
 [pause 3s]
 Je to sladká a voňavá pohádka.
-Nikdo v ní nebloudí a nikdo se nebojí.
+Všichni v ní jsou hodní a všude to voní perníkem.
 [pause 4s]
 Představ si, že jdeš po lesní cestičce.
 Vedle cestičky zurčí potůček.
@@ -99,7 +99,7 @@ Perníček je měkký a voní medem.
 Jeníček se rozdělí s Mařenkou. I s tebou.
 [pause 4s]
 Zevnitř se ozve ospalý hlas:
-„Ťuky ťuk, někdo mi tu loupe perníček.“
+„Ale, ale, někdo mi tu loupe perníček.“
 [pause 3s]
 Mařenka se usměje a tiše odpoví:
 „To nic, babičko. To jen větříček.“
@@ -108,7 +108,7 @@ Za dveřmi se někdo vesele zasměje.
 Dveře se pomalu otevřou.
 [pause 3s]
 Ve dveřích stojí malá kulatá babička.
-Má zástěru od mouky a brýle na špičce nosu.
+Má zástěru celou od mouky a brýle na špičce nosu.
 [pause 3s]
 „Vítejte, děti,“ řekne babička a zívne.
 „Ochutnali jste mi střechu. To nevadí.

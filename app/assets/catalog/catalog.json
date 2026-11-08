@@ -1,7 +1,7 @@
 {
   "schema": 2,
-  "version": 4,
-  "generated_at": "2026-10-21T01:23:59Z",
+  "version": 5,
+  "generated_at": "2026-11-08T20:24:26Z",
   "base_url": "https://lioilsources.github.io/hajanek-content/",
   "tales": [
     {
@@ -15,9 +15,9 @@
         {
           "length_min": 10,
           "path": "scripts/budulinek.10.md",
-          "sha256": "26f8166aadf27c9046e333443c154d779a0cb57f31b4a5bf2c1ac954e98b3491",
-          "bytes": 4766,
-          "est_duration_s": 630
+          "sha256": "9857daf33d735b4fcba2c635d46c0a9eda800b19cf90133836e759436ea8ef27",
+          "bytes": 4749,
+          "est_duration_s": 632
         }
       ]
     },
@@ -49,9 +49,9 @@
         {
           "length_min": 10,
           "path": "scripts/dlouhy-siroky-bystrozraky.10.md",
-          "sha256": "6891dee5f550a2b5e69db92a7455dbb8625777a9871d973f80fb2e3ea08a9a4c",
-          "bytes": 5016,
-          "est_duration_s": 646
+          "sha256": "1d1d8da27fcd61ed63dc660af3a1684dd843229bfd8b3e7796d5f6d74410d61a",
+          "bytes": 5083,
+          "est_duration_s": 656
         }
       ]
     },
@@ -66,9 +66,9 @@
         {
           "length_min": 10,
           "path": "scripts/hrnecku-var.10.md",
-          "sha256": "e904b16820e24f3d7d34652eb75e0382ab68d98b524fbd48f0b63c9bc893313b",
-          "bytes": 4667,
-          "est_duration_s": 621
+          "sha256": "170622a7794d45337c161ba5b48cf984c952c958107f4c74c5b97d82553c9f86",
+          "bytes": 4725,
+          "est_duration_s": 632
         }
       ]
     },
@@ -83,9 +83,9 @@
         {
           "length_min": 10,
           "path": "scripts/o-smolickovi.10.md",
-          "sha256": "69f3474bc48e28a8f63f35611b3d728aa749e3936269ff9478ca581e32de067d",
-          "bytes": 4641,
-          "est_duration_s": 627
+          "sha256": "1986ca08524ea0cda166c11f36dc0f19c335ef0d0c60349065c29a46e9dab8bb",
+          "bytes": 4656,
+          "est_duration_s": 631
         }
       ]
     },
@@ -100,9 +100,9 @@
         {
           "length_min": 10,
           "path": "scripts/pernikova-chaloupka.10.md",
-          "sha256": "e8942e492af05b0224840c7d6202c421f14fb06c3fc85892dbeb729b65fe168f",
-          "bytes": 5017,
-          "est_duration_s": 635
+          "sha256": "5b3e88b50a4a99082a9537172fb43befffea489ce4cea63478567d2e381e6d1d",
+          "bytes": 5035,
+          "est_duration_s": 637
         }
       ]
     },
@@ -117,9 +117,9 @@
         {
           "length_min": 10,
           "path": "scripts/sipkova-ruzenka.10.md",
-          "sha256": "00e978e0a08cc40f6117934c97f216177f67ab7f588868943c8cac20a5ec42d7",
-          "bytes": 4701,
-          "est_duration_s": 627
+          "sha256": "c30b34cad5414829535d6d2a3fe2246076e1764e0408ec9f3c877b4b58d2cc6e",
+          "bytes": 4690,
+          "est_duration_s": 626
         }
       ]
     },
@@ -134,9 +134,9 @@
         {
           "length_min": 10,
           "path": "scripts/snehurka.10.md",
-          "sha256": "be8abfaa46ec5a2c6bae2246814abeb668d93760470fc8208a456c3b50d455df",
-          "bytes": 4698,
-          "est_duration_s": 636
+          "sha256": "da76325c0f4b9c1c54cd8032150a90db60203a5b6cbdc68e8fc452c493403423",
+          "bytes": 4779,
+          "est_duration_s": 645
         }
       ]
     },
@@ -151,9 +151,9 @@
         {
           "length_min": 10,
           "path": "scripts/tri-prasatka.10.md",
-          "sha256": "fbef8f0538afc6bf7071ef497519e7a5cd3754054a8b2cbac80d45c2ac864fea",
-          "bytes": 4735,
-          "est_duration_s": 624
+          "sha256": "e747116bd2333c613cd7afa1b4b17321af4310b4dc04170eecf905a9aa556a3f",
+          "bytes": 4755,
+          "est_duration_s": 625
         }
       ]
     },

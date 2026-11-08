@@ -1,0 +1,33 @@
+{
+  "ambient": {
+    "brown-noise": "Brązowy szum",
+    "fireplace": "Kominek",
+    "lullaby-dream-1": "Marzenie",
+    "lullaby-dream-2": "Marzenie II",
+    "lullaby-guitar-1": "Gitara",
+    "lullaby-guitar-2": "Gitara II",
+    "lullaby-guitar-3": "Gitara III",
+    "lullaby-harp-1": "Harfa",
+    "lullaby-harp-2": "Harfa II",
+    "lullaby-harp-3": "Harfa III",
+    "lullaby-musicbox": "Pozytywka",
+    "lullaby-piano-1": "Pianino",
+    "lullaby-piano-2": "Pianino II",
+    "lullaby-stars-1": "Gwiazdki",
+    "lullaby-stars-2": "Gwiazdki II",
+    "lullaby-stars-3": "Gwiazdki III",
+    "night-meadow": "Nocna łąka",
+    "pink-noise": "Różowy szum",
+    "rain": "Deszcz na dachu",
+    "sea": "Morze",
+    "stream": "Strumyczek",
+    "wind": "Wiatr w koronach drzew"
+  },
+  "presets": {
+    "plaz-vecer": "Plaża wieczorem",
+    "les-v-noci": "Las nocą",
+    "destivy-vecer": "Deszczowy wieczór",
+    "u-krbu": "Przy kominku",
+    "tichy-sum": "Cichy szum"
+  }
+}

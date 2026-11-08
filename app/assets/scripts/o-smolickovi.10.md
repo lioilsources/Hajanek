@@ -61,7 +61,7 @@ Když na ně svítí slunce, třpytí se jako koruna.
 Každé ráno jelen odchází na louku.
 Spásá tam sladkou trávu a jetel.
 [pause 3s]
-„Smolíčku, počkej doma,“ řekne mu.
+„Smolíčku, hezky si hraj,“ řekne mu.
 „Večer se vrátím a budeme spolu večeřet.“
 [pause 3s]
 Smolíček kývne.
@@ -82,7 +82,7 @@ Mají šatičky z kapradí a ve vlasech lesní kvítí.
 Jsou to stydlivé lesní vílky.
 Schovávají se jedna za druhou a tiše se chichotají.
 [pause 4s]
-Zaťukají na dveře. Ťuky, ťuk.
+Zaťukají na dveře. Ťuk, ťuk.
 „Smolíčku, pacholíčku, otevři nám jen na dva prstíčky.
 Neseme ti jahůdky.“
 [pause 4s]
@@ -106,7 +106,7 @@ Jedí jahůdky, sladké a teplé od sluníčka.
 [pause 4s]
 Jezinky zpívají lesní písničku.
 Tichou, jako když šumí listí.
-Lalala… lalala…
+La la la… la la la…
 [pause 5s]
 Nejmenší jezinka uplete Smolíčkovi věneček z kopretin.
 [pause 2s]
@@ -123,7 +123,7 @@ Ptáčci si sedají do hnízd.
 Ještě jednou tiše zapípají.
 [pause 4s]
 Po pěšince přichází jelen se zlatými parohy.
-Jelen v lese ví všechno. Ví, kde je Smolíček.
+Jelen ví, že si Smolíček hraje s jezinkami na paloučku.
 [pause 3s]
 „Smolíčku, už je čas na večeři,“ řekne vlídně.
 Sklopí hlavu a Smolíček se mu vyšplhá na hřbet.
@@ -146,12 +146,12 @@ A všechno je v pořádku.
 [slow] Smolíček si lehne do postýlky z mechu a sena.
 [pause 5s]
 Jelen si lehne u dveří.
-Zlaté parohy se ve tmě jemně třpytí, jako lampička.
+Zlaté parohy se ve tmě jemně třpytí jako lampička.
 [pause 6s]
 Datel už spí.
 Jen potůček tiše bublá.
 [pause 6s]
-Jezinky spí na palouku v trávě.
+Jezinky spí na paloučku v trávě.
 [pause 7s]
 [whisper] Smolíček zavírá oči.
 [pause 7s]

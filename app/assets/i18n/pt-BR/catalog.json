@@ -1,0 +1,517 @@
+{
+  "schema": 2,
+  "version": 1,
+  "generated_at": "2026-11-08T20:24:31Z",
+  "base_url": "https://lioilsources.github.io/hajanek-content/",
+  "lang": "pt-BR",
+  "tales": [
+    {
+      "id": "budulinek",
+      "title": "Budulínek e a Raposinha",
+      "age": "3+",
+      "setting": "vesnice",
+      "ambient": "night-meadow",
+      "free": true,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "i18n/pt-BR/scripts/budulinek.10.md",
+          "sha256": "cbdf6fa08470c6de625006c13fd8fc8c75b03e49bfe77e2c041b3ac3f9f2e442",
+          "bytes": 4845,
+          "est_duration_s": 678
+        }
+      ]
+    },
+    {
+      "id": "cervena-karkulka",
+      "title": "Chapeuzinho Vermelho",
+      "age": "3+",
+      "setting": "les",
+      "ambient": "wind",
+      "free": true,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "i18n/pt-BR/scripts/cervena-karkulka.10.md",
+          "sha256": "21c41876680eb5dc2d4f629cec004c5f4497249c92d980aba7ba95d746402797",
+          "bytes": 4528,
+          "est_duration_s": 678
+        }
+      ]
+    },
+    {
+      "id": "dlouhy-siroky-bystrozraky",
+      "title": "Comprido, Largo e Olho de Lince",
+      "age": "5+",
+      "setting": "hrad",
+      "ambient": "fireplace",
+      "free": false,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "i18n/pt-BR/scripts/dlouhy-siroky-bystrozraky.10.md",
+          "sha256": "bcb75ac0948882cff4de95ec86e3eb5b166639bca05fba88fcce947eef64fed3",
+          "bytes": 4878,
+          "est_duration_s": 679
+        }
+      ]
+    },
+    {
+      "id": "hrnecku-var",
+      "title": "O Mingau Doce",
+      "age": "3+",
+      "setting": "vesnice",
+      "ambient": "fireplace",
+      "free": false,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "i18n/pt-BR/scripts/hrnecku-var.10.md",
+          "sha256": "e83a4aedc3a6c6fb975c69fa4ace77ccfecc580586aa37cc81f434532280bedb",
+          "bytes": 4882,
+          "est_duration_s": 687
+        }
+      ]
+    },
+    {
+      "id": "o-smolickovi",
+      "title": "Smolíček e o Cervo de Chifres Dourados",
+      "age": "3+",
+      "setting": "les",
+      "ambient": "stream",
+      "free": false,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "i18n/pt-BR/scripts/o-smolickovi.10.md",
+          "sha256": "e153b70476a7d8a7bc0039f902bdfc740ace9898e8c9640ea744907e42ae05ba",
+          "bytes": 4837,
+          "est_duration_s": 687
+        }
+      ]
+    },
+    {
+      "id": "pernikova-chaloupka",
+      "title": "João e Maria",
+      "age": "3+",
+      "setting": "les",
+      "ambient": "stream",
+      "free": true,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "i18n/pt-BR/scripts/pernikova-chaloupka.10.md",
+          "sha256": "f081814c5f0b74bb6bc79d956878fcd0e0103f0cd4a8a7d22953d3b5a4d550a7",
+          "bytes": 4776,
+          "est_duration_s": 677
+        }
+      ]
+    },
+    {
+      "id": "sipkova-ruzenka",
+      "title": "A Bela Adormecida",
+      "age": "3+",
+      "setting": "hrad",
+      "ambient": "night-meadow",
+      "free": false,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "i18n/pt-BR/scripts/sipkova-ruzenka.10.md",
+          "sha256": "2b4b76bc85767191a097c24b755156baff73735efdf2e4a9cd572e875f32e67e",
+          "bytes": 4907,
+          "est_duration_s": 687
+        }
+      ]
+    },
+    {
+      "id": "snehurka",
+      "title": "Branca de Neve",
+      "age": "5+",
+      "setting": "hory",
+      "ambient": "rain",
+      "free": false,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "i18n/pt-BR/scripts/snehurka.10.md",
+          "sha256": "f9f8a21d89ed2bc31db9e0310cb09f66a231b28a9496dbd5c317a3f9d8737b9e",
+          "bytes": 4690,
+          "est_duration_s": 683
+        }
+      ]
+    },
+    {
+      "id": "tri-prasatka",
+      "title": "Os Três Porquinhos",
+      "age": "3+",
+      "setting": "louka",
+      "ambient": "wind",
+      "free": true,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "i18n/pt-BR/scripts/tri-prasatka.10.md",
+          "sha256": "c9ef87e24135f1a58c740efc4bb142868e74bb446c851fab64ac806716b54efc",
+          "bytes": 5016,
+          "est_duration_s": 685
+        }
+      ]
+    },
+    {
+      "id": "zlatovlaska",
+      "title": "A Princesa dos Cabelos de Ouro",
+      "age": "5+",
+      "setting": "more",
+      "ambient": "sea",
+      "free": true,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "i18n/pt-BR/scripts/zlatovlaska.10.md",
+          "sha256": "e40a70d846978f84876fdeede031bcd71856b3706b4eb9ff6db20fd921ee249c",
+          "bytes": 4785,
+          "est_duration_s": 687
+        }
+      ]
+    }
+  ],
+  "ambient": [
+    {
+      "id": "brown-noise",
+      "title": "Ruído marrom",
+      "path": "ambient/brown-noise.opus",
+      "duration_s": 60,
+      "bytes": 641249,
+      "sha256": "b73ea1589935ce77cd637b29ed92951b2b96f20c858925dfc388321e77712591",
+      "free": false,
+      "license": "vlastní syntéza",
+      "source": "ffmpeg anoisesrc",
+      "kind": "nature"
+    },
+    {
+      "id": "fireplace",
+      "title": "Lareira",
+      "path": "ambient/fireplace.opus",
+      "duration_s": 100,
+      "bytes": 1223971,
+      "sha256": "497e05e0715dc07dceb0c6f0b3186893a20ed2fc881b5c9ebdb99de0060f11a9",
+      "free": false,
+      "license": "CC0",
+      "source": "https://freesound.org/people/BonnyOrbit/sounds/484338/",
+      "kind": "nature"
+    },
+    {
+      "id": "lullaby-dream-1",
+      "title": "Sonhando",
+      "path": "ambient/lullaby-dream-1.opus",
+      "duration_s": 136.2,
+      "bytes": 1885636,
+      "sha256": "cb17acce609bbb7e7ab9c9e131be4a8d16238fd270190040080168279d00f921",
+      "free": true,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 1, seed 41; prompt: ambient warm synth pads, slow evolving, very calm, deep sleep, soft, no melody jumps, no drums, instrumental",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-dream-2",
+      "title": "Sonhando II",
+      "path": "ambient/lullaby-dream-2.opus",
+      "duration_s": 138,
+      "bytes": 1846723,
+      "sha256": "5263009a606aefba4b94c0978058f43bb7b7caaeb1aa1c85a7471d6d5dc2bb2e",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 2, seed 41; prompt: ambient warm synth pads, slow evolving, very calm, deep sleep, soft, no melody jumps, no drums, instrumental",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-guitar-1",
+      "title": "Violão",
+      "path": "ambient/lullaby-guitar-1.opus",
+      "duration_s": 142,
+      "bytes": 1990578,
+      "sha256": "917bcd9e141de5c680dd7ce0d50ccd9af1fda19d36132285b8fbc440287302cf",
+      "free": true,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 0, seed 51; prompt: quiet fingerpicked acoustic nylon guitar lullaby, slow, soft, warm, calm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-guitar-2",
+      "title": "Violão II",
+      "path": "ambient/lullaby-guitar-2.opus",
+      "duration_s": 122.1,
+      "bytes": 1712911,
+      "sha256": "28b46232ee8fae907312a8daeee48cbf36d219b1aad212c71cd2764bbe8d614b",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 1, seed 51; prompt: quiet fingerpicked acoustic nylon guitar lullaby, slow, soft, warm, calm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-guitar-3",
+      "title": "Violão III",
+      "path": "ambient/lullaby-guitar-3.opus",
+      "duration_s": 142.3,
+      "bytes": 2062703,
+      "sha256": "55a466d7fa6e2224c8d9b2c077922bf1e5eb932ba1fa7cc99c9360ee359dd99e",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 2, seed 51; prompt: quiet fingerpicked acoustic nylon guitar lullaby, slow, soft, warm, calm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-harp-1",
+      "title": "Harpa",
+      "path": "ambient/lullaby-harp-1.opus",
+      "duration_s": 138.8,
+      "bytes": 1935397,
+      "sha256": "0301b5963f8bd0ceb158bfa35723e0ab2f7489aca97f71e5ac682763a4319092",
+      "free": true,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 0, seed 31; prompt: gentle harp and celesta lullaby, slow, dreamy, soft, calm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-harp-2",
+      "title": "Harpa II",
+      "path": "ambient/lullaby-harp-2.opus",
+      "duration_s": 137.7,
+      "bytes": 1979970,
+      "sha256": "d2426aa76535b688ccee5cf8b830f76dabee4770dc0824c007bedbacd3d2ab1f",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 1, seed 31; prompt: gentle harp and celesta lullaby, slow, dreamy, soft, calm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-harp-3",
+      "title": "Harpa III",
+      "path": "ambient/lullaby-harp-3.opus",
+      "duration_s": 141.3,
+      "bytes": 2063893,
+      "sha256": "166e0f6526807201f4c76e8865f63107357ba0c6d1df28dd004b9756ff4ad504",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 2, seed 31; prompt: gentle harp and celesta lullaby, slow, dreamy, soft, calm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-musicbox",
+      "title": "Caixinha de música",
+      "path": "ambient/lullaby-musicbox.opus",
+      "duration_s": 137.2,
+      "bytes": 1951886,
+      "sha256": "6fb0dce94b14f5f3feccde45a0dbeab9a2f352dce34feb7d9bab8dad58633e49",
+      "free": true,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 0, seed 11; prompt: gentle music box lullaby, soft celesta, slow, calm, sleepy, warm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-piano-1",
+      "title": "Piano",
+      "path": "ambient/lullaby-piano-1.opus",
+      "duration_s": 139.3,
+      "bytes": 1923230,
+      "sha256": "311379c0b2e1eb96dfa007c909e2b97e98add3e1be8f7ba4820d3a869cacf7a4",
+      "free": true,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 0, seed 21; prompt: soft felt piano lullaby, slow, tender, sparse notes, warm, calm, sleepy, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-piano-2",
+      "title": "Piano II",
+      "path": "ambient/lullaby-piano-2.opus",
+      "duration_s": 136.5,
+      "bytes": 2016364,
+      "sha256": "64cc4666fb3541b158307020f4fa649a85fd82acbc83014b1bd1bcdfb3a5ab49",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 2, seed 21; prompt: soft felt piano lullaby, slow, tender, sparse notes, warm, calm, sleepy, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-stars-1",
+      "title": "Estrelinhas",
+      "path": "ambient/lullaby-stars-1.opus",
+      "duration_s": 137.8,
+      "bytes": 2003969,
+      "sha256": "209fc6cf449cf631ed7262adc1790649e69a2a171612d541cfa413d67f6f0af4",
+      "free": true,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 0, seed 61; prompt: starry night lullaby, soft glockenspiel, airy pads, slow, magical, calm, sleepy, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-stars-2",
+      "title": "Estrelinhas II",
+      "path": "ambient/lullaby-stars-2.opus",
+      "duration_s": 139.7,
+      "bytes": 1937302,
+      "sha256": "e9fe6bbfb80dcca7d13f3c20110f89c68ad78af10a5ce73e3cfc1d411926321e",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 1, seed 61; prompt: starry night lullaby, soft glockenspiel, airy pads, slow, magical, calm, sleepy, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-stars-3",
+      "title": "Estrelinhas III",
+      "path": "ambient/lullaby-stars-3.opus",
+      "duration_s": 138.9,
+      "bytes": 2051541,
+      "sha256": "88409a8f5079acc342b6131f875463cc380bc4119df0c06a600726792bedcfd7",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 2, seed 61; prompt: starry night lullaby, soft glockenspiel, airy pads, slow, magical, calm, sleepy, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "night-meadow",
+      "title": "Campo à noite",
+      "path": "ambient/night-meadow.opus",
+      "duration_s": 100,
+      "bytes": 1137057,
+      "sha256": "1fbf2294caf6cacd19754753d25f96b1e1af08baf03b96688e7b192e4e1d65e4",
+      "free": false,
+      "license": "CC0",
+      "source": "https://freesound.org/people/hdfreema/sounds/333221/",
+      "kind": "nature"
+    },
+    {
+      "id": "pink-noise",
+      "title": "Ruído rosa",
+      "path": "ambient/pink-noise.opus",
+      "duration_s": 60,
+      "bytes": 644247,
+      "sha256": "d3bbbc80881ed127bcdecdb6c21081707064661e3ac8048ba19ad6da1831dc6f",
+      "free": true,
+      "license": "vlastní syntéza",
+      "source": "ffmpeg anoisesrc",
+      "kind": "nature"
+    },
+    {
+      "id": "rain",
+      "title": "Chuva no telhado",
+      "path": "ambient/rain.opus",
+      "duration_s": 90,
+      "bytes": 1042948,
+      "sha256": "ab0e733e7c7c1fcda3a59c22cf89908babbd2e232e91a4bac0e021dc0b9ecaec",
+      "free": true,
+      "license": "CC0",
+      "source": "https://freesound.org/people/Metadex/sounds/235827/",
+      "kind": "nature"
+    },
+    {
+      "id": "sea",
+      "title": "Mar",
+      "path": "ambient/sea.opus",
+      "duration_s": 100,
+      "bytes": 1025510,
+      "sha256": "e4436178e18f453e6dc7daa1e2530181a01d83040e6951e3bd1f7cd4bf0dcf33",
+      "free": true,
+      "license": "CC0",
+      "source": "https://freesound.org/people/pulswelle/sounds/339517/",
+      "kind": "nature"
+    },
+    {
+      "id": "stream",
+      "title": "Riacho",
+      "path": "ambient/stream.opus",
+      "duration_s": 100,
+      "bytes": 1189322,
+      "sha256": "8d792dc7a6dd0b6a07e482d5a8b1dc0b36b18c12380e9455897e9592c4edfd7f",
+      "free": false,
+      "license": "CC0",
+      "source": "https://freesound.org/people/turbostream/sounds/220528/",
+      "kind": "nature"
+    },
+    {
+      "id": "wind",
+      "title": "Vento nas árvores",
+      "path": "ambient/wind.opus",
+      "duration_s": 100,
+      "bytes": 1037375,
+      "sha256": "1ed7cf87576cbd2c28eff20aece8be28f69d219b44f983f99cb6ae6d264136fc",
+      "free": true,
+      "license": "CC0",
+      "source": "https://freesound.org/people/Anya_Media/sounds/523389/",
+      "kind": "nature"
+    }
+  ],
+  "presets": [
+    {
+      "id": "plaz-vecer",
+      "title": "Praia ao entardecer",
+      "layers": [
+        {
+          "ambient": "sea",
+          "volume": 0.8
+        },
+        {
+          "ambient": "night-meadow",
+          "volume": 0.25
+        }
+      ]
+    },
+    {
+      "id": "les-v-noci",
+      "title": "Floresta à noite",
+      "layers": [
+        {
+          "ambient": "wind",
+          "volume": 0.7
+        },
+        {
+          "ambient": "night-meadow",
+          "volume": 0.4
+        },
+        {
+          "ambient": "stream",
+          "volume": 0.2
+        }
+      ]
+    },
+    {
+      "id": "destivy-vecer",
+      "title": "Noite de chuva",
+      "layers": [
+        {
+          "ambient": "rain",
+          "volume": 0.75
+        },
+        {
+          "ambient": "fireplace",
+          "volume": 0.35
+        }
+      ]
+    },
+    {
+      "id": "u-krbu",
+      "title": "Perto da lareira",
+      "layers": [
+        {
+          "ambient": "fireplace",
+          "volume": 0.7
+        },
+        {
+          "ambient": "brown-noise",
+          "volume": 0.2
+        }
+      ]
+    },
+    {
+      "id": "tichy-sum",
+      "title": "Ruído suave",
+      "layers": [
+        {
+          "ambient": "pink-noise",
+          "volume": 0.6
+        }
+      ]
+    }
+  ]
+}

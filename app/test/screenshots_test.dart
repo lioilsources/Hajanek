@@ -67,6 +67,9 @@ const _devices = {
 final _device = _devices[Platform.environment['SCREENSHOT_DEVICE']] ?? (_phone, _ratio);
 final _store = Platform.environment['SCREENSHOT_STORE'] == '1';
 
+/// SCREENSHOT_LANG=en|de|… shoots the app in that language (default cs).
+final _lang = Platform.environment['SCREENSHOT_LANG'] ?? 'cs';
+
 final _shotKey = GlobalKey();
 
 Future<void> _loadFonts() async {
@@ -122,7 +125,7 @@ void main() {
   tearDown(() => db.close());
 
   // A store build hides draft tales (INCLUDE_DRAFTS=false).
-  final bundled = bundledSnapshot();
+  final bundled = bundledSnapshot(_lang);
   final snapshot = !_store
       ? bundled
       : CatalogSnapshot(
@@ -163,6 +166,7 @@ void main() {
         formFactorProvider.overrideWithValue(tv ? FormFactor.tv : FormFactor.phone),
         if (tv) voiceApiProvider.overrideWithValue(_PairingApi()),
         voiceCloningProvider.overrideWithValue(!_store),
+        deviceLangProvider.overrideWithValue(_lang),
         databaseProvider.overrideWithValue(db),
         initialCatalogProvider.overrideWithValue(snapshot),
         favouritesProvider.overrideWithValue(const AsyncValue.data({'cervena-karkulka', 'o-smolickovi'})),

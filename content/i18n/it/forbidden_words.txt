@@ -1,0 +1,101 @@
+# Zakázané kmeny slov pro italštinu (forge judge --lang it). Jeden na řádek,
+# porovnává se jako prefix slova bez ohledu na velikost písmen.
+# Prázdné řádky a # se ignorují. Krátké kmeny, které by chytaly nevinná slova
+# (mostr → mostrare, arm → armadio, pers → persona), jsou záměrně vynechané.
+attenzione
+attento
+attenta
+paura
+pauros
+spavent
+terror
+terrific
+orrore
+orribil
+orrend
+tremend
+sangue
+sanguin
+uccid
+uccis
+ammazz
+divor
+sbran
+inghiott
+mangiarti
+mangiarvi
+morte
+morto
+morta
+morti
+morir
+muore
+muoio
+mortal
+pericol
+minacc
+timore
+temev
+in fretta
+fretta
+sbrigat
+veloce
+velocem
+all'improvviso
+improvvis
+d'un tratto
+a un tratto
+scappa
+fugg
+insegu
+corri via
+piange
+piangev
+pianse
+pianto
+lacrim
+singhiozz
+urla
+urlo
+urlò
+grida
+gridò
+strill
+cattiv
+malvag
+strega
+streghe
+orco
+orchi
+mostro
+mostruos
+incantesim
+maledizion
+maledett
+punizion
+punir
+punit
+castig
+in gabbia
+nella gabbia
+rinchius
+nel forno
+coltell
+ascia
+fucil
+spara
+sparò
+ferit
+ferì
+dolore
+fa male
+farsi male
+avvelen
+veleno
+rapit
+rapisc
+si perde
+si perse
+perdut
+smarrit
+sperdut

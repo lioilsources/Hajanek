@@ -1,0 +1,33 @@
+{
+  "ambient": {
+    "brown-noise": "Rumore marrone",
+    "fireplace": "Camino",
+    "lullaby-dream-1": "Sogno",
+    "lullaby-dream-2": "Sogno II",
+    "lullaby-guitar-1": "Chitarra",
+    "lullaby-guitar-2": "Chitarra II",
+    "lullaby-guitar-3": "Chitarra III",
+    "lullaby-harp-1": "Arpa",
+    "lullaby-harp-2": "Arpa II",
+    "lullaby-harp-3": "Arpa III",
+    "lullaby-musicbox": "Carillon",
+    "lullaby-piano-1": "Pianoforte",
+    "lullaby-piano-2": "Pianoforte II",
+    "lullaby-stars-1": "Stelline",
+    "lullaby-stars-2": "Stelline II",
+    "lullaby-stars-3": "Stelline III",
+    "night-meadow": "Prato di notte",
+    "pink-noise": "Rumore rosa",
+    "rain": "Pioggia sul tetto",
+    "sea": "Mare",
+    "stream": "Ruscello",
+    "wind": "Vento tra gli alberi"
+  },
+  "presets": {
+    "plaz-vecer": "Spiaggia di sera",
+    "les-v-noci": "Bosco di notte",
+    "destivy-vecer": "Sera di pioggia",
+    "u-krbu": "Accanto al camino",
+    "tichy-sum": "Fruscio leggero"
+  }
+}

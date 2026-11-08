@@ -89,7 +89,7 @@ Ve věži je malý pokojíček s kulatým okénkem.
 Na posteli leží načechraná peřina.
 [pause 3s]
 Růženka si sedne na postel a zívne.
-Ááách.
+Ach.
 „Já jsem tak krásně ospalá,“ řekne tiše.
 [pause 5s]
 A všechno je v pořádku.
@@ -134,7 +134,7 @@ To je dlouhý, předlouhý a krásný spánek.
 [pause 4s]
 Jednou za mnoho let přijde mladý princ.
 Keř se před ním rozhrne jako záclona.
-A všichni se probudí krásně odpočatí.
+A všichni budou krásně odpočatí.
 [pause 4s]
 Ale to bude až za dlouho.
 Teď se spí.

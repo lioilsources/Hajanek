@@ -18,9 +18,9 @@ import 'package:hajanek/features/voice/voice_api.dart';
 import 'package:hajanek/features/voice/voice_controller.dart';
 import 'package:hajanek/features/voice/voice_screen.dart';
 
-CatalogSnapshot bundledSnapshot() {
-  final catalog = Catalog.fromJson(
-      jsonDecode(File('assets/catalog/catalog.json').readAsStringSync()) as Map<String, dynamic>);
+CatalogSnapshot bundledSnapshot([String lang = 'cs']) {
+  final catalog = Catalog.fromJson(jsonDecode(File(lang == 'cs' ? 'assets/catalog/catalog.json' : 'assets/i18n/$lang/catalog.json')
+      .readAsStringSync()) as Map<String, dynamic>);
   return CatalogSnapshot(
     catalog: catalog,
     local: LocalContent(
@@ -62,7 +62,7 @@ void main() {
     final first = tester.getTopLeft(find.text('Zlatovláska')).dy;
     final second = tester.getTopLeft(find.text('Červená Karkulka')).dy;
     expect(first, lessThan(second));
-    expect(find.textContaining('10 min'), findsWidgets);
+    expect(find.textContaining(RegExp(r'· 1[01] min')), findsWidgets);
 
     await tester.tap(find.text('Červená Karkulka'));
     await tester.pumpAndSettle();

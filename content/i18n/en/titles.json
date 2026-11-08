@@ -1,0 +1,33 @@
+{
+  "ambient": {
+    "brown-noise": "Brown Noise",
+    "fireplace": "Fireplace",
+    "lullaby-dream-1": "Dreaming",
+    "lullaby-dream-2": "Dreaming II",
+    "lullaby-guitar-1": "Guitar",
+    "lullaby-guitar-2": "Guitar II",
+    "lullaby-guitar-3": "Guitar III",
+    "lullaby-harp-1": "Harp",
+    "lullaby-harp-2": "Harp II",
+    "lullaby-harp-3": "Harp III",
+    "lullaby-musicbox": "Music Box",
+    "lullaby-piano-1": "Piano",
+    "lullaby-piano-2": "Piano II",
+    "lullaby-stars-1": "Little Stars",
+    "lullaby-stars-2": "Little Stars II",
+    "lullaby-stars-3": "Little Stars III",
+    "night-meadow": "Night Meadow",
+    "pink-noise": "Pink Noise",
+    "rain": "Rain on the Roof",
+    "sea": "Sea",
+    "stream": "Little Stream",
+    "wind": "Wind in the Trees"
+  },
+  "presets": {
+    "plaz-vecer": "Beach at Dusk",
+    "les-v-noci": "Forest at Night",
+    "destivy-vecer": "Rainy Evening",
+    "u-krbu": "By the Fireplace",
+    "tichy-sum": "Gentle Noise"
+  }
+}

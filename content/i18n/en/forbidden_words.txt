@@ -1,0 +1,100 @@
+# Forbidden word stems (forge judge), English. One per line, matched as a
+# case-insensitive word prefix. Blank lines and # are ignored.
+# Stems are kept long enough not to hit innocent words (no "cry" -> crystal,
+# no "die" -> diet, no "yell" -> yellow, no "pain" -> paint,
+# no "harm" -> harmony, no "grave" -> gravel).
+watch out
+beware
+fear
+afraid
+scare
+scary
+fright
+terrif
+horror
+horrib
+dread
+panic
+nightmare
+spook
+ghost
+monster
+blood
+bleed
+kill
+murder
+dead
+death
+dying
+died
+die of
+corpse
+graveyard
+devour
+gobble
+eat you
+eat her
+eat him
+eaten up
+swallowed
+poison
+danger
+threat
+hurry
+quick
+suddenly
+all of a sudden
+run away
+ran away
+runaway
+chase
+chasing
+escape
+lost
+get lost
+got lost
+cried
+cries
+crying
+tears
+weep
+wept
+sobbed
+sobbing
+sobs
+scream
+shriek
+shout
+yelled
+yelling
+yells
+wicked
+evil
+witch
+curse
+cursed
+spell on
+ogre
+punish
+prison
+cage
+locked up
+lock up
+trap
+oven
+knife
+knives
+axe
+sword
+weapon
+rifle
+shoot
+shot
+gunshot
+wound
+injur
+hurt
+painful
+in pain
+harmed
+harmful

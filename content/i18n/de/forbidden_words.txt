@@ -1,0 +1,138 @@
+# Verbotene Wortstämme (forge judge, Deutsch). Einer pro Zeile, Vergleich als
+# Wortanfang ohne Groß-/Kleinschreibung. Leere Zeilen und # werden ignoriert.
+# Einträge mit Leerzeichen gelten als Teilstring, ein "=" am Ende verlangt
+# das exakte Wort.
+# Angst und Schrecken
+angst
+ängst
+fürcht
+furcht
+erschreck
+erschrak
+schreck
+grusel
+grausam
+gräss
+gräßl
+unheimlich
+entsetz
+panik
+albtraum
+alptraum
+# Gefahr und Warnung
+gefahr
+gefähr
+achtung
+vorsicht
+pass auf
+aufpassen
+# Tempo, Überraschung
+plötzlich
+auf einmal
+schnell
+beeil
+hastig
+# Tod
+tod
+töd
+tot=
+tote=
+toten=
+totes=
+töte
+getötet
+sterb
+stirbt
+starb
+gestorben
+leiche
+sarg
+begrab
+grab=
+# Gewalt
+blut
+fress
+friss
+frisst
+fraß
+gefressen
+verschling
+verschluck
+umbring
+mord
+ermord
+schlag
+geschlag
+prügel
+kämpf
+kampf
+erschieß
+erschoss
+schieß
+schuss=
+gewehr
+flinte
+waffe
+messer
+schwert
+axt=
+beil=
+verletz
+wunde=
+wunden=
+schmerz
+tut weh
+verbrenn
+erhäng
+in den ofen
+# Böse Figuren und Zauber
+böse
+hexe
+hexen
+verhex
+zauberin
+fluch
+verflucht
+monster
+ungeheuer
+gespenst
+teufel
+gift
+vergift
+# Strafe und Gefangenschaft
+straf
+bestraf
+käfig
+einsperr
+eingesperrt
+gefangen
+# Verirren, Verfolgen, Fliehen
+verirr
+verlaufen
+verloren
+jagt=
+jagen=
+gejagt
+verfolg
+hetz
+flieh
+floh=
+flücht
+renn weg
+lauf weg
+# Weinen und Schreien
+wein=
+weinen
+weint
+weinte
+geweint
+träne
+schluchz
+heul
+schreit
+schreien
+schrie=
+geschrien
+aufschrei
+kreisch
+brüll
