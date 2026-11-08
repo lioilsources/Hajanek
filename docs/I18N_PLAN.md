@@ -1,6 +1,6 @@
 # Plán: Hajánek ve více jazycích
 
-> Stav 8. 11. 2026: rozhodnuto (Ol1n), zatím nic z toho není v kódu.
+> Stav 8. 11. 2026: hotovo ve verzi 1.1.0 (forge, appka, 10 pohádek × 9 jazyků).
 > Navazuje na plán §2 (fáze 3), CONTRACTS §2–§3.
 
 ## Rozhodnutí

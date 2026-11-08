@@ -6,7 +6,7 @@ age: 3+
 setting: louka
 ambient: wind
 length_min: 10
-status: draft
+status: reviewed
 free: true
 tension_original: 4
 characters: [maminka prasátek, první prasátko, druhé prasátko, třetí prasátko, vlk]

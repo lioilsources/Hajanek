@@ -6,7 +6,7 @@ age: 5+
 setting: hrad
 ambient: fireplace
 length_min: 10
-status: draft
+status: reviewed
 tension_original: 4
 characters: [princ, Dlouhý, Široký, Bystrozraký, princezna, starý zámecký pán]
 softening: Žádný čaroděj ani kamenění. Zámek je ospalý a kouzelný, starý zámecký pán je hodný a princezna si jen tři večery hraje na schovávanou. Pomocníci ji najdou s legrací a bez spěchu.

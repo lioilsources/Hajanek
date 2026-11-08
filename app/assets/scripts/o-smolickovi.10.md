@@ -6,7 +6,7 @@ age: 3+
 setting: les
 ambient: stream
 length_min: 10
-status: draft
+status: reviewed
 tension_original: 3
 characters: [Smolíček, jelen se zlatými parohy, jezinky]
 softening: Jezinky nikoho neodnášejí. Jsou to tři stydlivé lesní vílky, které Smolíčka pozvou na hraní na palouček, a jelen si pro něj večer přijde a odnese ho domů na večeři.

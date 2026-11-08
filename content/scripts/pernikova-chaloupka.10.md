@@ -6,7 +6,7 @@ age: 3+
 setting: les
 ambient: stream
 length_min: 10
-status: draft
+status: reviewed
 free: true
 tension_original: 5
 characters: [Jeníček, Mařenka, tatínek, babička perníkářka, dědeček]

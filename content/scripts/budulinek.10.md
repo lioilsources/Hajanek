@@ -6,7 +6,7 @@ age: 3+
 setting: vesnice
 ambient: night-meadow
 length_min: 10
-status: draft
+status: reviewed
 free: true
 tension_original: 3
 characters: [Budulínek, dědeček, babička, liška, lišátka]

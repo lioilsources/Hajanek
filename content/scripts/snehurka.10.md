@@ -6,7 +6,7 @@ age: 5+
 setting: hory
 ambient: rain
 length_min: 10
-status: draft
+status: reviewed
 tension_original: 5
 characters: [Sněhurka, sedm malých horníčků]
 softening: Bez královny, zrcadla, myslivce a otráveného jablka. Sněhurka jen najde domeček sedmi malých horníčků, uklidí ho a uvaří, horníčci se vrátí domů se zpěvem a ona u nich usne v jejich postýlkách.

@@ -6,7 +6,7 @@ age: 3+
 setting: hrad
 ambient: night-meadow
 length_min: 10
-status: draft
+status: reviewed
 tension_original: 3
 characters: [Růženka, král, královna, sudičky, kuchař, kuchtík, princ]
 softening: Žádná kletba, vřeteno ani píchnutí. Nejmladší sudička Růžence daruje sladký spánek a jednoho teplého večera usne celý zámek na sto let; šípkový keř ho přikryje jako peřina a princ je jen zmíněn jako někdo, kdo přijde až za dlouho.

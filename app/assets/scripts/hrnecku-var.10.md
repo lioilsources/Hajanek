@@ -6,7 +6,7 @@ age: 3+
 setting: vesnice
 ambient: fireplace
 length_min: 10
-status: draft
+status: reviewed
 tension_original: 1
 characters: [holčička, maminka, stařenka, kouzelný hrneček, sousedé]
 softening: Kaše nic nezničí a nikomu nevadí. Rozlije se měkce a teple po vesnici jako velký voňavý polštář, sousedé se smějí a ochutnávají, a holčička nakonec v klidu řekne „Hrnečku, dost!“.
