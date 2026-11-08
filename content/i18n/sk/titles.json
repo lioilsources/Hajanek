@@ -1,0 +1,33 @@
+{
+  "ambient": {
+    "brown-noise": "Hnedý šum",
+    "fireplace": "Krb",
+    "lullaby-dream-1": "Snenie",
+    "lullaby-dream-2": "Snenie II",
+    "lullaby-guitar-1": "Gitara",
+    "lullaby-guitar-2": "Gitara II",
+    "lullaby-guitar-3": "Gitara III",
+    "lullaby-harp-1": "Harfa",
+    "lullaby-harp-2": "Harfa II",
+    "lullaby-harp-3": "Harfa III",
+    "lullaby-musicbox": "Hracia skrinka",
+    "lullaby-piano-1": "Klavír",
+    "lullaby-piano-2": "Klavír II",
+    "lullaby-stars-1": "Hviezdičky",
+    "lullaby-stars-2": "Hviezdičky II",
+    "lullaby-stars-3": "Hviezdičky III",
+    "night-meadow": "Nočná lúka",
+    "pink-noise": "Ružový šum",
+    "rain": "Dážď na streche",
+    "sea": "More",
+    "stream": "Potôčik",
+    "wind": "Vietor v korunách"
+  },
+  "presets": {
+    "plaz-vecer": "Pláž večer",
+    "les-v-noci": "Les v noci",
+    "destivy-vecer": "Daždivý večer",
+    "u-krbu": "Pri krbe",
+    "tichy-sum": "Tichý šum"
+  }
+}

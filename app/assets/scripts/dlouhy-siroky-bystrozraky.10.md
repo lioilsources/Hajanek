@@ -6,7 +6,7 @@ age: 5+
 setting: hrad
 ambient: fireplace
 length_min: 10
-status: draft
+status: reviewed
 tension_original: 4
 characters: [princ, Dlouhý, Široký, Bystrozraký, princezna, starý zámecký pán]
 softening: Žádný čaroděj ani kamenění. Zámek je ospalý a kouzelný, starý zámecký pán je hodný a princezna si jen tři večery hraje na schovávanou. Pomocníci ji najdou s legrací a bez spěchu.
@@ -43,7 +43,7 @@ Dnes ti budu vyprávět o princi a o jeho třech zvláštních kamarádech.
 Jmenují se Dlouhý, Široký a Bystrozraký.
 [pause 3s]
 Je to tichá a veselá pohádka.
-Nikdo se v ní nebojí a nikdo nikam nespěchá.
+Všichni v ní jsou kamarádi a nikdo nikam nespěchá.
 [pause 4s]
 Představ si, že stojíš na staré cestě mezi poli.
 Večerní vzduch voní senem a obilím.
@@ -69,7 +69,7 @@ Pak se zase zmenší a jde vedle vás.
 [pause 4s]
 Na pařezu sedí muž kulatý jako sud.
 [pause 2s]
-„Já jsem Široký. Umím se rozšířit, až jsem široký jako rybník.“
+„Já jsem Široký. Umím se rozšířit tak, že jsem široký jako rybník.“
 Široký se směje. A bříško se mu přitom houpe.
 [pause 4s]
 U potoka stojí třetí muž a má přes oči šátek.
@@ -89,16 +89,16 @@ Na nádvoří spí koně a psi. Jenom tiše oddychují.
 [pause 4s]
 Ve dveřích stojí starý zámecký pán.
 Má bílé vousy až k pasu a na hlavě noční čepičku.
-Dlouze zívne. Ááách.
+Dlouze a sladce zívne.
 [pause 5s]
 „Vítejte,“ řekne vlídně. „Princezna je tady.
 Jenom si moc ráda hraje na schovávanou.
-Když ji tři večery najdete, půjde s vámi domů.“
+Tři večery si s ní zahrajte a pak půjde s vámi domů.“
 [pause 5s]
 Večer sedí všichni u krbu.
 Oheň tiše praská. Prask… prask…
 [pause 3s]
-Na plotýnce se pečou jablka a voní skořicí.
+U ohně se pečou jablka a voní skořicí.
 [pause 4s]
 Princezna se usměje a jde se schovat.
 Bystrozraký trošku poodhrne šátek.
@@ -115,6 +115,7 @@ Druhý večer se princezna schová znovu.
 „Je to třpytivý kamínek na vysoké skále,“ řekne Bystrozraký.
 [pause 2s]
 Dlouhý se natáhne až na vrcholek a kamínek přinese.
+Kamínek se promění v princeznu a ta se tiše směje.
 [pause 5s]
 A všechno je v pořádku.
 [pause 5s]

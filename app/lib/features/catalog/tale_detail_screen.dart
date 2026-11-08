@@ -43,7 +43,7 @@ Future<void> playTale(BuildContext context, WidgetRef ref,
   if (ok) {
     context.push('/player');
   } else {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(S.detailNoScript)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.detailNoScript)));
   }
 }
 
@@ -94,13 +94,13 @@ class _TaleDetailScreenState extends ConsumerState<TaleDetailScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Text(S.detailAge(tale.age), style: const TextStyle(color: Night.textDim)),
           ),
-          const SectionLabel(S.detailVoice),
+          SectionLabel(S.detailVoice),
           ListTile(
             title: Text(voiceLabel(voiceId, voices), style: const TextStyle(fontSize: 18)),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push('/voice'),
           ),
-          const SectionLabel(S.detailBackground),
+          SectionLabel(S.detailBackground),
           ListTile(
             title: Text(
               choices.firstWhere((c) => c.$1 == _background, orElse: () => choices.first).$2,
@@ -119,8 +119,8 @@ class _TaleDetailScreenState extends ConsumerState<TaleDetailScreen> {
             },
           ),
           SwitchListTile(
-            title: const Text(S.detailRitual, style: TextStyle(fontSize: 18)),
-            subtitle: const Text(S.detailRitualSub),
+            title: Text(S.detailRitual, style: TextStyle(fontSize: 18)),
+            subtitle: Text(S.detailRitualSub),
             value: _ritual,
             onChanged: (v) => setState(() => _ritual = v),
           ),
@@ -130,7 +130,7 @@ class _TaleDetailScreenState extends ConsumerState<TaleDetailScreen> {
             child: FilledButton.icon(
               style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(72)),
               icon: const Icon(Icons.play_arrow, size: 32),
-              label: const Text(S.detailPlay, style: TextStyle(fontSize: 22)),
+              label: Text(S.detailPlay, style: TextStyle(fontSize: 22)),
               onPressed: () => playTale(context, ref,
                   tale: tale, layers: backgroundLayers(_background, tale, presets), ritual: _ritual),
             ),

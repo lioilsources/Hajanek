@@ -72,7 +72,7 @@ void main() {
           initialCatalogProvider.overrideWithValue(bundledSnapshot()),
           favouritesProvider.overrideWithValue(const AsyncValue.data({})),
           userPresetsProvider.overrideWithValue(const AsyncValue.data([])),
-          czechVoiceAvailableProvider.overrideWith((ref) async => true),
+          systemVoiceAvailableProvider.overrideWith((ref) async => true),
           voiceApiProvider.overrideWithValue(api),
           voiceCloningProvider.overrideWithValue(cloning),
           if (player != null) playerProvider.overrideWith(player),
@@ -266,7 +266,7 @@ void main() {
       overrides: [
         databaseProvider.overrideWithValue(db),
         initialCatalogProvider.overrideWithValue(bundledSnapshot()),
-        czechVoiceAvailableProvider.overrideWith((ref) async => true),
+        systemVoiceAvailableProvider.overrideWith((ref) async => true),
         initialVoicesProvider.overrideWithValue(const [
           LocalVoice(id: 'v1', name: 'Jana'),
           LocalVoice(id: 'p1', name: 'Máma', owned: false),

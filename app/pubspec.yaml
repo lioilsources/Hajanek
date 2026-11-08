@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 1.1.0+1
 
 environment:
   sdk: ^3.12.2
@@ -30,6 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -76,6 +79,7 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  generate: true
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
@@ -87,6 +91,23 @@ flutter:
     - assets/ambient/
     - assets/scripts/
     - assets/voice/
+    # One catalog per language (docs/I18N_PLAN.md, tools/sync_app_bundle.sh).
+    - assets/i18n/en/
+    - assets/i18n/en/scripts/
+    - assets/i18n/de/
+    - assets/i18n/de/scripts/
+    - assets/i18n/es/
+    - assets/i18n/es/scripts/
+    - assets/i18n/fr/
+    - assets/i18n/fr/scripts/
+    - assets/i18n/pt-BR/
+    - assets/i18n/pt-BR/scripts/
+    - assets/i18n/it/
+    - assets/i18n/it/scripts/
+    - assets/i18n/pl/
+    - assets/i18n/pl/scripts/
+    - assets/i18n/sk/
+    - assets/i18n/sk/scripts/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

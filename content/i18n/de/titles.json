@@ -1,0 +1,33 @@
+{
+  "ambient": {
+    "brown-noise": "Braunes Rauschen",
+    "fireplace": "Kaminfeuer",
+    "lullaby-dream-1": "Träumen",
+    "lullaby-dream-2": "Träumen II",
+    "lullaby-guitar-1": "Gitarre",
+    "lullaby-guitar-2": "Gitarre II",
+    "lullaby-guitar-3": "Gitarre III",
+    "lullaby-harp-1": "Harfe",
+    "lullaby-harp-2": "Harfe II",
+    "lullaby-harp-3": "Harfe III",
+    "lullaby-musicbox": "Spieluhr",
+    "lullaby-piano-1": "Klavier",
+    "lullaby-piano-2": "Klavier II",
+    "lullaby-stars-1": "Sternchen",
+    "lullaby-stars-2": "Sternchen II",
+    "lullaby-stars-3": "Sternchen III",
+    "night-meadow": "Nachtwiese",
+    "pink-noise": "Rosa Rauschen",
+    "rain": "Regen auf dem Dach",
+    "sea": "Meer",
+    "stream": "Bächlein",
+    "wind": "Wind in den Baumkronen"
+  },
+  "presets": {
+    "plaz-vecer": "Strand am Abend",
+    "les-v-noci": "Wald bei Nacht",
+    "destivy-vecer": "Regenabend",
+    "u-krbu": "Am Kamin",
+    "tichy-sum": "Leises Rauschen"
+  }
+}

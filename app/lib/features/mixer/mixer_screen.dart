@@ -35,7 +35,7 @@ class MixerScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(S.mixerTitle),
+        title: Text(S.mixerTitle),
         actions: const [TimerButton(), SizedBox(width: 8)],
       ),
       body: ListView(
@@ -82,7 +82,7 @@ class MixerScreen extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: OutlinedButton.icon(
                 icon: const Icon(Icons.add),
-                label: const Text(S.mixerAddLayer),
+                label: Text(S.mixerAddLayer),
                 onPressed: () {
                   final used = {for (final l in layers) l.ambient};
                   final next = catalog.ambient
@@ -91,7 +91,7 @@ class MixerScreen extends ConsumerWidget {
                 },
               ),
             ),
-          const SectionLabel(S.mixerPresets),
+          SectionLabel(S.mixerPresets),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Wrap(
@@ -107,7 +107,7 @@ class MixerScreen extends ConsumerWidget {
                 if (layers.isNotEmpty)
                   TextButton.icon(
                     icon: const Icon(Icons.bookmark_add_outlined),
-                    label: const Text(S.mixerSavePreset),
+                    label: Text(S.mixerSavePreset),
                     onPressed: () => _savePreset(context, ref, layers),
                   ),
               ],
@@ -137,18 +137,18 @@ class MixerScreen extends ConsumerWidget {
     final name = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text(S.mixerSavePreset),
+        title: Text(S.mixerSavePreset),
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(hintText: S.mixerPresetName),
+          decoration: InputDecoration(hintText: S.mixerPresetName),
           onSubmitted: (v) => Navigator.of(context).pop(v),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text(S.mixerCancel)),
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(S.mixerCancel)),
           TextButton(
             onPressed: () => Navigator.of(context).pop(controller.text),
-            child: const Text(S.mixerSave),
+            child: Text(S.mixerSave),
           ),
         ],
       ),
@@ -170,8 +170,8 @@ class MixerScreen extends ConsumerWidget {
       builder: (context) => AlertDialog(
         title: Text('${S.mixerDeletePreset} „${preset.title}“'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text(S.mixerCancel)),
-          TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text(S.mixerDelete)),
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text(S.mixerCancel)),
+          TextButton(onPressed: () => Navigator.of(context).pop(true), child: Text(S.mixerDelete)),
         ],
       ),
     );

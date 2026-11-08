@@ -78,15 +78,43 @@ func (e *Env) contentPath(p string) string {
 	return filepath.Join(e.Content, p)
 }
 
-// ScriptPath resolves content/scripts/{id}.{len}.md, falling back to scripts/gold/.
-func (e *Env) ScriptPath(tale string, length int) (string, error) {
-	name := fmt.Sprintf("%s.%d.md", tale, length)
-	for _, p := range []string{filepath.Join(e.Content, "scripts", name), filepath.Join(e.Content, "scripts", "gold", name)} {
-		if _, err := os.Stat(p); err == nil {
-			return p, nil
+// SourceLang is the language of content/scripts; other languages live in
+// content/i18n/{lang}/ (docs/I18N_PLAN.md).
+const SourceLang = "cs"
+
+// scriptDirs lists where scripts of lang live, in lookup order.
+func (e *Env) scriptDirs(lang string) []string {
+	if lang == "" || lang == SourceLang {
+		return []string{filepath.Join(e.Content, "scripts"), filepath.Join(e.Content, "scripts", "gold")}
+	}
+	return []string{filepath.Join(e.Content, "i18n", lang, "scripts")}
+}
+
+// Langs returns the source language and every content/i18n/{lang} directory.
+func (e *Env) Langs() []string {
+	out := []string{SourceLang}
+	ents, _ := os.ReadDir(filepath.Join(e.Content, "i18n"))
+	for _, en := range ents {
+		if en.IsDir() {
+			out = append(out, en.Name())
 		}
 	}
-	return "", fmt.Errorf("script %s not found in %s/scripts{,/gold}", name, e.Content)
+	return out
+}
+
+// ScriptPath resolves content/scripts/{id}.{len}.md, falling back to scripts/gold/.
+func (e *Env) ScriptPath(tale string, length int) (string, error) {
+	return e.scriptPath(SourceLang, tale, length)
+}
+
+func (e *Env) scriptPath(lang, tale string, length int) (string, error) {
+	name := fmt.Sprintf("%s.%d.md", tale, length)
+	for _, p := range e.scriptDirs(lang) {
+		if _, err := os.Stat(filepath.Join(p, name)); err == nil {
+			return filepath.Join(p, name), nil
+		}
+	}
+	return "", fmt.Errorf("script %s (%s) not found in %v", name, lang, e.scriptDirs(lang))
 }
 
 // Prosody returns the tone speeds and dojezd ramp from config (CONTRACTS §2).
@@ -99,14 +127,33 @@ func (e *Env) Prosody() script.Prosody {
 	return p
 }
 
-func (e *Env) JudgeConfig(length int) judge.Config {
+// JudgeConfig is the judge setup for a script in lang ("" = cs): its own
+// forbidden words (content/i18n/{lang}/forbidden_words.txt) and the
+// judge.languages overrides.
+func (e *Env) JudgeConfig(length int, lang string) judge.Config {
 	j := e.Cfg.Judge
+	wpm, maxWords := e.WPM(lang), j.MaxSentenceWords
+	forbidden := e.contentPath(j.ForbiddenWordsFile)
+	if lang != "" && lang != SourceLang {
+		forbidden = filepath.Join(e.Content, "i18n", lang, "forbidden_words.txt")
+		if l := j.Languages[lang]; l.MaxSentenceWords > 0 {
+			maxWords = l.MaxSentenceWords
+		}
+	}
 	return judge.Config{
-		LengthMin: length, WPM: j.WPM, RefSpeed: j.RefSpeed, GapS: e.Cfg.Speech.GapS,
-		Tolerance: j.LengthTolerance, MaxSentenceWords: j.MaxSentenceWords,
-		Budgets10: j.SectionBudgets10, Forbidden: judge.LoadForbidden(e.contentPath(j.ForbiddenWordsFile)),
+		LengthMin: length, WPM: wpm, RefSpeed: j.RefSpeed, GapS: e.Cfg.Speech.GapS,
+		Tolerance: j.LengthTolerance, MaxSentenceWords: maxWords,
+		Budgets10: j.SectionBudgets10, Forbidden: judge.LoadForbidden(forbidden),
 		Prosody: e.Prosody(),
 	}
+}
+
+// WPM is the speaking rate the estimates use for lang.
+func (e *Env) WPM(lang string) float64 {
+	if l := e.Cfg.Judge.Languages[lang]; l.WPM > 0 {
+		return l.WPM
+	}
+	return e.Cfg.Judge.WPM
 }
 
 // --- small helpers ---

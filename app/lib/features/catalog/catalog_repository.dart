@@ -38,7 +38,10 @@ class HashMismatchException implements Exception {
   String toString() => 'HashMismatchException: $path';
 }
 
-/// Bundled catalog → local (downloaded) catalog → remote check.
+/// Bundled catalog → local (downloaded) catalog → remote check, for one
+/// language at a time. `cs` is `catalog.json`; any other language is
+/// `i18n/{lang}/catalog.json` next to it (docs/I18N_PLAN.md) and keeps its
+/// downloads apart, so switching back needs no download.
 class CatalogRepository {
   CatalogRepository({
     required this.loadAsset,
@@ -51,6 +54,13 @@ class CatalogRepository {
         remoteUrl = remoteUrl ?? Uri.parse(defaultCatalogUrl);
 
   static const bundledCatalogAsset = 'assets/catalog/catalog.json';
+
+  static String bundledCatalogAssetFor(String lang) =>
+      lang == 'cs' ? bundledCatalogAsset : 'assets/i18n/$lang/catalog.json';
+
+  /// Language of the last [init].
+  String lang = 'cs';
+  Uri get _remote => lang == 'cs' ? remoteUrl : remoteUrl.resolve('i18n/$lang/catalog.json');
 
   /// Text of a bundled asset (rootBundle.loadString in the app).
   final Future<String> Function(String asset) loadAsset;
@@ -65,16 +75,19 @@ class CatalogRepository {
   Directory get _tmp => Directory('${_root.path}/tmp');
   File get _catalogFile => File('${_root.path}/catalog.json');
 
-  Future<CatalogSnapshot> init() async {
-    final bundled = Catalog.fromJson(
-        jsonDecode(await loadAsset(bundledCatalogAsset)) as Map<String, dynamic>);
+  /// Opens the catalog of [lang]; a language without a bundled catalog
+  /// falls back to `cs`.
+  Future<CatalogSnapshot> init([String lang = 'cs']) async {
     final assets = await listBundledAssets();
+    this.lang = assets.contains(bundledCatalogAssetFor(lang)) ? lang : 'cs';
+    final bundled = Catalog.fromJson(
+        jsonDecode(await loadAsset(bundledCatalogAssetFor(this.lang))) as Map<String, dynamic>);
     final bundledFiles = {
       for (final f in bundled.files)
         if (assets.contains('assets/${f.path}')) f.path: f.sha256,
     };
 
-    _root = Directory('${(await docsDir()).path}/catalog');
+    _root = Directory('${(await docsDir()).path}/${this.lang == 'cs' ? 'catalog' : 'catalog-${this.lang}'}');
     await _blobs.create(recursive: true);
     if (await _tmp.exists()) await _tmp.delete(recursive: true);
     await _tmp.create(recursive: true);
@@ -123,9 +136,10 @@ class CatalogRepository {
   /// sha256) and only then swap catalog.json. Any failure leaves the current
   /// catalog untouched.
   Future<(SyncResult, CatalogSnapshot)> sync(CatalogSnapshot current) async {
-    final resp = await client.get(remoteUrl).timeout(const Duration(seconds: 15));
+    final url = _remote;
+    final resp = await client.get(url).timeout(const Duration(seconds: 15));
     if (resp.statusCode != 200) {
-      throw HttpException('catalog ${resp.statusCode}', uri: remoteUrl);
+      throw HttpException('catalog ${resp.statusCode}', uri: url);
     }
     final body = utf8.decode(resp.bodyBytes);
     final json = jsonDecode(body) as Map<String, dynamic>;

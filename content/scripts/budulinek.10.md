@@ -6,7 +6,7 @@ age: 3+
 setting: vesnice
 ambient: night-meadow
 length_min: 10
-status: draft
+status: reviewed
 free: true
 tension_original: 3
 characters: [Budulínek, dědeček, babička, liška, lišátka]
@@ -17,7 +17,7 @@ softening: Liška Budulínka neodnáší a nic mu nesní. Je to zvědavá, hrav�
 [soft] Zachumlej se do peřinky.
 Stoč se v ní jako malé koťátko.
 [pause 3s]
-Polštářek je hladký a příjemně chladivý.
+Polštářek je hladký a měkký.
 Hlavička na něm spočine.
 [pause 4s]
 Nadechni se nosem, jako když čicháš k čerstvému chlebu.
@@ -42,7 +42,7 @@ Sama se zavírají, jako když usíná kytička.
 Dnes ti budu vyprávět o Budulínkovi.
 [pause 2s]
 Je to klidná pohádka o malém chlapci, o dědečkovi, o babičce a o lišce.
-V téhle pohádce je liška hodná a hravá.
+Liška je v ní hodná a hravá.
 [pause 4s]
 Představ si, že jsi ve vesnici na kraji lesa.
 Stojí tu chaloupka se slaměnou střechou.
@@ -61,7 +61,7 @@ Babička peče buchty.
 A dědeček hraje na housle.
 [pause 4s]
 Jednoho rána jdou dědeček a babička na pole.
-„Budulínku, zůstaň doma a hlídej chaloupku,“ řekne babička.
+„Budulínku, hezky si hraj, my se brzy vrátíme,“ řekne babička.
 „Na stole máš kaši. Až se vrátíme, budeme si hrát.“
 [pause 4s]
 Budulínek jí kaši.
@@ -99,7 +99,7 @@ U nory si hrají tři malá lišátka.
 Kutálejí šišky po měkkém mechu.
 [pause 3s]
 Budulínek si s nimi hraje.
-Všichni se smějí dohromady.
+Všichni se spolu smějí.
 [pause 4s]
 V noře je útulno.
 Na zemi leží suché listí a měkký mech.
@@ -110,7 +110,7 @@ Lesklý kamínek, ptačí pírko a šišku, která vypadá jako ježek.
 A všechno je v pořádku.
 [pause 5s]
 Dědeček a babička se vracejí z pole.
-Na stole je prázdný talířek a dveře jsou pootevřené.
+Na stole je prázdný talířek a u dveří jsou malé liščí stopy.
 [pause 3s]
 „Budulínek si šel hrát,“ usměje se babička.
 „Půjdeme za ním.“

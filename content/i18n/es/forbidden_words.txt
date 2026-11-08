@@ -1,0 +1,122 @@
+# Raíces de palabras prohibidas (forge judge, es). Una por línea, se compara
+# como prefijo de palabra sin distinguir mayúsculas. Se ignoran las líneas
+# vacías y las que empiezan por #.
+# miedo, susto
+miedo
+asust
+susto
+temor
+terror
+terrorí
+horror
+horrib
+horrend
+espant
+aterr
+pánic
+pavor
+# peligro, avisos
+peligr
+cuidado con
+atención
+ojo con
+# sangre, violencia, muerte
+sangr
+matar
+mató
+matab
+mataron
+asesin
+muert
+muere
+mueren
+morir
+morirá
+murió
+fallec
+devor
+comerte
+comérte
+comérsel
+comerse a
+tragárs
+tragars
+pegar
+pegó
+golpe
+herid
+lastim
+dolor
+duele
+dañ
+cuchill
+navaja
+hacha
+espada
+armas
+fusil
+escopet
+pistol
+dispar
+balazo
+quemar
+quemó
+hoguera
+ahorc
+# gritos, prisa, sobresaltos
+grit
+chill
+aull
+rugi
+rápid
+deprisa
+de prisa
+corre corre
+huir
+huye
+huyó
+escap
+de repente
+de pronto
+repentin
+súbit
+# llanto
+llor
+lágrim
+sollo
+llanto
+# maldad, brujas, monstruos
+malvad
+perver
+bruja
+brujer
+hechic
+hechiz
+embruj
+maldic
+maldit
+monstru
+fantasm
+ogro
+demoni
+veneno
+envenen
+# castigo, encierro
+castig
+encerr
+jaula
+calabozo
+prisión
+cárcel
+horno
+# perderse, persecución, amenazas
+perdid
+perder
+perdió
+extravi
+persig
+persegu
+amenaz
+secuestr
+rapt
+pesadill

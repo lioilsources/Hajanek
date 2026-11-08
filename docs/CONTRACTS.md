@@ -132,6 +132,11 @@ telefonu (systémové TTS) nebo na Sparku z hlasu rodiče (§8).
 - Publikují se skripty se `status: reviewed | gold`; `forge publish --drafts`
   přidá i `draft` (testování před kontrolou). Appka má v bundlu kopii
   publikovaného katalogu (`tools/sync_app_bundle.sh`).
+- **Jazyky** (docs/I18N_PLAN.md): `catalog.json` je český. Každý další
+  jazyk má `i18n/{lang}/catalog.json` se stejným schema 2, polem `lang` a
+  skripty `i18n/{lang}/scripts/{tale}.{length}.md`. Ambient soubory jsou
+  sdílené, liší se jen `title`. Skript v jiném jazyce má ve front matter
+  `lang` a `source_lang: cs`; zdroj je `content/i18n/{lang}/`.
 - `est_duration_s` = odhad forge (95 slov/min při normální rychlosti + pauzy);
   skutečná délka závisí na hlasu.
 - App má v bundlu **kopii** katalogu, všech skriptů a ambient smyček

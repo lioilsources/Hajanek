@@ -1,0 +1,33 @@
+{
+  "ambient": {
+    "brown-noise": "Bruit brun",
+    "fireplace": "Feu de cheminée",
+    "lullaby-dream-1": "Rêverie",
+    "lullaby-dream-2": "Rêverie II",
+    "lullaby-guitar-1": "Guitare",
+    "lullaby-guitar-2": "Guitare II",
+    "lullaby-guitar-3": "Guitare III",
+    "lullaby-harp-1": "Harpe",
+    "lullaby-harp-2": "Harpe II",
+    "lullaby-harp-3": "Harpe III",
+    "lullaby-musicbox": "Boîte à musique",
+    "lullaby-piano-1": "Piano",
+    "lullaby-piano-2": "Piano II",
+    "lullaby-stars-1": "Petites étoiles",
+    "lullaby-stars-2": "Petites étoiles II",
+    "lullaby-stars-3": "Petites étoiles III",
+    "night-meadow": "Prairie la nuit",
+    "pink-noise": "Bruit rose",
+    "rain": "Pluie sur le toit",
+    "sea": "La mer",
+    "stream": "Petit ruisseau",
+    "wind": "Vent dans les arbres"
+  },
+  "presets": {
+    "plaz-vecer": "Plage le soir",
+    "les-v-noci": "Forêt la nuit",
+    "destivy-vecer": "Soir de pluie",
+    "u-krbu": "Au coin du feu",
+    "tichy-sum": "Bruit doux"
+  }
+}

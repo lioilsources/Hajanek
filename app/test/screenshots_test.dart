@@ -11,6 +11,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hajanek/core/strings.dart';
 import 'package:hajanek/core/db/database.dart';
 import 'package:hajanek/core/form_factor.dart';
 import 'package:hajanek/core/providers.dart';
@@ -67,6 +68,9 @@ const _devices = {
 final _device = _devices[Platform.environment['SCREENSHOT_DEVICE']] ?? (_phone, _ratio);
 final _store = Platform.environment['SCREENSHOT_STORE'] == '1';
 
+/// SCREENSHOT_LANG=en|de|… shoots the app in that language (default cs).
+final _lang = Platform.environment['SCREENSHOT_LANG'] ?? 'cs';
+
 final _shotKey = GlobalKey();
 
 Future<void> _loadFonts() async {
@@ -118,11 +122,14 @@ class _PairingApi extends VoiceApi {
 void main() {
   late AppDatabase db;
   setUpAll(_loadFonts);
+  // The harness pumps screens without HajanekApp, which sets this in the app.
+  setUpAll(() => setStringsLang(_lang));
+  tearDownAll(() => setStringsLang('cs'));
   setUp(() => db = AppDatabase(NativeDatabase.memory()));
   tearDown(() => db.close());
 
   // A store build hides draft tales (INCLUDE_DRAFTS=false).
-  final bundled = bundledSnapshot();
+  final bundled = bundledSnapshot(_lang);
   final snapshot = !_store
       ? bundled
       : CatalogSnapshot(
@@ -163,11 +170,12 @@ void main() {
         formFactorProvider.overrideWithValue(tv ? FormFactor.tv : FormFactor.phone),
         if (tv) voiceApiProvider.overrideWithValue(_PairingApi()),
         voiceCloningProvider.overrideWithValue(!_store),
+        deviceLangProvider.overrideWithValue(_lang),
         databaseProvider.overrideWithValue(db),
         initialCatalogProvider.overrideWithValue(snapshot),
         favouritesProvider.overrideWithValue(const AsyncValue.data({'cervena-karkulka', 'o-smolickovi'})),
         userPresetsProvider.overrideWithValue(const AsyncValue.data([])),
-        czechVoiceAvailableProvider.overrideWith((ref) async => true),
+        systemVoiceAvailableProvider.overrideWith((ref) async => true),
         initialVoicesProvider.overrideWithValue(voices),
         initialSettingsProvider.overrideWithValue(AppSettings(voiceId: voiceId ?? systemVoiceId)),
         if (player != null) playerProvider.overrideWith(() => _FixedPlayer(player)),

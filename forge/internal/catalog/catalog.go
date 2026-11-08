@@ -66,6 +66,7 @@ type Catalog struct {
 	Version     int       `json:"version"`
 	GeneratedAt string    `json:"generated_at"`
 	BaseURL     string    `json:"base_url"`
+	Lang        string    `json:"lang,omitempty"` // empty = cs (docs/I18N_PLAN.md)
 	Tales       []Tale    `json:"tales"`
 	Ambient     []Ambient `json:"ambient"`
 	Presets     []Preset  `json:"presets"`
@@ -266,6 +267,9 @@ func (c *Catalog) Validate(root string, prev *Catalog) []string {
 			}
 			seen[sc.LengthMin] = true
 			want := fmt.Sprintf("scripts/%s.%d.md", t.ID, sc.LengthMin)
+			if c.Lang != "" {
+				want = "i18n/" + c.Lang + "/" + want
+			}
 			if sc.Path != want {
 				e("tale %s: path %q, want %q", t.ID, sc.Path, want)
 			}

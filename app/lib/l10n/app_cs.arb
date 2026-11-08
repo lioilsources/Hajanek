@@ -1,0 +1,206 @@
+{
+  "@@locale": "cs",
+  "homeJukebox": "Jukebox zvuků",
+  "homeJukeboxSub": "Jen podkres, bez pohádky",
+  "homeTales": "Pohádky",
+  "homeNowPlaying": "Právě hraje",
+  "detailVoice": "Hlas",
+  "detailNoScript": "Text pohádky se nepodařilo načíst.",
+  "detailBackground": "Podkres",
+  "detailRecommended": "Doporučený",
+  "detailNoBackground": "Bez podkresu",
+  "detailRitual": "Rituál „dobrou noc“",
+  "detailRitualSub": "Nejdřív jen podkres, po pohádce ještě chvíli hraje",
+  "detailPlay": "Spustit",
+  "detailFavourite": "Oblíbená",
+  "playerIntro": "Jen podkres…",
+  "playerStartNow": "Začít hned",
+  "playerVoice": "Pohádka",
+  "playerTail": "Podkres doznívá",
+  "playerFadeOut": "Utichá…",
+  "playerDone": "Dobrou noc",
+  "playerMixer": "Jukebox",
+  "playerBalance": "Hlas ↔ podkres",
+  "playerBackground": "Podkres",
+  "playerStop": "Zastavit",
+  "playerNothing": "Nic nehraje",
+  "mixerTitle": "Jukebox zvuků",
+  "mixerMain": "Hlavní zvuk",
+  "mixerSecondary": "Vedlejší zvuk",
+  "mixerAddLayer": "Přidat vrstvu",
+  "mixerPresets": "Předvolby",
+  "mixerSavePreset": "Uložit předvolbu",
+  "mixerPresetName": "Název předvolby",
+  "mixerSave": "Uložit",
+  "mixerCancel": "Zrušit",
+  "mixerDeletePreset": "Smazat předvolbu?",
+  "mixerDelete": "Smazat",
+  "mixerRemoveLayer": "Odebrat vrstvu",
+  "mixerGroupNature": "Přírodní zvuky",
+  "mixerGroupMusic": "Ukolébavky",
+  "timerTitle": "Časovač",
+  "timerOff": "Vypnuto",
+  "timerEndOfTale": "Po dohrání",
+  "settingsTitle": "Nastavení",
+  "settingsBreathing": "Dýchající kruh",
+  "settingsBreathingSub": "Jediný pohyb na obrazovce přehrávače",
+  "settingsIntro": "Úvodní podkres (rituál)",
+  "settingsTail": "Doznívání podkresu (rituál)",
+  "settingsTimer": "Výchozí časovač",
+  "settingsCatalog": "Katalog",
+  "settingsCheckUpdates": "Zkontrolovat aktualizace",
+  "settingsChecking": "Kontroluji…",
+  "settingsUpToDate": "Katalog je aktuální",
+  "settingsUpdated": "Katalog aktualizován",
+  "settingsOffline": "Bez připojení — vše funguje offline",
+  "settingsVoice": "Hlas",
+  "settingsVocative": "Oslovení dítěte",
+  "settingsVocativeSub": "V 5. pádě, např. „Aničko“. Zatím se nepoužívá.",
+  "settingsVocativeNone": "Nenastaveno",
+  "settingsPrivacy": "Žádný účet, žádná analytika. Síť se používá jen pro aktualizaci katalogu.",
+  "settingsPrivacyCloning": "Žádný účet, žádná analytika. Síť se používá jen pro aktualizaci katalogu a pro tvůj nahraný hlas.",
+  "voiceTitle": "Hlas",
+  "voiceSystem": "Hlas telefonu",
+  "voiceSystemSub": "Funguje hned a bez internetu",
+  "voiceRecord": "Nahrát můj hlas",
+  "voiceBeta": "Zkušební verze zdarma. Hlas se připravuje několik hodin.",
+  "voicePending": "Hlas se připravuje, bude hotový do rána",
+  "voiceReady": "Připraveno",
+  "voiceWaiting": "Hlas je hotový, čekám na první věty",
+  "voiceFailed": "Hlas se nepodařilo vytvořit. Zkus nahrávku zopakovat.",
+  "voiceDelete": "Smazat hlas",
+  "voiceCancel": "Zrušit",
+  "voiceMissingClips": "Věty, které ještě nejsou stažené, přečte zatím hlas telefonu.",
+  "voiceHintTitle": "Telefon nemá český hlas",
+  "voiceHintIos": "Nainstaluj ho v Nastavení → Zpřístupnění → Předčítání → Hlasy → Čeština (nejlépe Zuzana ve vylepšené kvalitě).",
+  "voiceHintAndroid": "Nainstaluj ho v Nastavení → Převod textu na řeč → Google → Nainstalovat hlasová data → čeština.",
+  "voiceHintOk": "Rozumím",
+  "recTitle": "Nahrát můj hlas",
+  "recName": "Tvoje jméno",
+  "recNameHint": "např. Jana",
+  "recTips": "Než začneš",
+  "recRead": "Přečti nahlas",
+  "recConsent": "Souhlasím, aby Hajánek z mé nahrávky vytvořil můj hlas. Nahrávka i hlas jsou jen na serveru Hajánka a kdykoli je smažu.",
+  "recStart": "Nahrávat",
+  "recStop": "Hotovo",
+  "recReadHint": "Při nahrávání se text posouvá s tebou. Ťukni na řádek, který právě čteš, když se rozejdete.",
+  "recReadyHint": "čti dál, po 30 s se zastaví samo",
+  "recPlay": "Poslechnout",
+  "recPause": "Zastavit",
+  "recAgain": "Nahrát znovu",
+  "recUpload": "Odeslat",
+  "recUploading": "Odesílám…",
+  "recNoMic": "Bez přístupu k mikrofonu to nejde — povol ho v Nastavení.",
+  "recFailed": "Nahrávání se nepodařilo. Zkus to prosím znovu.",
+  "pairTv": "Propojit televizi",
+  "pairTvSub": "Tvůj hlas pak bude číst pohádky i v televizi",
+  "pairTvHelp": "Na televizi otevři Hajánek → Hlas → Propojit s telefonem. Ukáže se šestimístný kód.",
+  "pairCode": "Kód z televize",
+  "pairConfirm": "Propojit",
+  "pairTvDone": "Televize je propojená, hlasy se do ní stáhnou samy.",
+  "pairBadCode": "Tenhle kód nesedí nebo už vypršel. Zkontroluj ho na televizi.",
+  "tvVoice": "Hlas",
+  "tvBackground": "Podkres",
+  "tvSettings": "Nastavení",
+  "tvOn": "zapnuto",
+  "tvOff": "vypnuto",
+  "tvPause": "Pauza",
+  "tvResume": "Pokračovat",
+  "tvFavourite": "Oblíbená",
+  "tvUnfavourite": "Odebrat z oblíbených",
+  "tvJukeboxSub": "Vyber podkres, hraje bez pohádky",
+  "tvBalance": "Hlas ↔ podkres",
+  "voiceSystemTv": "Hlas televize",
+  "voiceSystemTvSub": "Bez internetu, pokud televize umí česky",
+  "voiceParentTvHint": "Hlas rodiče se nahrává v telefonu. Propoj televizi s telefonem a hlasy se sem stáhnou samy.",
+  "voiceHintTitleTv": "Televize nemá český hlas",
+  "voiceHintTv": "Pohádky přečte hlas rodiče: nahraj ho v telefonu a propoj televizi (Hlas → Propojit s telefonem). Bez něj hraje jen podkres.",
+  "pairTitle": "Propojit s telefonem",
+  "pairSub": "Hlas rodiče se nahrává v telefonu",
+  "pairInstructions": "V telefonu otevři Hajánek → Hlas → Propojit televizi a zadej kód",
+  "pairWaiting": "Čekám na telefon…",
+  "pairDone": "Propojeno. Hlasy se teď stahují do televize.",
+  "pairExpired": "Kód vypršel.",
+  "pairNewCode": "Nový kód",
+  "pairClose": "Hotovo",
+  "minutes": "{n} min",
+  "@minutes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "detailAge": "věk {age}",
+  "@detailAge": {
+    "placeholders": {
+      "age": {
+        "type": "String"
+      }
+    }
+  },
+  "playerIntroLeft": "Pohádka začne za {left}",
+  "@playerIntroLeft": {
+    "placeholders": {
+      "left": {
+        "type": "String"
+      }
+    }
+  },
+  "sectionUvod": "Úvod",
+  "sectionVstup": "Vstup",
+  "sectionPribeh": "Příběh",
+  "sectionDojezd": "Dojezd",
+  "settingsCatalogVersion": "Verze katalogu {v}",
+  "@settingsCatalogVersion": {
+    "placeholders": {
+      "v": {
+        "type": "int"
+      }
+    }
+  },
+  "seconds": "{n} s",
+  "@seconds": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "voiceDownloading": "Stahuji hlas: {done} z {total} vět",
+  "@voiceDownloading": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "voiceDeleteConfirm": "Smazat hlas „{name}“? Nahrávka i všechny věty se smažou z telefonu i ze serveru.",
+  "@voiceDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "recMinHint": "dokončit jde po {s} s",
+  "@recMinHint": {
+    "placeholders": {
+      "s": {
+        "type": "int"
+      }
+    }
+  },
+  "balanceVoiceOnly": "Jen hlas",
+  "balanceMoreVoice": "Víc hlasu",
+  "balanceEven": "Vyrovnaně",
+  "balanceMoreBackground": "Víc podkresu",
+  "balanceBackgroundOnly": "Jen podkres",
+  "languageTitle": "Jazyk",
+  "languageSub": "Jazyk aplikace, pohádek i hlasu",
+  "languageSystem": "Podle telefonu",
+  "playerChannel": "Přehrávání"
+}

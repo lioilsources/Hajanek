@@ -52,8 +52,8 @@ class _VoiceScreenState extends ConsumerState<VoiceScreen> {
       builder: (context) => AlertDialog(
         content: Text(S.voiceDeleteConfirm(v.name)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text(S.voiceCancel)),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text(S.voiceDelete)),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(S.voiceCancel)),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: Text(S.voiceDelete)),
         ],
       ),
     );
@@ -69,21 +69,21 @@ class _VoiceScreenState extends ConsumerState<VoiceScreen> {
   Widget build(BuildContext context) {
     final voices = ref.watch(voiceProvider);
     final selected = ref.watch(settingsProvider.select((s) => s.voiceId));
-    final czech = ref.watch(czechVoiceAvailableProvider).value;
+    final czech = ref.watch(systemVoiceAvailableProvider).value;
     void select(String id) => ref.read(settingsProvider.notifier).update((s) => s.copyWith(voiceId: id));
     final cloned = voices.voices.where((v) => v.id == selected).firstOrNull;
     final cloning = ref.watch(voiceCloningProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text(S.voiceTitle)),
+      appBar: AppBar(title: Text(S.voiceTitle)),
       body: ListView(
         padding: const EdgeInsets.only(bottom: 32),
         children: [
           if (czech == false) const CzechVoiceHint(),
           ListTile(
             key: const ValueKey('voice-system'),
-            title: const Text(S.voiceSystem, style: TextStyle(fontSize: 18)),
-            subtitle: const Text(S.voiceSystemSub),
+            title: Text(S.voiceSystem, style: TextStyle(fontSize: 18)),
+            subtitle: Text(S.voiceSystemSub),
             trailing: selected == systemVoiceId ? const Icon(Icons.check, color: Night.accent) : null,
             onTap: () => select(systemVoiceId),
           ),
@@ -103,7 +103,7 @@ class _VoiceScreenState extends ConsumerState<VoiceScreen> {
               onTap: () => select(v.id),
             ),
           if (cloned != null && !cloned.complete)
-            const Padding(
+            Padding(
               padding: EdgeInsets.fromLTRB(20, 8, 20, 0),
               child: Text(S.voiceMissingClips, style: TextStyle(color: Night.textDim)),
             ),
@@ -114,11 +114,11 @@ class _VoiceScreenState extends ConsumerState<VoiceScreen> {
               child: FilledButton.icon(
                 style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(Night.tap)),
                 icon: const Icon(Icons.mic_none),
-                label: const Text(S.voiceRecord, style: TextStyle(fontSize: 18)),
+                label: Text(S.voiceRecord, style: TextStyle(fontSize: 18)),
                 onPressed: voices.busy ? null : () => context.push('/voice/record'),
               ),
             ),
-            const Padding(
+            Padding(
               padding: EdgeInsets.fromLTRB(20, 8, 20, 0),
               child: Text(S.voiceBeta, style: TextStyle(color: Night.textDim)),
             ),
@@ -126,8 +126,8 @@ class _VoiceScreenState extends ConsumerState<VoiceScreen> {
             ListTile(
               key: const ValueKey('pair-tv'),
               leading: const Icon(Icons.tv),
-              title: const Text(S.pairTv, style: TextStyle(fontSize: 18)),
-              subtitle: const Text(S.pairTvSub),
+              title: Text(S.pairTv, style: TextStyle(fontSize: 18)),
+              subtitle: Text(S.pairTvSub),
               onTap: () => showDialog<void>(context: context, builder: (_) => const ClaimTvDialog()),
             ),
           ],
@@ -175,7 +175,7 @@ class _ClaimTvDialogState extends ConsumerState<ClaimTvDialog> {
       if (!mounted) return;
       final messenger = ScaffoldMessenger.of(context);
       Navigator.of(context).pop();
-      messenger.showSnackBar(const SnackBar(content: Text(S.pairTvDone)));
+      messenger.showSnackBar(SnackBar(content: Text(S.pairTvDone)));
     } on VoiceApiException catch (e) {
       if (mounted) setState(() => _error = e.status == 404 || e.status == 409 ? S.pairBadCode : e.message);
     } finally {
@@ -185,12 +185,12 @@ class _ClaimTvDialogState extends ConsumerState<ClaimTvDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        title: const Text(S.pairTv),
+        title: Text(S.pairTv),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(S.pairTvHelp, style: TextStyle(color: Night.textDim)),
+            Text(S.pairTvHelp, style: TextStyle(color: Night.textDim)),
             const SizedBox(height: 16),
             TextField(
               key: const ValueKey('pair-code-field'),
@@ -204,10 +204,10 @@ class _ClaimTvDialogState extends ConsumerState<ClaimTvDialog> {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text(S.voiceCancel)),
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(S.voiceCancel)),
           TextButton(
             onPressed: _busy || _digits.length != 6 ? null : _claim,
-            child: const Text(S.pairConfirm),
+            child: Text(S.pairConfirm),
           ),
         ],
       );
@@ -226,16 +226,16 @@ class CzechVoiceHint extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(S.czechHintTitle, style: TextStyle(fontSize: 18)),
+              Text(S.voiceHintTitle, style: TextStyle(fontSize: 18)),
               const SizedBox(height: 8),
               Text(
-                defaultTargetPlatform == TargetPlatform.iOS ? S.czechHintIos : S.czechHintAndroid,
+                defaultTargetPlatform == TargetPlatform.iOS ? S.voiceHintIos : S.voiceHintAndroid,
                 style: const TextStyle(color: Night.textDim),
               ),
               if (onDismiss != null)
                 Align(
                   alignment: Alignment.centerRight,
-                  child: TextButton(onPressed: onDismiss, child: const Text(S.czechHintOk)),
+                  child: TextButton(onPressed: onDismiss, child: Text(S.voiceHintOk)),
                 ),
             ],
           ),

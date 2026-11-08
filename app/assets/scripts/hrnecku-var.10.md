@@ -6,7 +6,7 @@ age: 3+
 setting: vesnice
 ambient: fireplace
 length_min: 10
-status: draft
+status: reviewed
 tension_original: 1
 characters: [holčička, maminka, stařenka, kouzelný hrneček, sousedé]
 softening: Kaše nic nezničí a nikomu nevadí. Rozlije se měkce a teple po vesnici jako velký voňavý polštář, sousedé se smějí a ochutnávají, a holčička nakonec v klidu řekne „Hrnečku, dost!“.
@@ -29,7 +29,7 @@ A pomalé foukání na lžičku. Fúúú…
 Teď je celé tělíčko měkké.
 Měkké jako máslo, které taje v teplé kaši.
 [pause 4s]
-Ruce tají. Nohy tají. Bříško taje.
+Ruce jsou měkké. Nohy jsou měkké. Bříško je měkké.
 [pause 3s]
 A víčka klesají, pomalu, až se zavřou.
 [pause 5s]
@@ -89,6 +89,8 @@ Holčička a maminka jedí a usmívají se.
 [pause 4s]
 „Hrnečku, dost,“ řekne holčička.
 A hrneček přestane.
+[pause 5s]
+A všechno je v pořádku.
 [pause 5s]
 Druhý den jde holčička zase do lesa na šišky.
 A ty jdeš s ní.

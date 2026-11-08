@@ -1,0 +1,103 @@
+# Mots interdits (forge judge, fr). Un radical par ligne, comparé comme
+# préfixe de mot sans tenir compte de la casse. Lignes vides et # ignorées.
+# Les radicaux trop courts (sang, cri, arme, four, tire, mal) sont évités
+# car ils toucheraient des mots innocents (sanglier, crinière, armoire,
+# fourmi, tirer la couverture, malin).
+attention
+peur
+apeur
+effra
+effroi
+terrifi
+terreur
+horreur
+horribl
+affreu
+épouvant
+frayeur
+angoiss
+panique
+menace
+menaç
+sanglant
+ensanglant
+tuer
+tué
+tuée
+tuait
+assassin
+dévor
+dévora
+englout
+avala
+avalé
+mort
+mourir
+meurt
+mourut
+décéd
+cadavre
+crier
+criait
+cria
+hurl
+danger
+dangereu
+vite
+dépêche
+soudain
+tout à coup
+brusquement
+sauve-toi
+sauvez-vous
+enfuir
+enfuit
+enfuie
+fuir
+fuyez
+fuyons
+poursui
+pourchass
+perdu
+perdue
+égaré
+égarée
+pleur
+larme
+sanglot
+méchant
+méchante
+sorcier
+sorcière
+ogre
+monstre
+fantôme
+diable
+démon
+maléfice
+malédiction
+envoût
+ensorcel
+puni
+punition
+pendu
+pendre
+bûcher
+brûlé vif
+enfermé
+enfermée
+cage
+dans le four
+couteau
+hache
+fusil
+coup de feu
+blessé
+blessure
+douleur
+fait mal
+faire mal
+poison
+empoisonn
+kidnapp
+ravisseur

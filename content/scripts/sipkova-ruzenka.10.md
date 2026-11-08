@@ -6,7 +6,7 @@ age: 3+
 setting: hrad
 ambient: night-meadow
 length_min: 10
-status: draft
+status: reviewed
 tension_original: 3
 characters: [Růženka, král, královna, sudičky, kuchař, kuchtík, princ]
 softening: Žádná kletba, vřeteno ani píchnutí. Nejmladší sudička Růžence daruje sladký spánek a jednoho teplého večera usne celý zámek na sto let; šípkový keř ho přikryje jako peřina a princ je jen zmíněn jako někdo, kdo přijde až za dlouho.
@@ -89,7 +89,7 @@ Ve věži je malý pokojíček s kulatým okénkem.
 Na posteli leží načechraná peřina.
 [pause 3s]
 Růženka si sedne na postel a zívne.
-Ááách.
+Ach.
 „Já jsem tak krásně ospalá,“ řekne tiše.
 [pause 5s]
 A všechno je v pořádku.
@@ -134,7 +134,7 @@ To je dlouhý, předlouhý a krásný spánek.
 [pause 4s]
 Jednou za mnoho let přijde mladý princ.
 Keř se před ním rozhrne jako záclona.
-A všichni se probudí krásně odpočatí.
+A všichni budou krásně odpočatí.
 [pause 4s]
 Ale to bude až za dlouho.
 Teď se spí.

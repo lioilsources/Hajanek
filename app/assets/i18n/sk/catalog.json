@@ -1,0 +1,517 @@
+{
+  "schema": 2,
+  "version": 1,
+  "generated_at": "2026-11-08T20:24:32Z",
+  "base_url": "https://lioilsources.github.io/hajanek-content/",
+  "lang": "sk",
+  "tales": [
+    {
+      "id": "budulinek",
+      "title": "Budulínek a hravá líška",
+      "age": "3+",
+      "setting": "vesnice",
+      "ambient": "night-meadow",
+      "free": true,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "i18n/sk/scripts/budulinek.10.md",
+          "sha256": "f73dd3e3d32e2ef24eaf4222a7fc60a7ffafef8419edb52d70b11a8bceb4890f",
+          "bytes": 4711,
+          "est_duration_s": 632
+        }
+      ]
+    },
+    {
+      "id": "cervena-karkulka",
+      "title": "Červená čiapočka",
+      "age": "3+",
+      "setting": "les",
+      "ambient": "wind",
+      "free": true,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "i18n/sk/scripts/cervena-karkulka.10.md",
+          "sha256": "3a18dbd5f6782c1ff24d976c178b9e08cf308ab0253cc69a8dabe2ce38eb730a",
+          "bytes": 4683,
+          "est_duration_s": 648
+        }
+      ]
+    },
+    {
+      "id": "dlouhy-siroky-bystrozraky",
+      "title": "Dlhý, Široký a Bystrozraký",
+      "age": "5+",
+      "setting": "hrad",
+      "ambient": "fireplace",
+      "free": false,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "i18n/sk/scripts/dlouhy-siroky-bystrozraky.10.md",
+          "sha256": "0f76921201a02afe18de00cfd1835e4e3f84a916a42647a1479fe62728912a8a",
+          "bytes": 5047,
+          "est_duration_s": 656
+        }
+      ]
+    },
+    {
+      "id": "hrnecku-var",
+      "title": "Hrnček, var",
+      "age": "3+",
+      "setting": "vesnice",
+      "ambient": "fireplace",
+      "free": false,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "i18n/sk/scripts/hrnecku-var.10.md",
+          "sha256": "8cb97ed2a5bc104e52ae1eec39eb5c3e66ae86ebfbea00d3408fc15ac9c715ba",
+          "bytes": 4711,
+          "est_duration_s": 633
+        }
+      ]
+    },
+    {
+      "id": "o-smolickovi",
+      "title": "Smolíček a jeleň so zlatými parohmi",
+      "age": "3+",
+      "setting": "les",
+      "ambient": "stream",
+      "free": false,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "i18n/sk/scripts/o-smolickovi.10.md",
+          "sha256": "21fb7aa71ca348d0f8a93f2488aa7a8f41e1a459c6dac8e6e32ba081a9648e41",
+          "bytes": 4687,
+          "est_duration_s": 632
+        }
+      ]
+    },
+    {
+      "id": "pernikova-chaloupka",
+      "title": "Perníková chalúpka",
+      "age": "3+",
+      "setting": "les",
+      "ambient": "stream",
+      "free": true,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "i18n/sk/scripts/pernikova-chaloupka.10.md",
+          "sha256": "a63adff821ca20fbf41d1c9a76ef69eb0c02789fbd36b36ba11855a1ca637451",
+          "bytes": 4979,
+          "est_duration_s": 637
+        }
+      ]
+    },
+    {
+      "id": "sipkova-ruzenka",
+      "title": "Šípková Ruženka",
+      "age": "3+",
+      "setting": "hrad",
+      "ambient": "night-meadow",
+      "free": false,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "i18n/sk/scripts/sipkova-ruzenka.10.md",
+          "sha256": "52880f0cd8e2c107804dd85bfe6b77a7eee17d031b5ebc02608063d97a1582d7",
+          "bytes": 4688,
+          "est_duration_s": 624
+        }
+      ]
+    },
+    {
+      "id": "snehurka",
+      "title": "Snehulienka",
+      "age": "5+",
+      "setting": "hory",
+      "ambient": "rain",
+      "free": false,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "i18n/sk/scripts/snehurka.10.md",
+          "sha256": "679b1100cdd56764ae2725558f6fadfe0cc412d7a90299a7ee26c9c0a0c0ab26",
+          "bytes": 4860,
+          "est_duration_s": 646
+        }
+      ]
+    },
+    {
+      "id": "tri-prasatka",
+      "title": "Tri prasiatka",
+      "age": "3+",
+      "setting": "louka",
+      "ambient": "wind",
+      "free": true,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "i18n/sk/scripts/tri-prasatka.10.md",
+          "sha256": "3a5b6790c3916cc591b36e74078006d659b72c9de2b2730dad631a4d18a6d21f",
+          "bytes": 4723,
+          "est_duration_s": 628
+        }
+      ]
+    },
+    {
+      "id": "zlatovlaska",
+      "title": "Zlatovláska",
+      "age": "5+",
+      "setting": "more",
+      "ambient": "sea",
+      "free": true,
+      "scripts": [
+        {
+          "length_min": 10,
+          "path": "i18n/sk/scripts/zlatovlaska.10.md",
+          "sha256": "71f7544620292589ccf967cbcbd7093b680363fed895b5577d28a640616e39a1",
+          "bytes": 4706,
+          "est_duration_s": 631
+        }
+      ]
+    }
+  ],
+  "ambient": [
+    {
+      "id": "brown-noise",
+      "title": "Hnedý šum",
+      "path": "ambient/brown-noise.opus",
+      "duration_s": 60,
+      "bytes": 641249,
+      "sha256": "b73ea1589935ce77cd637b29ed92951b2b96f20c858925dfc388321e77712591",
+      "free": false,
+      "license": "vlastní syntéza",
+      "source": "ffmpeg anoisesrc",
+      "kind": "nature"
+    },
+    {
+      "id": "fireplace",
+      "title": "Krb",
+      "path": "ambient/fireplace.opus",
+      "duration_s": 100,
+      "bytes": 1223971,
+      "sha256": "497e05e0715dc07dceb0c6f0b3186893a20ed2fc881b5c9ebdb99de0060f11a9",
+      "free": false,
+      "license": "CC0",
+      "source": "https://freesound.org/people/BonnyOrbit/sounds/484338/",
+      "kind": "nature"
+    },
+    {
+      "id": "lullaby-dream-1",
+      "title": "Snenie",
+      "path": "ambient/lullaby-dream-1.opus",
+      "duration_s": 136.2,
+      "bytes": 1885636,
+      "sha256": "cb17acce609bbb7e7ab9c9e131be4a8d16238fd270190040080168279d00f921",
+      "free": true,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 1, seed 41; prompt: ambient warm synth pads, slow evolving, very calm, deep sleep, soft, no melody jumps, no drums, instrumental",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-dream-2",
+      "title": "Snenie II",
+      "path": "ambient/lullaby-dream-2.opus",
+      "duration_s": 138,
+      "bytes": 1846723,
+      "sha256": "5263009a606aefba4b94c0978058f43bb7b7caaeb1aa1c85a7471d6d5dc2bb2e",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 2, seed 41; prompt: ambient warm synth pads, slow evolving, very calm, deep sleep, soft, no melody jumps, no drums, instrumental",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-guitar-1",
+      "title": "Gitara",
+      "path": "ambient/lullaby-guitar-1.opus",
+      "duration_s": 142,
+      "bytes": 1990578,
+      "sha256": "917bcd9e141de5c680dd7ce0d50ccd9af1fda19d36132285b8fbc440287302cf",
+      "free": true,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 0, seed 51; prompt: quiet fingerpicked acoustic nylon guitar lullaby, slow, soft, warm, calm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-guitar-2",
+      "title": "Gitara II",
+      "path": "ambient/lullaby-guitar-2.opus",
+      "duration_s": 122.1,
+      "bytes": 1712911,
+      "sha256": "28b46232ee8fae907312a8daeee48cbf36d219b1aad212c71cd2764bbe8d614b",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 1, seed 51; prompt: quiet fingerpicked acoustic nylon guitar lullaby, slow, soft, warm, calm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-guitar-3",
+      "title": "Gitara III",
+      "path": "ambient/lullaby-guitar-3.opus",
+      "duration_s": 142.3,
+      "bytes": 2062703,
+      "sha256": "55a466d7fa6e2224c8d9b2c077922bf1e5eb932ba1fa7cc99c9360ee359dd99e",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 2, seed 51; prompt: quiet fingerpicked acoustic nylon guitar lullaby, slow, soft, warm, calm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-harp-1",
+      "title": "Harfa",
+      "path": "ambient/lullaby-harp-1.opus",
+      "duration_s": 138.8,
+      "bytes": 1935397,
+      "sha256": "0301b5963f8bd0ceb158bfa35723e0ab2f7489aca97f71e5ac682763a4319092",
+      "free": true,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 0, seed 31; prompt: gentle harp and celesta lullaby, slow, dreamy, soft, calm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-harp-2",
+      "title": "Harfa II",
+      "path": "ambient/lullaby-harp-2.opus",
+      "duration_s": 137.7,
+      "bytes": 1979970,
+      "sha256": "d2426aa76535b688ccee5cf8b830f76dabee4770dc0824c007bedbacd3d2ab1f",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 1, seed 31; prompt: gentle harp and celesta lullaby, slow, dreamy, soft, calm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-harp-3",
+      "title": "Harfa III",
+      "path": "ambient/lullaby-harp-3.opus",
+      "duration_s": 141.3,
+      "bytes": 2063893,
+      "sha256": "166e0f6526807201f4c76e8865f63107357ba0c6d1df28dd004b9756ff4ad504",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 2, seed 31; prompt: gentle harp and celesta lullaby, slow, dreamy, soft, calm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-musicbox",
+      "title": "Hracia skrinka",
+      "path": "ambient/lullaby-musicbox.opus",
+      "duration_s": 137.2,
+      "bytes": 1951886,
+      "sha256": "6fb0dce94b14f5f3feccde45a0dbeab9a2f352dce34feb7d9bab8dad58633e49",
+      "free": true,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 0, seed 11; prompt: gentle music box lullaby, soft celesta, slow, calm, sleepy, warm, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-piano-1",
+      "title": "Klavír",
+      "path": "ambient/lullaby-piano-1.opus",
+      "duration_s": 139.3,
+      "bytes": 1923230,
+      "sha256": "311379c0b2e1eb96dfa007c909e2b97e98add3e1be8f7ba4820d3a869cacf7a4",
+      "free": true,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 0, seed 21; prompt: soft felt piano lullaby, slow, tender, sparse notes, warm, calm, sleepy, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-piano-2",
+      "title": "Klavír II",
+      "path": "ambient/lullaby-piano-2.opus",
+      "duration_s": 136.5,
+      "bytes": 2016364,
+      "sha256": "64cc4666fb3541b158307020f4fa649a85fd82acbc83014b1bd1bcdfb3a5ab49",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 2, seed 21; prompt: soft felt piano lullaby, slow, tender, sparse notes, warm, calm, sleepy, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-stars-1",
+      "title": "Hviezdičky",
+      "path": "ambient/lullaby-stars-1.opus",
+      "duration_s": 137.8,
+      "bytes": 2003969,
+      "sha256": "209fc6cf449cf631ed7262adc1790649e69a2a171612d541cfa413d67f6f0af4",
+      "free": true,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 0, seed 61; prompt: starry night lullaby, soft glockenspiel, airy pads, slow, magical, calm, sleepy, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-stars-2",
+      "title": "Hviezdičky II",
+      "path": "ambient/lullaby-stars-2.opus",
+      "duration_s": 139.7,
+      "bytes": 1937302,
+      "sha256": "e9fe6bbfb80dcca7d13f3c20110f89c68ad78af10a5ce73e3cfc1d411926321e",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 1, seed 61; prompt: starry night lullaby, soft glockenspiel, airy pads, slow, magical, calm, sleepy, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "lullaby-stars-3",
+      "title": "Hviezdičky III",
+      "path": "ambient/lullaby-stars-3.opus",
+      "duration_s": 138.9,
+      "bytes": 2051541,
+      "sha256": "88409a8f5079acc342b6131f875463cc380bc4119df0c06a600726792bedcfd7",
+      "free": false,
+      "license": "vlastní generace (ACE-Step 1.5, MIT)",
+      "source": "ACE-Step 1.5 turbo (AiStack, Spark), 60 BPM, varianta 2, seed 61; prompt: starry night lullaby, soft glockenspiel, airy pads, slow, magical, calm, sleepy, instrumental, no drums, children bedtime",
+      "kind": "music"
+    },
+    {
+      "id": "night-meadow",
+      "title": "Nočná lúka",
+      "path": "ambient/night-meadow.opus",
+      "duration_s": 100,
+      "bytes": 1137057,
+      "sha256": "1fbf2294caf6cacd19754753d25f96b1e1af08baf03b96688e7b192e4e1d65e4",
+      "free": false,
+      "license": "CC0",
+      "source": "https://freesound.org/people/hdfreema/sounds/333221/",
+      "kind": "nature"
+    },
+    {
+      "id": "pink-noise",
+      "title": "Ružový šum",
+      "path": "ambient/pink-noise.opus",
+      "duration_s": 60,
+      "bytes": 644247,
+      "sha256": "d3bbbc80881ed127bcdecdb6c21081707064661e3ac8048ba19ad6da1831dc6f",
+      "free": true,
+      "license": "vlastní syntéza",
+      "source": "ffmpeg anoisesrc",
+      "kind": "nature"
+    },
+    {
+      "id": "rain",
+      "title": "Dážď na streche",
+      "path": "ambient/rain.opus",
+      "duration_s": 90,
+      "bytes": 1042948,
+      "sha256": "ab0e733e7c7c1fcda3a59c22cf89908babbd2e232e91a4bac0e021dc0b9ecaec",
+      "free": true,
+      "license": "CC0",
+      "source": "https://freesound.org/people/Metadex/sounds/235827/",
+      "kind": "nature"
+    },
+    {
+      "id": "sea",
+      "title": "More",
+      "path": "ambient/sea.opus",
+      "duration_s": 100,
+      "bytes": 1025510,
+      "sha256": "e4436178e18f453e6dc7daa1e2530181a01d83040e6951e3bd1f7cd4bf0dcf33",
+      "free": true,
+      "license": "CC0",
+      "source": "https://freesound.org/people/pulswelle/sounds/339517/",
+      "kind": "nature"
+    },
+    {
+      "id": "stream",
+      "title": "Potôčik",
+      "path": "ambient/stream.opus",
+      "duration_s": 100,
+      "bytes": 1189322,
+      "sha256": "8d792dc7a6dd0b6a07e482d5a8b1dc0b36b18c12380e9455897e9592c4edfd7f",
+      "free": false,
+      "license": "CC0",
+      "source": "https://freesound.org/people/turbostream/sounds/220528/",
+      "kind": "nature"
+    },
+    {
+      "id": "wind",
+      "title": "Vietor v korunách",
+      "path": "ambient/wind.opus",
+      "duration_s": 100,
+      "bytes": 1037375,
+      "sha256": "1ed7cf87576cbd2c28eff20aece8be28f69d219b44f983f99cb6ae6d264136fc",
+      "free": true,
+      "license": "CC0",
+      "source": "https://freesound.org/people/Anya_Media/sounds/523389/",
+      "kind": "nature"
+    }
+  ],
+  "presets": [
+    {
+      "id": "plaz-vecer",
+      "title": "Pláž večer",
+      "layers": [
+        {
+          "ambient": "sea",
+          "volume": 0.8
+        },
+        {
+          "ambient": "night-meadow",
+          "volume": 0.25
+        }
+      ]
+    },
+    {
+      "id": "les-v-noci",
+      "title": "Les v noci",
+      "layers": [
+        {
+          "ambient": "wind",
+          "volume": 0.7
+        },
+        {
+          "ambient": "night-meadow",
+          "volume": 0.4
+        },
+        {
+          "ambient": "stream",
+          "volume": 0.2
+        }
+      ]
+    },
+    {
+      "id": "destivy-vecer",
+      "title": "Daždivý večer",
+      "layers": [
+        {
+          "ambient": "rain",
+          "volume": 0.75
+        },
+        {
+          "ambient": "fireplace",
+          "volume": 0.35
+        }
+      ]
+    },
+    {
+      "id": "u-krbu",
+      "title": "Pri krbe",
+      "layers": [
+        {
+          "ambient": "fireplace",
+          "volume": 0.7
+        },
+        {
+          "ambient": "brown-noise",
+          "volume": 0.2
+        }
+      ]
+    },
+    {
+      "id": "tichy-sum",
+      "title": "Tichý šum",
+      "layers": [
+        {
+          "ambient": "pink-noise",
+          "volume": 0.6
+        }
+      ]
+    }
+  ]
+}

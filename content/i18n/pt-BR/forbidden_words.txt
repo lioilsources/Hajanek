@@ -1,0 +1,118 @@
+# Radicais proibidos (forge judge), português do Brasil. Um por linha,
+# comparado como prefixo da palavra, sem diferenciar maiúsculas.
+# Linhas vazias e # são ignoradas. Evitar radicais curtos demais:
+# "dor" pegaria "dormir", "mata" pegaria a mata (floresta),
+# "garra" pegaria "garrafa", "corre" pegaria "correio", "arma" pegaria "armário".
+cuidado com
+socorro
+medo
+amedront
+assust
+susto
+apavor
+pavor
+terror
+terrív
+horrív
+horror
+pânico
+sangu
+ensanguent
+matar
+matou
+mataram
+morte
+mortes
+morto
+morta
+mortos
+morrer
+morreu
+morrem
+morrendo
+falec
+devor
+engol
+comer você
+comer vocês
+vou te comer
+perigo
+perigos
+depressa
+de repente
+rapidinho
+correndo
+correr
+corram
+fugir
+fuja
+fugiu
+fugindo
+perseg
+perdid
+perder
+perdeu
+perdendo
+choro
+chora
+choram
+chorar
+chorou
+chorando
+lágrim
+soluçando
+grito
+gritar
+gritou
+gritando
+berr
+malvad
+maldade
+mau
+maus
+bruxa
+feiticeir
+feitiç
+enfeitiç
+maldiç
+amaldiço
+monstr
+fantasm
+ogro
+castig
+puni
+prender
+prendeu
+preso
+presa
+prisão
+trancad
+trancou
+jaula
+gaiola
+no forno
+dentro do forno
+faca
+facão
+machad
+espingard
+pistol
+revólver
+armas
+tiros
+atirar
+atirou
+ferid
+ferir
+feriu
+machuc
+doer
+doeu
+dói
+envenen
+veneno
+sequestr
+rapt
+enforc
+queimar
+queimou

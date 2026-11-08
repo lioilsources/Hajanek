@@ -344,5 +344,55 @@ void main() {
       // ...and after a restart, from the stored copy.
       expect((await repo(client, drafts: false).init()).catalog.tales, isEmpty);
     });
+
+    test('each language has its own catalog, remote and downloads', () async {
+      Map<String, dynamic> en({int version = 1}) {
+        final j = miniJson(version: version);
+        final t = (j['tales'] as List).first as Map<String, dynamic>;
+        t['title'] = 'Budulinek (en)';
+        ((t['scripts'] as List).first as Map<String, dynamic>)['path'] = 'i18n/en/scripts/budulinek.10.md';
+        return {...j, 'lang': 'en'};
+      }
+
+      final asked = <String>[];
+      final client = MockClient((req) async {
+        asked.add(req.url.path);
+        return switch (req.url.path) {
+          '/c/i18n/en/catalog.json' => http.Response.bytes(utf8.encode(jsonEncode(en(version: 2))), 200),
+          _ => http.Response('', 404),
+        };
+      });
+      final r = CatalogRepository(
+        loadAsset: (a) async => switch (a) {
+          CatalogRepository.bundledCatalogAsset => jsonEncode(miniJson()),
+          'assets/i18n/en/catalog.json' => jsonEncode(en()),
+          'assets/scripts/budulinek.10.md' || 'assets/i18n/en/scripts/budulinek.10.md' => scriptV1,
+          _ => throw StateError(a),
+        },
+        listBundledAssets: () async => {
+          'assets/i18n/en/catalog.json',
+          'assets/ambient/sea.opus',
+          'assets/scripts/budulinek.10.md',
+          'assets/i18n/en/scripts/budulinek.10.md',
+        },
+        docsDir: () async => tmp,
+        client: client,
+        remoteUrl: Uri.parse('https://example.test/c/catalog.json'),
+      );
+
+      final snap = await r.init('en');
+      expect(r.lang, 'en');
+      expect(snap.catalog.tales.single.title, 'Budulinek (en)');
+      expect(snap.local.resolve(snap.catalog.tales.single.script()), isA<AssetRef>());
+      final (result, _) = await r.sync(snap);
+      expect(result, SyncResult.updated);
+      expect(asked, ['/c/i18n/en/catalog.json']);
+      expect(File('${tmp.path}/catalog-en/catalog.json').existsSync(), isTrue);
+      expect(File('${tmp.path}/catalog/catalog.json').existsSync(), isFalse);
+
+      // A language the app doesn't bundle falls back to Czech.
+      expect((await r.init('fr')).catalog.tales.single.title, 'Budulínek');
+      expect(r.lang, 'cs');
+    });
   });
 }

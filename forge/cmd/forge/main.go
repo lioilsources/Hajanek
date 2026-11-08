@@ -28,7 +28,7 @@ commands:
   script   --tale ID --length N            generate content/scripts/{id}.{N}.md via LLM, then judge
   judge    [--length N] [--no-llm] FILE    check a script; JSON report, exit 1 on fail
   master-ambient [--crossfade S] IN OUT    seamless loop, −30 LUFS, Opus 96k stereo
-  publish  --content-pages DIR [--commit] [--drafts] [--min-version N]
+  publish  --content-pages DIR [--commit] [--drafts] [--min-version N] [--lang L | --all-langs]
                                           copy reviewed/gold (+draft) scripts + ambient, rebuild catalog.json
   nightly  [--queue FILE] [--until HH:MM]  drain script/publish jobs (api or queue file), publish, notify
   worker   [--once]                        voice jobs from hajanek-api → AiStack audio service (Spark)
@@ -187,16 +187,25 @@ func main() {
 		commit := fs.Bool("commit", false, "git commit in the pages repo")
 		drafts := fs.Bool("drafts", false, "publish status: draft scripts too")
 		minVersion := fs.Int("min-version", 0, "catalog version at least N (above the app's bundled copy)")
+		lang := fs.String("lang", "", "catalog language (default cs; others from content/i18n/{lang})")
+		allLangs := fs.Bool("all-langs", false, "publish cs and every content/i18n/{lang}")
 		_ = fs.Parse(args)
 		if *pages == "" {
 			die(fmt.Errorf("--content-pages is required"))
 		}
-		res, err := c.env().Publish(pipeline.PublishOpts{PagesDir: *pages, Commit: *commit, Drafts: *drafts, MinVersion: *minVersion})
-		if res != nil {
-			printJSON(res)
+		e := c.env()
+		langs := []string{*lang}
+		if *allLangs {
+			langs = e.Langs()
 		}
-		if err != nil {
-			die(err)
+		for _, l := range langs {
+			res, err := e.Publish(pipeline.PublishOpts{PagesDir: *pages, Commit: *commit, Drafts: *drafts, MinVersion: *minVersion, Lang: l})
+			if res != nil {
+				printJSON(res)
+			}
+			if err != nil {
+				die(err)
+			}
 		}
 
 	case "nightly":

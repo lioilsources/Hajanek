@@ -11,6 +11,7 @@ import 'features/catalog/tale_detail_screen.dart';
 import 'features/mixer/mixer_screen.dart';
 import 'features/player/player_controller.dart';
 import 'features/player/player_screen.dart';
+import 'features/settings/settings_controller.dart';
 import 'features/settings/settings_screen.dart';
 import 'features/tv/tv_home_screen.dart';
 import 'features/tv/tv_mixer_screen.dart';
@@ -82,8 +83,20 @@ class _HajanekAppState extends ConsumerState<HajanekApp> {
       // plays, so after the tale (or the timer) it can go to standby.
       ref.listen(playerProvider.select((p) => p.playing), (_, playing) => ref.read(wakelockProvider)(playing));
     }
+    final lang = ref.watch(contentLangProvider);
+    ref.listen(contentLangProvider, (_, next) {
+      setStringsLang(next);
+      ref.read(systemTtsProvider)?.setLang(next);
+      ref.read(catalogProvider.notifier).switchLang(next);
+    });
+    if (stringsLang != lang) setStringsLang(lang);
     return MaterialApp.router(
-      title: S.appName,
+      // S is a global; a new key rebuilds every screen in the new language.
+      key: ValueKey(lang),
+      title: appName,
+      locale: langLocale(lang),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       debugShowCheckedModeBanner: false,
       theme: buildNightTheme(tv: _tv),
       darkTheme: buildNightTheme(tv: _tv),

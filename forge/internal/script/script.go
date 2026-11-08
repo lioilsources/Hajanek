@@ -41,6 +41,8 @@ type Meta struct {
 	Characters      []string `yaml:"characters" json:"characters,omitempty"`
 	Free            *bool    `yaml:"free" json:"free,omitempty"`
 	Status          string   `yaml:"status" json:"status,omitempty"` // draft | reviewed | gold
+	Lang            string   `yaml:"lang" json:"lang,omitempty"`     // empty = cs (docs/I18N_PLAN.md)
+	SourceLang      string   `yaml:"source_lang" json:"source_lang,omitempty"`
 }
 
 type Kind int

@@ -6,7 +6,7 @@ age: 3+
 setting: louka
 ambient: wind
 length_min: 10
-status: draft
+status: reviewed
 free: true
 tension_original: 4
 characters: [maminka prasátek, první prasátko, druhé prasátko, třetí prasátko, vlk]
@@ -40,7 +40,7 @@ Víčka se pomalu, pomaloučku zavírají.
 Dnes ti budu vyprávět o třech prasátkách.
 [pause 3s]
 Je to pohádka o větru, o domečcích a o jednom ospalém vlkovi.
-Nikdo se v ní nebojí.
+Všichni v ní jsou hodní a nakonec spí v teple.
 [pause 4s]
 Představ si, že stojíš na zelené louce.
 Tráva se vlní ve větru jako moře.
@@ -85,7 +85,7 @@ A všechno je v pořádku.
 [pause 5s]
 Večer se zvedne vítr.
 Hučí přes louku a čechrá trávu.
-Hůůů… hůůů…
+Šššš… šššš…
 [pause 4s]
 Slaměným domečkem profukuje.
 Stébla se tiše kývají a šustí.
@@ -93,7 +93,7 @@ Stébla se tiše kývají a šustí.
 „Tady je dnes velký průvan,“ řekne první prasátko.
 Vezme si polštářek a jde k bratrovi.
 [pause 4s]
-Jenže dřevěným domečkem taky fouká.
+Dřevěným domečkem taky fouká.
 Větvičky ťukají jedna o druhou.
 [pause 3s]
 A tak jdou obě prasátka spolu až k cihlovému domečku.
@@ -108,11 +108,10 @@ Prasátka si sednou na kobereček a hřejí si kopýtka.
 [pause 5s]
 A všechno je v pořádku.
 [pause 5s]
-Za chvíli někdo zaťuká na dveře.
-Ťuk. Ťuk. Ťuk.
-[pause 3s]
-Za dveřmi stojí vlk.
-Je velký, chlupatý a trochu promrzlý.
+Za chvíli někdo tiše zaťuká na dveře.
+Ťuk… ťuk…
+Za dveřmi stojí ospalý vlk.
+Je promrzlý a chlupatý jako stará deka.
 Kožich má rozčepýřený od větru.
 [pause 4s]
 Vlk dlouze, předlouze zívne.
@@ -140,7 +139,7 @@ Každý dostane plný hrnek. I vlk.
 [pause 3s]
 Vlk opatrně foukne do hrnku, aby čaj trochu vychladl.
 Ffff…
-Takhle fouká hodný vlk.
+Čaj voní a hřeje.
 [pause 5s]
 Venku ještě chvíli fouká vítr.
 Ale v cihlovém domečku je ticho a teplo.

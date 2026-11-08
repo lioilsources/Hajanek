@@ -164,6 +164,72 @@ func TestPublishScripts(t *testing.T) {
 	}
 }
 
+// Each language has its own catalog under i18n/{lang}/ (docs/I18N_PLAN.md);
+// catalog.json stays Czech.
+func TestPublishLang(t *testing.T) {
+	fixture, err := os.ReadFile(filepath.Join(repoRoot(t), "forge/testdata/content/scripts/test-pohadka.2.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	src := string(fixture)
+	en := strings.Replace(strings.Replace(src, "title: Testovací pohádka", "title: Test tale", 1), "status: reviewed", "status: reviewed\nlang: en", 1)
+	content := t.TempDir()
+	writeFile(t, filepath.Join(content, "scripts/test-pohadka.2.md"), src)
+	writeFile(t, filepath.Join(content, "i18n/en/scripts/test-pohadka.2.md"), en)
+	writeFile(t, filepath.Join(content, "i18n/en/scripts/bez-jazyka.2.md"), strings.Replace(src, "id: test-pohadka", "id: bez-jazyka", 1))
+
+	e := testEnv(t, content)
+	if got := e.Langs(); len(got) != 2 || got[0] != "cs" || got[1] != "en" {
+		t.Fatalf("langs %v", got)
+	}
+	pages := t.TempDir()
+	now := time.Date(2026, 11, 8, 3, 0, 0, 0, time.UTC)
+	for _, l := range e.Langs() {
+		if _, err := e.Publish(PublishOpts{PagesDir: pages, Now: now, Lang: l}); err != nil {
+			t.Fatal(l, err)
+		}
+	}
+	cs, err := catalog.Load(filepath.Join(pages, "catalog.json"), "")
+	if err != nil || cs.Lang != "" || len(cs.Tales) != 1 || cs.Tales[0].Title != "Testovací pohádka" {
+		t.Fatalf("cs catalog %+v %v", cs, err)
+	}
+	c, err := catalog.Load(filepath.Join(pages, "i18n/en/catalog.json"), "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.Schema != 2 || c.Lang != "en" || c.Version != 1 || len(c.Tales) != 1 || c.Tales[0].Title != "Test tale" {
+		t.Fatalf("en catalog %+v (a script without lang: en must be skipped)", c)
+	}
+	if p := c.Tales[0].Scripts[0].Path; p != "i18n/en/scripts/test-pohadka.2.md" {
+		t.Errorf("path %s", p)
+	}
+	if b, _ := os.ReadFile(filepath.Join(pages, "i18n/en/scripts/test-pohadka.2.md")); string(b) != en {
+		t.Error("en script not copied verbatim")
+	}
+}
+
+// A translated script is judged with its own forbidden words.
+func TestJudgeLang(t *testing.T) {
+	fixture, err := os.ReadFile(filepath.Join(repoRoot(t), "forge/testdata/content/scripts/test-pohadka.2.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	src := strings.Replace(string(fixture), "status: reviewed", "status: reviewed\nlang: en", 1)
+	src = strings.Replace(src, "## pribeh\n", "## pribeh\nThe scary owl sleeps.\n", 1)
+	content := t.TempDir()
+	writeFile(t, filepath.Join(content, "i18n/en/forbidden_words.txt"), "# test\nscar\n")
+	file := filepath.Join(content, "i18n/en/scripts/test-pohadka.2.md")
+	writeFile(t, file, src)
+	e := testEnv(t, content)
+	rep, err := e.Judge(context.Background(), file, 0, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if rep.OK || !strings.Contains(strings.Join(rep.Errors, "\n"), `forbidden word "scary"`) {
+		t.Fatalf("want the en forbidden word, got %v", rep.Errors)
+	}
+}
+
 func TestNextDeadline(t *testing.T) {
 	loc, _ := time.LoadLocation("Europe/Prague")
 	now := time.Date(2026, 10, 20, 22, 0, 0, 0, loc)
