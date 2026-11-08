@@ -204,7 +204,7 @@ func (e *Env) GenerateScript(ctx context.Context, o ScriptOpts) (string, *judge.
 			return "", nil, err
 		}
 		text = forceDraft(llm.StripFences(resp))
-		rep = judge.Check(out, []byte(text), e.JudgeConfig(o.Length))
+		rep = judge.Check(out, []byte(text), e.JudgeConfig(o.Length, SourceLang))
 		if rep.OK {
 			break
 		}
@@ -246,7 +246,11 @@ func (e *Env) Judge(ctx context.Context, file string, length int, useLLM bool) (
 	if err != nil {
 		return nil, err
 	}
-	rep := judge.Check(file, src, e.JudgeConfig(length))
+	lang := SourceLang
+	if s, err := script.Parse(src); err == nil && s.Meta.Lang != "" {
+		lang = s.Meta.Lang
+	}
+	rep := judge.Check(file, src, e.JudgeConfig(length, lang))
 	mode := e.Cfg.Judge.LLM
 	if useLLM && (mode == "on" || (mode == "auto" && llm.Configured())) {
 		checklist, err := os.ReadFile(e.contentPath(e.Cfg.LLM.JudgeChecklist))
@@ -255,7 +259,7 @@ func (e *Env) Judge(ctx context.Context, file string, length int, useLLM bool) (
 		} else if c, err := llm.FromEnv(time.Duration(e.Cfg.LLM.TimeoutS) * time.Second); err != nil {
 			rep.Warnings = append(rep.Warnings, "LLM judge skipped: "+err.Error())
 		} else {
-			rep.LLM = judge.LLMJudge(ctx, c, string(checklist), string(src), e.Cfg.Judge.LLMMinScore)
+			rep.LLM = judge.LLMJudge(ctx, c, judge.ForLang(string(checklist), lang), string(src), e.Cfg.Judge.LLMMinScore)
 			if rep.LLM.Error != "" {
 				rep.Errors = append(rep.Errors, "llm judge: "+rep.LLM.Error)
 			} else if !rep.LLM.Pass {
@@ -267,6 +271,9 @@ func (e *Env) Judge(ctx context.Context, file string, length int, useLLM bool) (
 		rep.Warnings = append(rep.Warnings, "LLM judge skipped: LLM_BASE_URL not set")
 	}
 	name := strings.TrimSuffix(filepath.Base(file), ".md") + ".json"
+	if lang != SourceLang {
+		name = lang + "." + name
+	}
 	if err := writeJSON(filepath.Join(e.Work, "_judge", name), rep); err != nil {
 		return rep, err
 	}

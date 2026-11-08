@@ -77,9 +77,11 @@ Appka 1.0.0 v obchodech zná jen `schema: 2` a jeden `catalog.json`. Proto:
 
 ## forge
 
-- `judge`: `--lang`. Zakázaná slova z `i18n/{lang}/forbidden_words.txt`,
+- `judge`: zakázaná slova z `i18n/{lang}/forbidden_words.txt`,
   `wpm` pro jazyk v `config.yaml` (`judge.wpm_by_lang`), délka věty ≤ 18 slov
-  zůstává (pro `de` ≤ 16, kvůli složeninám), `?`, `¿`, `!` a `¡` jsou zakázané.
+  zůstává (pro `de` ≤ 16, kvůli složeninám), `?` a `¿` jsou zakázané.
+  Jazyk judge pozná z `lang` ve front matter. `wpm` je zatím všude 95, dokud
+  sonda nezměří tempo systémových hlasů v jednotlivých jazycích.
   LLM-judge dostane checklist s jazykem a refrény jako parametry.
 - `translate --lang L --tale ID`: české skripty → LLM adaptace → judge →
   `i18n/{lang}/scripts/`. Jen dávka, žádné noční běhy.

@@ -30,6 +30,8 @@ judge:
   ref_speed: 0.85
   length_tolerance: 0.15
   max_sentence_words: 18
+  languages:             # per script language (front matter lang); wpm stays global until measured
+    de: {max_sentence_words: 16}
   forbidden_words_file: prompts/forbidden_words.txt   # relative to content dir
   llm: auto              # auto (when LLM_BASE_URL set) | on | off
   llm_min_score: 4       # 1–5 scale; content/prompts/judge_checklist.md requires >= 4

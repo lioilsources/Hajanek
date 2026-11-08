@@ -135,7 +135,7 @@ func Check(file string, src []byte, cfg Config) *Report {
 		if it.Section == "dojezd" && it.Tone == script.Whisper {
 			whisperInLast = true
 		}
-		if strings.Contains(it.Text, "?") {
+		if strings.ContainsAny(it.Text, "?¿") {
 			r.errf("line %d: question mark not allowed: %q", it.Line, it.Text)
 		}
 		for _, w := range matchForbidden(it.Text, forb) {

@@ -40,6 +40,11 @@ type Config struct {
 		LLM                string                `yaml:"llm"`
 		LLMMinScore        float64               `yaml:"llm_min_score"`
 		SectionBudgets10   map[string][2]float64 `yaml:"section_budgets_10min"`
+		// Languages overrides wpm and max_sentence_words per script language (0 = global).
+		Languages map[string]struct {
+			WPM              float64 `yaml:"wpm"`
+			MaxSentenceWords int     `yaml:"max_sentence_words"`
+		} `yaml:"languages"`
 	} `yaml:"judge"`
 	Ambient struct {
 		CrossfadeS float64 `yaml:"crossfade_s"`

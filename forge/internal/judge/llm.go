@@ -78,3 +78,15 @@ func LLMJudge(ctx context.Context, c Chatter, checklist, scriptSrc string, minSc
 	}
 	return res
 }
+
+// ForLang adapts the Czech checklist to a script in another language: the
+// criteria stay, language_fit and the refrains are judged in that language.
+func ForLang(checklist, lang string) string {
+	if lang == "" || lang == "cs" {
+		return checklist
+	}
+	note := fmt.Sprintf("\n\nSkript je v jazyce `%s`, ne česky (adaptace české předlohy). "+
+		"language_fit hodnoť pro přirozený dětský jazyk `%s`; refrény a závěr jsou "+
+		"jejich ekvivalenty v `%s` (docs/I18N_PLAN.md). Hajánek se jmenuje všude stejně.\n", lang, lang, lang)
+	return strings.Replace(checklist, "\n## SYSTEM\n", "\n## SYSTEM\n"+note, 1)
+}

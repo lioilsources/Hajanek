@@ -35,6 +35,9 @@ type PublishOpts struct {
 	// MinVersion raises the new catalog version to at least this, so it beats
 	// the copy bundled in the app.
 	MinVersion int
+	// Lang picks the catalog: "" or "cs" = catalog.json from content/scripts,
+	// otherwise i18n/{lang}/catalog.json from content/i18n/{lang} (docs/I18N_PLAN.md).
+	Lang string
 }
 
 type PublishResult struct {
@@ -85,11 +88,11 @@ type scriptRef struct {
 
 var reScriptName = regexp.MustCompile(`^([a-z0-9]+(?:-[a-z0-9]+)*)\.(\d+)\.md$`)
 
-// scriptRefs lists every {tale}.{len}.md in content/scripts and scripts/gold.
-func (e *Env) scriptRefs() []scriptRef {
+// scriptRefs lists every {tale}.{len}.md of lang (content/scripts and scripts/gold for cs).
+func (e *Env) scriptRefs(lang string) []scriptRef {
 	seen := map[scriptRef]bool{}
 	var out []scriptRef
-	for _, dir := range []string{filepath.Join(e.Content, "scripts"), filepath.Join(e.Content, "scripts", "gold")} {
+	for _, dir := range e.scriptDirs(lang) {
 		ents, _ := os.ReadDir(dir)
 		for _, en := range ents {
 			m := reScriptName.FindStringSubmatch(en.Name())
@@ -126,20 +129,30 @@ func (e *Env) Publish(o PublishOpts) (*PublishResult, error) {
 	if err := os.MkdirAll(pages, 0o755); err != nil {
 		return nil, err
 	}
-	catPath := filepath.Join(pages, "catalog.json")
+	lang, prefix := o.Lang, ""
+	if lang == "" {
+		lang = SourceLang
+	}
+	if lang != SourceLang {
+		prefix = "i18n/" + lang + "/"
+	}
+	catPath := filepath.Join(pages, filepath.FromSlash(prefix), "catalog.json")
 	prev, err := catalog.Load(catPath, e.Cfg.Publish.BaseURL)
 	if err != nil {
 		return nil, err
 	}
 	cat := catalog.New(prev.BaseURL)
 	cat.Schema = catalog.Schema
+	if lang != SourceLang {
+		cat.Lang = lang
+	}
 	if cat.BaseURL == "" {
 		cat.BaseURL = e.Cfg.Publish.BaseURL
 	}
 	res := &PublishResult{Scripts: []string{}, Copied: []string{}, Skipped: []string{}, Notes: []string{}}
 
-	for _, ref := range e.scriptRefs() {
-		src, err := e.ScriptPath(ref.Tale, ref.Length)
+	for _, ref := range e.scriptRefs(lang) {
+		src, err := e.scriptPath(lang, ref.Tale, ref.Length)
 		if err != nil {
 			return nil, err
 		}
@@ -156,11 +169,14 @@ func (e *Env) Publish(o PublishOpts) (*PublishResult, error) {
 		case !publishable(s.Meta.Status, o.Drafts):
 			res.Skipped = append(res.Skipped, fmt.Sprintf("%s (status %q)", name, s.Meta.Status))
 			continue
+		case lang != SourceLang && s.Meta.Lang != lang:
+			res.Skipped = append(res.Skipped, fmt.Sprintf("%s (front matter lang %q, want %q)", name, s.Meta.Lang, lang))
+			continue
 		case s.Meta.ID != ref.Tale || s.Meta.LengthMin != ref.Length:
 			res.Skipped = append(res.Skipped, fmt.Sprintf("%s (front matter id/length_min mismatch)", name))
 			continue
 		}
-		rel := "scripts/" + name
+		rel := prefix + "scripts/" + name
 		dst := filepath.Join(pages, filepath.FromSlash(rel))
 		sum := sha256.Sum256(b)
 		sha := hex.EncodeToString(sum[:])
@@ -170,7 +186,7 @@ func (e *Env) Publish(o PublishOpts) (*PublishResult, error) {
 			}
 			res.Copied = append(res.Copied, rel)
 		}
-		est := e.Prosody().Estimate(s, script.EstimateParams{WPM: e.Cfg.Judge.WPM, RefSpeed: e.Cfg.Judge.RefSpeed, GapS: e.Cfg.Speech.GapS})
+		est := e.Prosody().Estimate(s, script.EstimateParams{WPM: e.WPM(lang), RefSpeed: e.Cfg.Judge.RefSpeed, GapS: e.Cfg.Speech.GapS})
 		free := e.Cfg.Publish.DefaultFree
 		if old := prev.Tale(ref.Tale); old != nil {
 			free = old.Free
@@ -194,6 +210,9 @@ func (e *Env) Publish(o PublishOpts) (*PublishResult, error) {
 	if err := e.loadPresets(cat); err != nil {
 		return nil, err
 	}
+	if err := e.localizeTitles(cat, lang); err != nil {
+		return nil, err
+	}
 	e.reconcile(cat, res)
 
 	res.Changed = cat.Finalize(prev, o.Now)
@@ -214,7 +233,7 @@ func (e *Env) Publish(o PublishOpts) (*PublishResult, error) {
 		e.Log.Printf("publish: nothing changed (catalog v%d)", cat.Version)
 	}
 	if o.Commit && (res.Changed || len(res.Copied) > 0) {
-		if err := gitCommit(pages, fmt.Sprintf("catalog v%d: %d scripts", cat.Version, len(res.Scripts))); err != nil {
+		if err := gitCommit(pages, fmt.Sprintf("catalog %s v%d: %d scripts", lang, cat.Version, len(res.Scripts))); err != nil {
 			return res, err
 		}
 	}
@@ -285,6 +304,40 @@ func (e *Env) loadPresets(cat *catalog.Catalog) error {
 	return nil
 }
 
+// localizeTitles replaces ambient and preset titles with
+// content/i18n/{lang}/titles.json ({"ambient": {id: title}, "presets": {…}}).
+// Missing ids keep the Czech title.
+func (e *Env) localizeTitles(cat *catalog.Catalog, lang string) error {
+	if lang == SourceLang {
+		return nil
+	}
+	b, err := os.ReadFile(filepath.Join(e.Content, "i18n", lang, "titles.json"))
+	if os.IsNotExist(err) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	var t struct {
+		Ambient map[string]string `json:"ambient"`
+		Presets map[string]string `json:"presets"`
+	}
+	if err := json.Unmarshal(b, &t); err != nil {
+		return fmt.Errorf("i18n/%s/titles.json: %w", lang, err)
+	}
+	for i := range cat.Ambient {
+		if s := t.Ambient[cat.Ambient[i].ID]; s != "" {
+			cat.Ambient[i].Title = s
+		}
+	}
+	for i := range cat.Presets {
+		if s := t.Presets[cat.Presets[i].ID]; s != "" {
+			cat.Presets[i].Title = s
+		}
+	}
+	return nil
+}
+
 func gitCommit(dir, msg string) error {
 	run := func(args ...string) error {
 		cmd := exec.Command("git", append([]string{"-C", dir}, args...)...)
@@ -292,8 +345,10 @@ func gitCommit(dir, msg string) error {
 		return cmd.Run()
 	}
 	args := []string{"add", "catalog.json", "scripts"}
-	if _, err := os.Stat(filepath.Join(dir, "ambient")); err == nil {
-		args = append(args, "ambient")
+	for _, d := range []string{"ambient", "i18n"} {
+		if _, err := os.Stat(filepath.Join(dir, d)); err == nil {
+			args = append(args, d)
+		}
 	}
 	if err := run(args...); err != nil {
 		return err
