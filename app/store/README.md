@@ -54,3 +54,11 @@ Zbývá ve webovém rozhraní:
   je ve 1.0.0 vypnutá; appka o mikrofon nikdy nežádá.
 - Hodnocení obsahu (IARC): bez násilí, strachu, vulgarit, nákupů a interakce
   uživatelů, tedy PEGI 3.
+
+## Překlady listingů (`listing/<jazyk>.json`)
+
+45 jazyků, jedno JSON na jazyk (`name`, `subtitle`, `keywords` do 100 bajtů,
+`promotional_text`, `description`, `play_short`, `play_full`). Devět jazyků pohádek
+(cs en de es fr pt-BR it pl sk) má plné texty; zbylých 36 jazyků má kratší text
+a výslovně říká, že appka je v 45 jazycích, ale pohádky jsou v devíti (appka
+vybere nejbližší, jinak angličtinu). Nahrání do obchodů je ruční.
