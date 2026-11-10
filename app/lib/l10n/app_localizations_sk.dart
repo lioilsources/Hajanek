@@ -480,4 +480,8 @@ class AppLocalizationsSk extends AppLocalizations {
 
   @override
   String get playerChannel => 'Prehrávanie';
+
+  @override
+  String get languageTalesFallback =>
+      'Rozprávky v tomto jazyku zatiaľ nie sú, hrajú po anglicky.';
 }

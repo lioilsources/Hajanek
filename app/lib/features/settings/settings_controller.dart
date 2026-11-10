@@ -149,8 +149,12 @@ class SettingsController extends Notifier<AppSettings> {
 /// The phone's preferred supported language; overridden in tests.
 final deviceLangProvider = Provider<String>((ref) => langFor(WidgetsBinding.instance.platformDispatcher.locales));
 
-/// The language in use: the parent's choice, else the phone's.
-final contentLangProvider = Provider<String>((ref) {
+/// The app's language: the parent's choice, else the phone's.
+final uiLangProvider = Provider<String>((ref) {
   final chosen = ref.watch(settingsProvider.select((s) => s.lang));
   return chosen.isEmpty ? ref.watch(deviceLangProvider) : chosen;
 });
+
+/// The language of the tales and the voice: the app's one, or the nearest
+/// language the tales exist in ([taleLangFor]).
+final contentLangProvider = Provider<String>((ref) => taleLangFor(ref.watch(uiLangProvider)));
