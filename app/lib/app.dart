@@ -83,9 +83,9 @@ class _HajanekAppState extends ConsumerState<HajanekApp> {
       // plays, so after the tale (or the timer) it can go to standby.
       ref.listen(playerProvider.select((p) => p.playing), (_, playing) => ref.read(wakelockProvider)(playing));
     }
-    final lang = ref.watch(contentLangProvider);
+    final lang = ref.watch(uiLangProvider);
+    ref.listen(uiLangProvider, (_, next) => setStringsLang(next));
     ref.listen(contentLangProvider, (_, next) {
-      setStringsLang(next);
       ref.read(systemTtsProvider)?.setLang(next);
       ref.read(catalogProvider.notifier).switchLang(next);
     });

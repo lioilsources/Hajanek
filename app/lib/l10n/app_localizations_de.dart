@@ -480,4 +480,8 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get playerChannel => 'Wiedergabe';
+
+  @override
+  String get languageTalesFallback =>
+      'Die Märchen gibt es in dieser Sprache noch nicht, sie laufen auf Englisch.';
 }

@@ -73,7 +73,9 @@ class SettingsScreen extends ConsumerWidget {
           ),
           ListTile(
             title: Text(S.languageTitle, style: TextStyle(fontSize: 18)),
-            subtitle: Text(S.languageSub),
+            subtitle: Text(ref.watch(contentLangProvider) == ref.watch(uiLangProvider)
+                ? S.languageSub
+                : S.languageTalesFallback),
             trailing: Text(s.lang.isEmpty ? S.languageSystem : langNames[s.lang]!,
                 style: const TextStyle(fontSize: 16)),
             onTap: () async {

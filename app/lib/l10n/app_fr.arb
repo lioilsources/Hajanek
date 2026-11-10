@@ -143,5 +143,6 @@
   "languageTitle": "Langue",
   "languageSub": "Langue de l’app, des contes et de la voix",
   "languageSystem": "Comme le téléphone",
-  "playerChannel": "Lecture"
+  "playerChannel": "Lecture",
+  "languageTalesFallback": "Les contes ne sont pas encore dans cette langue, ils sont lus en anglais."
 }

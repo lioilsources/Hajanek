@@ -143,5 +143,6 @@
   "languageTitle": "Idioma",
   "languageSub": "Idioma de la app, de los cuentos y de la voz",
   "languageSystem": "Igual que el teléfono",
-  "playerChannel": "Reproducción"
+  "playerChannel": "Reproducción",
+  "languageTalesFallback": "Los cuentos aún no están en este idioma, así que suenan en inglés."
 }

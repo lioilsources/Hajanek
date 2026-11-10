@@ -234,7 +234,7 @@ class CzechVoiceHint extends StatelessWidget {
               ),
               if (onDismiss != null)
                 Align(
-                  alignment: Alignment.centerRight,
+                  alignment: AlignmentDirectional.centerEnd,
                   child: TextButton(onPressed: onDismiss, child: Text(S.voiceHintOk)),
                 ),
             ],

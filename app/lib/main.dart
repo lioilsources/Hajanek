@@ -42,6 +42,7 @@ Future<void> main() async {
   final settings = AppSettings.fromValues(values);
   final lang = settings.lang.isEmpty ? langFor(WidgetsBinding.instance.platformDispatcher.locales) : settings.lang;
   setStringsLang(lang);
+  final taleLang = taleLangFor(lang);
 
   final repo = CatalogRepository(
     loadAsset: rootBundle.loadString,
@@ -49,7 +50,7 @@ Future<void> main() async {
         (await AssetManifest.loadFromAssetBundle(rootBundle)).listAssets().toSet(),
     docsDir: getApplicationDocumentsDirectory,
   );
-  final snapshot = await repo.init(lang);
+  final snapshot = await repo.init(taleLang);
   final voicesDir = '${(await getApplicationSupportDirectory()).path}/voices';
 
   // Category playback: ambient and speech (system TTS too) keep going with
@@ -86,7 +87,7 @@ Future<void> main() async {
       catalogRepositoryProvider.overrideWithValue(repo),
       audioEngineProvider.overrideWithValue(JustAudioEngine()),
       audioHandlerProvider.overrideWithValue(handler),
-      systemTtsProvider.overrideWithValue(SystemTtsSource(lang: lang)),
+      systemTtsProvider.overrideWithValue(SystemTtsSource(lang: taleLang)),
       clipOutputProvider.overrideWithValue(JustAudioClipOutput()),
       voicesDirProvider.overrideWithValue(voicesDir),
       initialVoicesProvider.overrideWithValue(LocalVoice.decodeList(values[parentVoicesKey])),

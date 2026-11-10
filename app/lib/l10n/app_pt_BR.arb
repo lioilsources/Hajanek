@@ -143,5 +143,6 @@
   "languageTitle": "Idioma",
   "languageSub": "Idioma do app, das histórias e da voz",
   "languageSystem": "Igual ao celular",
-  "playerChannel": "Reprodução"
+  "playerChannel": "Reprodução",
+  "languageTalesFallback": "As histórias ainda não estão neste idioma, então tocam em inglês."
 }
