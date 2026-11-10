@@ -143,5 +143,6 @@
   "languageTitle": "Lingua",
   "languageSub": "Lingua dell'app, delle fiabe e della voce",
   "languageSystem": "Come il telefono",
-  "playerChannel": "Riproduzione"
+  "playerChannel": "Riproduzione",
+  "languageTalesFallback": "Le fiabe non sono ancora in questa lingua, quindi sono in inglese."
 }

@@ -475,4 +475,8 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get playerChannel => 'Odtwarzanie';
+
+  @override
+  String get languageTalesFallback =>
+      'Bajek nie ma jeszcze w tym języku, więc grają po angielsku.';
 }

@@ -143,5 +143,6 @@
   "languageTitle": "Language",
   "languageSub": "Language of the app, tales and voice",
   "languageSystem": "Same as phone",
-  "playerChannel": "Playback"
+  "playerChannel": "Playback",
+  "languageTalesFallback": "The tales aren’t in this language yet, so they play in English."
 }

@@ -143,5 +143,6 @@
   "languageTitle": "Sprache",
   "languageSub": "Sprache der App, der Märchen und der Stimme",
   "languageSystem": "Wie auf dem Handy",
-  "playerChannel": "Wiedergabe"
+  "playerChannel": "Wiedergabe",
+  "languageTalesFallback": "Die Märchen gibt es in dieser Sprache noch nicht, sie laufen auf Englisch."
 }

@@ -476,4 +476,8 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get playerChannel => 'Reproducción';
+
+  @override
+  String get languageTalesFallback =>
+      'Los cuentos aún no están en este idioma, así que suenan en inglés.';
 }

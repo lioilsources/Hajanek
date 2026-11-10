@@ -202,5 +202,9 @@
   "languageTitle": "Jazyk",
   "languageSub": "Jazyk aplikace, pohádek i hlasu",
   "languageSystem": "Podle telefonu",
-  "playerChannel": "Přehrávání"
+  "playerChannel": "Přehrávání",
+  "languageTalesFallback": "Pohádky v tomto jazyce zatím nejsou, hrají anglicky.",
+  "@languageTalesFallback": {
+    "description": "Language picker subtitle when the tales do not exist in the chosen app language and play in the fallback one (English; pt-PT plays pt-BR)."
+  }
 }

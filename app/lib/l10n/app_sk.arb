@@ -143,5 +143,6 @@
   "languageTitle": "Jazyk",
   "languageSub": "Jazyk aplikácie, rozprávok aj hlasu",
   "languageSystem": "Podľa telefónu",
-  "playerChannel": "Prehrávanie"
+  "playerChannel": "Prehrávanie",
+  "languageTalesFallback": "Rozprávky v tomto jazyku zatiaľ nie sú, hrajú po anglicky."
 }
