@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ol1n_telemetry/ol1n_telemetry.dart';
 
 import '../../core/strings.dart';
 import '../../core/theme.dart';
@@ -162,6 +163,7 @@ class _PairingDialogState extends ConsumerState<PairingDialog> {
     try {
       if (!await api.pairingClaimed(code.code) || !mounted) return;
       _poll?.cancel();
+      Telemetry.feature('tv_pair');
       setState(() => _state = _Pairing.claimed);
       ref.read(voiceProvider.notifier)
         ..startPolling()
@@ -181,6 +183,7 @@ class _PairingDialogState extends ConsumerState<PairingDialog> {
 
   void _fail(String message) {
     if (!mounted) return;
+    Telemetry.errorShown('voice_api');
     setState(() {
       _state = _Pairing.failed;
       _message = message;

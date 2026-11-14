@@ -183,11 +183,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsPrivacy =>
-      'No account, no analytics. The network is only used to update the catalog.';
+      'No account, no ads, no third-party analytics. The network is used to update the catalog and for anonymous usage statistics, if they are on.';
 
   @override
   String get settingsPrivacyCloning =>
-      'No account, no analytics. The network is only used to update the catalog and for your recorded voice.';
+      'No account, no ads, no third-party analytics. The network is used to update the catalog, for your recorded voice and for anonymous usage statistics, if they are on.';
+
+  @override
+  String get settingsStats => 'Anonymous usage statistics';
+
+  @override
+  String get settingsStatsSub =>
+      'They help show what works in the app. No device identifier, nothing about your child or your recordings.';
 
   @override
   String get voiceTitle => 'Voice';

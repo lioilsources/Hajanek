@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ol1n_telemetry/ol1n_telemetry.dart';
 
 import '../../core/strings.dart';
 import '../../core/theme.dart';
@@ -61,6 +62,7 @@ class _VoiceScreenState extends ConsumerState<VoiceScreen> {
     try {
       await ref.read(voiceProvider.notifier).delete(v.id);
     } on VoiceApiException catch (e) {
+      Telemetry.errorShown('voice_api');
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
     }
   }
@@ -172,11 +174,13 @@ class _ClaimTvDialogState extends ConsumerState<ClaimTvDialog> {
     try {
       if (api == null) throw VoiceApiException(msgOffline);
       await api.claimPairing(_digits);
+      Telemetry.feature('tv_pair');
       if (!mounted) return;
       final messenger = ScaffoldMessenger.of(context);
       Navigator.of(context).pop();
       messenger.showSnackBar(SnackBar(content: Text(S.pairTvDone)));
     } on VoiceApiException catch (e) {
+      Telemetry.errorShown('voice_api');
       if (mounted) setState(() => _error = e.status == 404 || e.status == 409 ? S.pairBadCode : e.message);
     } finally {
       if (mounted) setState(() => _busy = false);
