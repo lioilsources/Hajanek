@@ -15,9 +15,14 @@ done
 
 Grafiky (TV banner, feature graphic): `tools/render_tv_banner.sh`.
 
-Zásady soukromí: `docs/PRIVACY.md`, publikované jako
-<https://lioilsources.github.io/hajanek-content/privacy.html>
-(soubor `privacy.html` v repu `hajanek-content`).
+Zásady soukromí: `docs/privacy.html` (zdroj pravdy, GitHub Pages
+<https://lioilsources.github.io/Hajanek/privacy.html>) a `docs/PRIVACY.md`.
+Starší kopie žije jako `privacy.html` v repu `hajanek-content`
+(<https://lioilsources.github.io/hajanek-content/privacy.html>); dokud na ni
+obchody odkazují, musí mít stejné znění, jinak v obchodech přepnout URL.
+
+Anonymní statistiky používání (`docs/telemetry.md`): připravené odpovědi
+pro App Privacy a Data safety jsou v [`privacy-answers.md`](privacy-answers.md).
 
 ## App Store (`appstore/`)
 
@@ -31,7 +36,10 @@ Klíčová slova cs: `pohádky,usínání,spánek,ukolébavka,děti,dobrou noc,u
 
 Zbývá ve webovém rozhraní:
 
-- App Privacy: „Data Not Collected“.
+- App Privacy: podle [`privacy-answers.md`](privacy-answers.md) (Usage
+  Data → Product Interaction, Diagnostics → Performance Data, Location →
+  Coarse Location; Analytics, nepropojeno, bez sledování). „Data Not
+  Collected“ už neplatí, jakmile build nese `TELEMETRY_KEY`.
 - App Review Information: kontakt (jméno, telefon, e-mail), bez přihlášení.
 - Content Rights: appka obsahuje obsah třetích stran (přírodní zvuky CC0),
   práva k němu máme.
@@ -45,11 +53,13 @@ Zbývá ve webovém rozhraní:
   `tv/banner_1280x720.png` o úroveň výš.
 - Feature graphic: `feature_1024x500.png`. Ikona 512×512: `icon_512.png`.
 - AAB: GitHub release `v1.0.0`, soubor `app-release.aab`.
-- Kategorie: Životní styl (nebo Rodičovství). Cílová skupina: rodiče; appka
-  není určená k tomu, aby ji ovládaly děti samy. Pokud se zvolí věk do 13 let,
-  platí zásady Families: bez reklam a analytiky to splňujeme.
-- Data safety: appka **nesbírá ani nesdílí žádná data**, šifrování
-  přenosu ano (HTTPS), účet ne.
+- Kategorie: Životní styl (nebo Rodičovství). Cílová skupina: rodiče (18+);
+  appka není určená k tomu, aby ji ovládaly děti samy. **Věk do 13 let
+  nevolit**: zařadilo by to appku pod Families a appka teď posílá anonymní
+  statistiky (zásady soukromí slibují, že v Families není).
+- Data safety: podle [`privacy-answers.md`](privacy-answers.md) (App
+  activity → App interactions, Location → Approximate location; sbíráno,
+  nesdíleno, volitelné, Analytics), šifrování přenosu ano (HTTPS), účet ne.
 - Oprávnění: `RECORD_AUDIO` je v manifestu kvůli funkci hlasu rodiče, která
   je ve 1.0.0 vypnutá; appka o mikrofon nikdy nežádá.
 - Hodnocení obsahu (IARC): bez násilí, strachu, vulgarit, nákupů a interakce
