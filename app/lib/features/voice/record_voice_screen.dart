@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
+import 'package:ol1n_telemetry/ol1n_telemetry.dart';
 
 import '../../core/strings.dart';
 import '../../core/theme.dart';
@@ -87,10 +88,11 @@ class _RecordVoiceScreenState extends ConsumerState<RecordVoiceScreen> {
   Future<void> _start() async {
     setState(() => _error = null);
     try {
-      await ref.read(playerProvider.notifier).stop();
+      await ref.read(playerProvider.notifier).stop(reason: 'replaced');
       await _preview?.stop();
       final rec = _recorder ??= AudioRecorder();
       if (!await rec.hasPermission()) {
+        Telemetry.errorShown('recording');
         setState(() => _error = S.recNoMic);
         return;
       }
@@ -117,8 +119,13 @@ class _RecordVoiceScreenState extends ConsumerState<RecordVoiceScreen> {
         _path = null;
       });
     } on Object {
-      setState(() => _error = S.recFailed);
+      _recordingFailed();
     }
+  }
+
+  void _recordingFailed() {
+    Telemetry.errorShown('recording');
+    setState(() => _error = S.recFailed);
   }
 
   Future<void> _stop() async {
@@ -130,12 +137,12 @@ class _RecordVoiceScreenState extends ConsumerState<RecordVoiceScreen> {
       final path = await _recorder!.stop();
       if (!mounted) return;
       if (path == null || !File(path).existsSync()) {
-        setState(() => _error = S.recFailed);
+        _recordingFailed();
         return;
       }
       setState(() => _path = path);
     } on Object {
-      if (mounted) setState(() => _error = S.recFailed);
+      if (mounted) _recordingFailed();
     }
   }
 
@@ -164,10 +171,13 @@ class _RecordVoiceScreenState extends ConsumerState<RecordVoiceScreen> {
       await ref
           .read(voiceProvider.notifier)
           .upload(samplePath: path, name: _name.text.trim(), consentText: text.consent);
+      // Only that the feature was used: nothing about the recording.
+      Telemetry.feature('voice_record');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.voicePending)));
       context.pop();
     } on VoiceApiException catch (e) {
+      Telemetry.errorShown('voice_api');
       if (mounted) setState(() => _error = e.message);
     }
   }

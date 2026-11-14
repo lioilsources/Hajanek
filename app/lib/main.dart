@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:ol1n_telemetry/ol1n_telemetry.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -12,6 +15,7 @@ import 'core/db/database.dart';
 import 'core/form_factor.dart';
 import 'core/providers.dart';
 import 'core/strings.dart';
+import 'core/telemetry.dart';
 import 'features/catalog/catalog_controller.dart';
 import 'features/catalog/catalog_repository.dart';
 import 'features/player/audio_engine.dart';
@@ -43,6 +47,22 @@ Future<void> main() async {
   final lang = settings.lang.isEmpty ? langFor(WidgetsBinding.instance.platformDispatcher.locales) : settings.lang;
   setStringsLang(lang);
 
+  // Anonymous usage statistics (docs/telemetry.md). Without TELEMETRY_KEY
+  // and TELEMETRY_HOST this records and sends nothing.
+  final supportDir = (await getApplicationSupportDirectory()).path;
+  unawaited(Telemetry.init(
+    app: kTelemetryApp,
+    appVersion: kAppVersion,
+    dictionary: hajanekDictionary,
+    store: FileTelemetryStore('$supportDir/telemetry'),
+    lang: () => stringsLang,
+    tester: const bool.fromEnvironment('TESTER_UNLOCK'),
+    // Settings or a played tale from before measuring: not a new install.
+    hadDataBefore: () async => values.isNotEmpty || await db.hasHistory(),
+    common: () => {'form': formFactor == FormFactor.tv ? 'tv' : 'phone'},
+    pauseProps: () => {'audio': telemetryAudio},
+  ));
+
   final repo = CatalogRepository(
     loadAsset: rootBundle.loadString,
     listBundledAssets: () async =>
@@ -50,7 +70,7 @@ Future<void> main() async {
     docsDir: getApplicationDocumentsDirectory,
   );
   final snapshot = await repo.init(lang);
-  final voicesDir = '${(await getApplicationSupportDirectory()).path}/voices';
+  final voicesDir = '$supportDir/voices';
 
   // Category playback: ambient and speech (system TTS too) keep going with
   // the screen locked; UIBackgroundModes=audio is set in Info.plist.

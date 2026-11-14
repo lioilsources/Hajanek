@@ -458,14 +458,26 @@ abstract class AppLocalizations {
   /// No description provided for @settingsPrivacy.
   ///
   /// In cs, this message translates to:
-  /// **'Žádný účet, žádná analytika. Síť se používá jen pro aktualizaci katalogu.'**
+  /// **'Žádný účet, žádné reklamy, žádná analytika třetích stran. Síť slouží k aktualizaci katalogu a k anonymním statistikám používání, pokud jsou zapnuté.'**
   String get settingsPrivacy;
 
   /// No description provided for @settingsPrivacyCloning.
   ///
   /// In cs, this message translates to:
-  /// **'Žádný účet, žádná analytika. Síť se používá jen pro aktualizaci katalogu a pro tvůj nahraný hlas.'**
+  /// **'Žádný účet, žádné reklamy, žádná analytika třetích stran. Síť slouží k aktualizaci katalogu, pro tvůj nahraný hlas a k anonymním statistikám používání, pokud jsou zapnuté.'**
   String get settingsPrivacyCloning;
+
+  /// No description provided for @settingsStats.
+  ///
+  /// In cs, this message translates to:
+  /// **'Anonymní statistiky používání'**
+  String get settingsStats;
+
+  /// No description provided for @settingsStatsSub.
+  ///
+  /// In cs, this message translates to:
+  /// **'Pomáhají zjistit, co v appce funguje. Bez identifikátoru zařízení, nic o dítěti ani o nahrávkách.'**
+  String get settingsStatsSub;
 
   /// No description provided for @voiceTitle.
   ///

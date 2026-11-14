@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ol1n_telemetry/ol1n_telemetry.dart';
 
 import '../../core/providers.dart';
 import '../../core/strings.dart';
@@ -43,6 +44,7 @@ Future<void> playTale(BuildContext context, WidgetRef ref,
   if (ok) {
     context.push('/player');
   } else {
+    Telemetry.errorShown('script_load');
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.detailNoScript)));
   }
 }
@@ -78,7 +80,10 @@ class _TaleDetailScreenState extends ConsumerState<TaleDetailScreen> {
             tooltip: S.detailFavourite,
             icon: Icon(favourite ? Icons.star : Icons.star_border,
                 color: favourite ? Night.accent : null),
-            onPressed: () => ref.read(databaseProvider).setFavourite(tale.id, !favourite),
+            onPressed: () {
+              if (!favourite) Telemetry.feature('favourite');
+              ref.read(databaseProvider).setFavourite(tale.id, !favourite);
+            },
           ),
           const SizedBox(width: 8),
         ],
@@ -115,7 +120,9 @@ class _TaleDetailScreenState extends ConsumerState<TaleDetailScreen> {
                 label: (id) => choices.firstWhere((c) => c.$1 == id).$2,
                 selected: _background,
               );
-              if (picked != null) setState(() => _background = picked);
+              if (picked == null) return;
+              if (picked != defaultBackground) Telemetry.feature('background');
+              setState(() => _background = picked);
             },
           ),
           SwitchListTile(

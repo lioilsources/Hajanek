@@ -183,11 +183,18 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get settingsPrivacy =>
-      'Sem conta, sem análises. A internet é usada só para atualizar o catálogo.';
+      'Sem conta, sem anúncios, sem análises de terceiros. A internet é usada para atualizar o catálogo e para estatísticas de uso anônimas, se estiverem ativadas.';
 
   @override
   String get settingsPrivacyCloning =>
-      'Sem conta, sem análises. A internet é usada só para atualizar o catálogo e para a sua voz gravada.';
+      'Sem conta, sem anúncios, sem análises de terceiros. A internet é usada para atualizar o catálogo, para a sua voz gravada e para estatísticas de uso anônimas, se estiverem ativadas.';
+
+  @override
+  String get settingsStats => 'Estatísticas de uso anônimas';
+
+  @override
+  String get settingsStatsSub =>
+      'Ajudam a saber o que funciona no app. Sem identificador do aparelho, nada sobre a criança nem sobre as gravações.';
 
   @override
   String get voiceTitle => 'Voz';
@@ -657,11 +664,18 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
 
   @override
   String get settingsPrivacy =>
-      'Sem conta, sem análises. A internet é usada só para atualizar o catálogo.';
+      'Sem conta, sem anúncios, sem análises de terceiros. A internet é usada para atualizar o catálogo e para estatísticas de uso anônimas, se estiverem ativadas.';
 
   @override
   String get settingsPrivacyCloning =>
-      'Sem conta, sem análises. A internet é usada só para atualizar o catálogo e para a sua voz gravada.';
+      'Sem conta, sem anúncios, sem análises de terceiros. A internet é usada para atualizar o catálogo, para a sua voz gravada e para estatísticas de uso anônimas, se estiverem ativadas.';
+
+  @override
+  String get settingsStats => 'Estatísticas de uso anônimas';
+
+  @override
+  String get settingsStatsSub =>
+      'Ajudam a saber o que funciona no app. Sem identificador do aparelho, nada sobre a criança nem sobre as gravações.';
 
   @override
   String get voiceTitle => 'Voz';
