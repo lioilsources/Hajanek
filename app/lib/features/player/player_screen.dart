@@ -124,7 +124,11 @@ class PlayerScreen extends ConsumerWidget {
                 Text(S.playerBalance, style: TextStyle(color: Night.textDim)),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Slider(value: p.balance, onChanged: ctrl.setBalance),
+                  child: Slider(
+                    value: p.balance,
+                    onChanged: ctrl.setBalance,
+                    onChangeEnd: (_) => ctrl.balanceChosen(),
+                  ),
                 ),
               ],
               const SizedBox(height: 24),

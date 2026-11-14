@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ol1n_telemetry/ol1n_telemetry.dart';
 
 import '../../core/providers.dart';
 import '../../core/script/script.dart';
 import '../../core/strings.dart';
+import '../../core/telemetry.dart';
 import '../catalog/catalog_controller.dart';
 import '../catalog/catalog_models.dart';
 import '../settings/settings_controller.dart';
@@ -115,6 +117,11 @@ class PlayerController extends Notifier<PlayerState> {
   bool _voiceStarted = false;
   int? _historyId;
 
+  // Measuring only (docs/telemetry.md); nothing in playback reads these.
+  TelemetryFlow? _flow;
+  DateTime? _flowStartedAt;
+  bool _voiceDone = false;
+
   @override
   PlayerState build() {
     final s = ref.read(settingsProvider);
@@ -129,6 +136,13 @@ class PlayerController extends Notifier<PlayerState> {
       _ticker?.cancel();
       _script?.stop();
     });
+    listenSelf((_, p) => telemetryAudio = !p.active
+        ? 'none'
+        : !p.playing
+            ? 'paused'
+            : p.kind == SessionKind.tale
+                ? 'tale'
+                : 'jukebox');
     return PlayerState(layers: s.lastMix, balance: s.balance, timer: s.timer);
   }
 
@@ -155,7 +169,7 @@ class PlayerController extends Notifier<PlayerState> {
     } on Object {
       return false;
     }
-    await stop();
+    await stop(reason: 'replaced');
     final now = _now();
     final voice = _voice = _voiceFor(settings.voiceId);
     final items = script.items;
@@ -179,6 +193,13 @@ class PlayerController extends Notifier<PlayerState> {
       timer: state.timer,
       section: _script!.section,
     );
+    _startFlow(Telemetry.flow('tale_play', {
+      'tale': telemetryTale(tale.id),
+      'voice': settings.voiceId == systemVoiceId ? 'system' : 'parent',
+      'ritual': ritual,
+      'timer': telemetryTimer(state.timer),
+      'layers': layers.length,
+    }, _flowEndProps));
     await _applyLayers();
     _engine?.playAmbient();
     _startTicker();
@@ -201,9 +222,38 @@ class PlayerController extends Notifier<PlayerState> {
       playing: true,
       timer: _timer.option,
     );
+    Telemetry.feature('jukebox');
+    _startFlow(Telemetry.flow('jukebox', {'layers': state.layers.length}, _flowEndProps));
     await _applyLayers();
     _engine?.playAmbient();
     _startTicker();
+  }
+
+  void _startFlow(TelemetryFlow f) {
+    _flow = f;
+    _flowStartedAt = _now();
+    _voiceDone = false;
+  }
+
+  /// End properties of the open flow: wall-clock minutes (the screen is
+  /// usually locked) and, for a tale, how much of it was read.
+  Map<String, Object> _flowEndProps() {
+    final started = _flowStartedAt;
+    final mins = started == null ? 0 : _now().difference(started).inMinutes.clamp(0, 1440);
+    if (_flow?.name != 'tale_play') return {'mins': mins};
+    return {
+      'mins': mins,
+      'voice_done': _voiceDone,
+      'pct': (state.progress * 100).round().clamp(0, 100),
+    };
+  }
+
+  void _endFlow(String result) {
+    final f = _flow;
+    if (f == null) return;
+    f.end(result, _flowEndProps());
+    _flow = null;
+    _flowStartedAt = null;
   }
 
   Future<void> pause() async {
@@ -228,11 +278,15 @@ class PlayerController extends Notifier<PlayerState> {
 
   /// Skip the rest of the ambient-only intro.
   void startVoiceNow() {
+    Telemetry.feature('ritual_skip');
     _ritual?.skipIntro(_now());
     _tick();
   }
 
-  Future<void> stop() async {
+  /// [reason] is for measuring only: `stop` (the parent), `timer`, `ok`
+  /// (the ritual played out) or `replaced` (another session starts).
+  Future<void> stop({String reason = 'stop'}) async {
+    _endFlow(reason);
     _ticker?.cancel();
     _ticker = null;
     _ritual = null;
@@ -256,6 +310,9 @@ class PlayerController extends Notifier<PlayerState> {
     }
   }
 
+  /// The parent finished moving the voice ↔ background balance.
+  void balanceChosen() => Telemetry.feature('balance');
+
   void setBalance(double b) {
     state = state.copyWith(balance: b.clamp(0.0, 1.0));
     ref.read(settingsProvider.notifier).update((s) => s.copyWith(balance: state.balance));
@@ -264,6 +321,11 @@ class PlayerController extends Notifier<PlayerState> {
 
   void setTimer(SleepTimerOption option) {
     ref.read(settingsProvider.notifier).update((s) => s.copyWith(timer: option));
+    if (option.kind != SleepTimerKind.off) Telemetry.feature('timer');
+    Telemetry.track('timer_set', {
+      'timer': telemetryTimer(option),
+      'during': state.kind == SessionKind.tale ? 'tale' : state.kind == SessionKind.mixer ? 'jukebox' : 'none',
+    });
     final now = _now();
     _timer = SleepTimer(option)..start(now);
     final phase = _ritual?.phase;
@@ -291,7 +353,7 @@ class PlayerController extends Notifier<PlayerState> {
     if (!state.active) return;
     final now = _now();
     if (_timer.isExpired(now)) {
-      stop();
+      stop(reason: 'timer');
       return;
     }
     var ambientGain = 1.0;
@@ -302,7 +364,7 @@ class PlayerController extends Notifier<PlayerState> {
       final frame = ritual.tick(now);
       phase = frame.phase;
       if (frame.phase == RitualPhase.done) {
-        stop();
+        stop(reason: 'ok');
         return;
       }
       if (frame.voiceActive && !_voiceStarted && state.playing) {
@@ -339,6 +401,9 @@ class PlayerController extends Notifier<PlayerState> {
     final now = _now();
     _ritual?.voiceCompleted(now);
     _timer.taleFinished(now);
+    // The first tale read to its end is the app's first real use.
+    _voiceDone = true;
+    Telemetry.activation();
     final id = _historyId;
     if (id != null) {
       ref.read(databaseProvider).finishHistory(id, now);

@@ -184,11 +184,18 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsPrivacy =>
-      'Kein Konto, keine Analyse. Das Internet wird nur genutzt, um den Katalog zu aktualisieren.';
+      'Kein Konto, keine Werbung, keine Analyse durch Dritte. Das Internet wird genutzt, um den Katalog zu aktualisieren, und für anonyme Nutzungsstatistiken, wenn sie eingeschaltet sind.';
 
   @override
   String get settingsPrivacyCloning =>
-      'Kein Konto, keine Analyse. Das Internet wird nur genutzt, um den Katalog zu aktualisieren, und für deine aufgenommene Stimme.';
+      'Kein Konto, keine Werbung, keine Analyse durch Dritte. Das Internet wird genutzt, um den Katalog zu aktualisieren, für deine aufgenommene Stimme und für anonyme Nutzungsstatistiken, wenn sie eingeschaltet sind.';
+
+  @override
+  String get settingsStats => 'Anonyme Nutzungsstatistiken';
+
+  @override
+  String get settingsStatsSub =>
+      'Sie zeigen, was in der App funktioniert. Keine Gerätekennung, nichts über dein Kind oder deine Aufnahmen.';
 
   @override
   String get voiceTitle => 'Stimme';

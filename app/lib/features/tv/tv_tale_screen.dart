@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ol1n_telemetry/ol1n_telemetry.dart';
 
 import '../../core/providers.dart';
 import '../../core/strings.dart';
@@ -100,7 +101,10 @@ class _TvTaleScreenState extends ConsumerState<TvTaleScreen> {
                 _Row(
                   label: S.tvFavourite,
                   value: favourite ? S.tvOn : S.tvOff,
-                  onPressed: () => ref.read(databaseProvider).setFavourite(tale.id, !favourite),
+                  onPressed: () {
+                    if (!favourite) Telemetry.feature('favourite');
+                    ref.read(databaseProvider).setFavourite(tale.id, !favourite);
+                  },
                 ),
               ],
             ),

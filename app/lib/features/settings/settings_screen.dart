@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ol1n_telemetry/ol1n_telemetry.dart';
 
 import '../../core/form_factor.dart';
 import '../../core/strings.dart';
+import '../../core/telemetry.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
 import '../catalog/catalog_controller.dart';
@@ -14,11 +16,16 @@ import '../voice/voice_controller.dart';
 import '../voice/voice_screen.dart';
 import 'settings_controller.dart';
 
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  @override
+  Widget build(BuildContext context) {
     final s = ref.watch(settingsProvider);
     final ctrl = ref.read(settingsProvider.notifier);
     final catalog = ref.watch(catalogProvider);
@@ -69,7 +76,11 @@ class SettingsScreen extends ConsumerWidget {
             title: Text(S.settingsTimer, style: TextStyle(fontSize: 18)),
             trailing: Text(timerLabel(s.timer), style: const TextStyle(fontSize: 16)),
             onTap: () => pick<SleepTimerOption>(S.settingsTimer, SleepTimerOption.choices,
-                timerLabel, s.timer, (s, v) => s.copyWith(timer: v)),
+                timerLabel, s.timer, (s, v) {
+              if (v.kind != SleepTimerKind.off) Telemetry.feature('timer');
+              Telemetry.track('timer_set', {'timer': telemetryTimer(v), 'during': 'settings'});
+              return s.copyWith(timer: v);
+            }),
           ),
           ListTile(
             title: Text(S.languageTitle, style: TextStyle(fontSize: 18)),
@@ -84,7 +95,9 @@ class SettingsScreen extends ConsumerWidget {
                 label: (l) => l.isEmpty ? S.languageSystem : langNames[l]!,
                 selected: s.lang,
               );
-              if (v != null) ref.read(settingsProvider.notifier).update((s) => s.copyWith(lang: v));
+              if (v == null) return;
+              if (v != s.lang) Telemetry.feature('lang');
+              ref.read(settingsProvider.notifier).update((s) => s.copyWith(lang: v));
             },
           ),
           ListTile(
@@ -106,7 +119,10 @@ class SettingsScreen extends ConsumerWidget {
                   label: S.tvBalanceLabel,
                   selected: (s.balance * 4).round() / 4,
                 );
-                if (v != null) ref.read(playerProvider.notifier).setBalance(v);
+                if (v == null) return;
+                ref.read(playerProvider.notifier)
+                  ..setBalance(v)
+                  ..balanceChosen();
               },
             ),
           ListTile(
@@ -133,6 +149,17 @@ class SettingsScreen extends ConsumerWidget {
               child: Text(S.settingsCheckUpdates),
             ),
           ),
+          // A build without a key sends nothing: no switch to show.
+          if (Telemetry.isConfigured)
+            SwitchListTile(
+              title: Text(S.settingsStats, style: TextStyle(fontSize: 18)),
+              subtitle: Text(S.settingsStatsSub),
+              value: Telemetry.isEnabled,
+              onChanged: (on) async {
+                await Telemetry.setEnabled(on);
+                if (mounted) setState(() {});
+              },
+            ),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 32, 20, 0),
             child: Text(

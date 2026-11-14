@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ol1n_telemetry/ol1n_telemetry.dart';
 
 import '../../core/providers.dart';
 import '../../core/strings.dart';
@@ -87,6 +88,7 @@ class MixerScreen extends ConsumerWidget {
                   final used = {for (final l in layers) l.ambient};
                   final next = catalog.ambient
                       .firstWhere((a) => !used.contains(a.id), orElse: () => catalog.ambient.first);
+                  Telemetry.feature('mix_layers');
                   ctrl.setLayers([...layers, MixLayer(ambient: next.id, volume: 0.4)]);
                 },
               ),
@@ -156,6 +158,7 @@ class MixerScreen extends ConsumerWidget {
     controller.dispose();
     final title = name?.trim() ?? '';
     if (title.isEmpty) return;
+    Telemetry.feature('mix_save');
     await ref.read(databaseProvider).saveUserPreset(MixPreset(
           id: 'user-${DateTime.now().millisecondsSinceEpoch}',
           title: title,
