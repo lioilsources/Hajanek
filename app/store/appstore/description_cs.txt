@@ -26,4 +26,4 @@ TMA V POKOJI
 Celá appka je tmavá, bez bílých ploch, s velkými tlačítky. Obrazovka přehrávače po pár vteřinách ztmavne. Na zamčené obrazovce je název pohádky a pauza.
 
 BEZ REKLAM, BEZ ÚČTU
-Žádné reklamy, registrace ani analytika. Pro děti zhruba od tří do osmi let, v češtině.
+Žádné reklamy, registrace ani analytika třetích stran; anonymní statistiky používání jdou vypnout. Pro děti zhruba od tří do osmi let, v češtině.

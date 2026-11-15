@@ -29,26 +29,92 @@
 </head>
 <body>
   <h1>Zásady ochrany soukromí</h1>
-  <p class="updated">Platné od 6. 11. 2026</p>
+  <p class="updated">Platné od 14. 11. 2026</p>
 
   <p>
-    Hajánek je aplikace s pohádkami a zvuky na usínání pro děti. Je zdarma,
-    bez reklam, bez účtu a bez sledování.
+    Hajánek je aplikace s pohádkami a zvuky na usínání. Je určená rodičům,
+    kteří ji pouštějí dětem. Je zdarma, bez reklam a bez účtu. Abychom
+    věděli, co v appce funguje a kde lidé končí, posílá anonymní statistiky
+    používání popsané níže. Dají se kdykoli vypnout.
   </p>
   <p><strong>Provozovatel:</strong> Oldřich Vořechovský (ol1n), kontakt
     <a href="mailto:business@olin.now">business@olin.now</a>.</p>
 
+  <h2>Anonymní statistiky používání</h2>
+  <p>
+    <strong>Co se posílá.</strong> Krátké záznamy o tom, co se v appce
+    děje: appka se otevřela nebo šla do pozadí (a jestli přitom hrála
+    pohádka nebo zvuky), která obrazovka se zobrazila a jak dlouho, která
+    pohádka se spustila (s jakým hlasem, s rituálem, s časovačem) a jak
+    přehrávání skončilo (dohrálo, zastavil ho rodič nebo časovač, kolik
+    procent pohádky zaznělo, kolik minut to trvalo), jaký časovač se nastavil,
+    které funkce se poprvé použily (například jukebox, oblíbené, uložený mix,
+    časovač) a jaká chyba se zobrazila. U každého záznamu je verze appky,
+    platforma (iOS, Android), jazyk appky, jestli běží na telefonu nebo na
+    televizi, a dvě hrubá pásma: zhruba kolikrát se appka na zařízení
+    spustila (1, 2, 3–5, 6–10, 11+) a zhruba před kolika dny začalo měření
+    (0, 1, 2–6, 7–29, 30+). Úplný seznam je ve zdrojovém kódu appky
+    (<a href="https://github.com/lioilsources/Hajanek/blob/main/docs/telemetry.md">docs/telemetry.md</a>).
+  </p>
+  <p>
+    <strong>Proč.</strong> Abychom viděli, kolik nových uživatelů se dostane
+    k první dohrané pohádce, jestli se pohádky dohrávají, jak se používá
+    časovač a jukebox a kde appka zlobí, a mohli to opravit.
+  </p>
+  <p>
+    <strong>Bez identifikátorů.</strong> Statistiky neobsahují jméno, e-mail,
+    účet, identifikátor zařízení ani reklamní identifikátor, přesný model
+    zařízení ani žádný text, který do appky napíšete. Každé spuštění dostane
+    náhodné číslo, které existuje jen po dobu běhu appky, takže dvě spuštění
+    nejde spojit dohromady ani s vámi. Statistiky se nepoužívají k reklamě
+    ani ke sledování a nikomu se neprodávají ani nepředávají.
+  </p>
+  <p>
+    <strong>Nic o dítěti, nic o nahrávkách.</strong> Neposílá se oslovení
+    dítěte ani nic jiného o dítěti. U hlasu rodiče se zaznamená jen to, že
+    se funkce použila (nahrávka byla odeslána, televize byla propojena), nikdy
+    nahrávka, její délka, jméno hlasu ani text souhlasu.
+  </p>
+  <p>
+    <strong>Kdo je dostává a kde.</strong> Statistiky přijímá a ukládá
+    vývojář na vlastním serveru v EU (Česko). Nikdo další je nedostane: není
+    v tom zapojená žádná analytická firma ani jiná třetí strana. Odeslání,
+    jako každé spojení přes internet, prozradí serveru IP adresu. Ta se
+    neukládá, slouží jen k určení země. Země je jediný údaj o poloze, který
+    zůstane.
+  </p>
+  <p>
+    <strong>Jak dlouho.</strong> Statistiky se uchovávají 12 měsíců, pak se
+    mažou.
+  </p>
+  <p>
+    <strong>Bez připojení.</strong> Appka funguje i offline. Bez připojení
+    čeká v zařízení nejvýš 500 posledních záznamů a odešlou se později;
+    starší se zahazují.
+  </p>
+  <p>
+    <strong>Jak je vypnout.</strong> V nastavení appky vypněte
+    <em>Anonymní statistiky používání</em>. Platí to hned: záznamy čekající
+    v zařízení se smažou a nic dalšího se neposílá, dokud statistiky znovu
+    nezapnete.
+  </p>
+
   <h2>Co appka nesbírá</h2>
   <ul>
     <li>Žádný účet, jméno, e-mail ani telefonní číslo.</li>
-    <li>Žádnou reklamu, analytiku, sledování ani identifikátory pro reklamu.</li>
+    <li>Žádnou reklamu, analytiku třetích stran, sledování ani identifikátory
+      pro reklamu.</li>
     <li>Nic o dítěti. Dítě appku jen poslouchá.</li>
+    <li>Přesnou polohu (jen zemi, viz výše).</li>
   </ul>
 
   <h2>Co zůstává jen v telefonu</h2>
   <p>
     Oblíbené pohádky, vlastní mixy zvuků a nastavení (časovač, hlasitost,
-    rituál). Smažou se s odinstalováním appky.
+    rituál). Pro statistiky si appka v zařízení drží pár malých hodnot: den,
+    kdy začalo měření, počítadlo spuštění a použité funkce. Z nich se pásma
+    výše počítají přímo v zařízení. Nic z toho se neposílá a všechno se smaže
+    s odinstalováním appky.
   </p>
 
   <h2>Stahování pohádek</h2>
@@ -67,39 +133,91 @@
     jejich zásady, ne naše.
   </p>
 
+  <h2>Děti</h2>
+  <p>
+    Hajánek ovládá rodič; dítě jen poslouchá. Appka není zařazená do
+    kategorie Kids v App Store ani do programu Families v Google Play.
+    Anonymní statistiky neobsahují nic, co by identifikovalo člověka, a dají
+    se vypnout v nastavení.
+  </p>
+
   <h2>Vaše práva</h2>
   <p>
-    Appka o vás žádné osobní údaje nezpracovává, takže nemáme co zpřístupnit,
-    opravit ani vymazat. Máte právo podat stížnost u Úřadu pro ochranu
-    osobních údajů (<a href="https://uoou.gov.cz">uoou.gov.cz</a>). Dotazy
-    pište na <a href="mailto:business@olin.now">business@olin.now</a>.
+    Statistiky neobsahují nic, podle čeho bychom vás nebo vaše zařízení
+    poznali, takže je nemůžeme dohledat, zpřístupnit ani smazat jednotlivě;
+    vypnutím v nastavení se smažou ty, které ještě čekají v zařízení. Máte
+    právo podat stížnost u Úřadu pro ochranu osobních údajů
+    (<a href="https://uoou.gov.cz">uoou.gov.cz</a>). Dotazy pište na
+    <a href="mailto:business@olin.now">business@olin.now</a>.
   </p>
 
   <h2>Změny</h2>
   <p>
-    Když se zásady změní, změní se datum nahoře. Nové funkce, které by
-    odesílaly jakákoli data (například nahrání vlastního hlasu rodiče), budou
-    popsané tady dřív, než se v appce objeví.
+    Když se zásady změní, změní se datum nahoře. Každá nová položka ve
+    statistikách i nové funkce, které by odesílaly jiná data (například
+    nahrání vlastního hlasu rodiče), budou popsané tady dřív, než se v appce
+    objeví.
   </p>
 
   <h1 style="margin-top:64px">Privacy Policy</h1>
-  <p class="updated">Effective November 6, 2026</p>
+  <p class="updated">Effective November 14, 2026</p>
   <p>
-    Hajánek is a free bedtime-story and sleep-sounds app for children with no
-    ads, no account and no tracking. Developer: Oldřich Vořechovský (ol1n),
-    <a href="mailto:business@olin.now">business@olin.now</a>.
+    Hajánek is a free bedtime-story and sleep-sounds app for parents to play
+    to their children, with no ads and no account. Developer: Oldřich
+    Vořechovský (ol1n), <a href="mailto:business@olin.now">business@olin.now</a>.
+    To learn what works in the app and where people give up, it sends
+    anonymous usage statistics, described below, which you can turn off at
+    any time.
   </p>
   <ul>
-    <li><strong>No data collected.</strong> No personal identifiers, analytics,
-      advertising IDs or data about the child.</li>
-    <li><strong>On your device.</strong> Favourites, sound mixes and settings stay
-      on the phone and are deleted with the app.</li>
+    <li><strong>What is sent.</strong> Short records of app use: the app was
+      opened or went to the background (and whether a tale or sounds were
+      playing), which screen was shown and for how long, which tale started
+      (voice, ritual, sleep timer) and how playback ended (finished, stopped by
+      the parent or the timer, how much of the tale was read, how many
+      minutes), which sleep timer was set, the first use of features such as
+      the jukebox, favourites, saved mixes and the timer, and errors shown.
+      Each record carries the app version, platform, app language, phone or
+      TV, and two coarse bands: roughly how many times the app has been opened
+      on this device (1, 2, 3–5, 6–10, 11+) and roughly how many days ago
+      measuring began (0, 1, 2–6, 7–29, 30+). The full list is in the app's
+      source repository
+      (<a href="https://github.com/lioilsources/Hajanek/blob/main/docs/telemetry.md">docs/telemetry.md</a>).</li>
+    <li><strong>No identifiers.</strong> No name, email, account, device or
+      advertising identifier, exact device model or any text you type. Each
+      launch gets a random number that exists only while the app runs, so two
+      sessions cannot be linked to each other or to you. Not used for
+      advertising or tracking, never sold or shared.</li>
+    <li><strong>Nothing about the child or recordings.</strong> The child's
+      name is never sent. For the parent's voice feature only the fact that it
+      was used is recorded, never the recording, its length, the voice name or
+      the consent text.</li>
+    <li><strong>Who receives them, and where.</strong> The developer receives
+      and stores them on the developer's own server in the EU (Czech
+      Republic). Nobody else receives them; no analytics company or other
+      third party is involved. The connection reveals your IP address to that
+      server; it is not stored and is used only to derive your country, the
+      only location information kept.</li>
+    <li><strong>How long.</strong> 12 months, then deleted. Offline, up to 500
+      recent records wait on the device and are sent later.</li>
+    <li><strong>How to turn them off.</strong> In the app's settings, switch
+      off <em>Anonymous usage statistics</em>. It takes effect at once: records
+      waiting on the device are deleted and nothing more is sent.</li>
+    <li><strong>On your device.</strong> Favourites, sound mixes and settings,
+      plus a few small values the statistics use (the day measuring began, a
+      launch counter, features used), stay on the phone and are deleted with
+      the app.</li>
     <li><strong>Downloads.</strong> Stories and sounds are downloaded from GitHub
       Pages, which sees the device's IP address like any website.</li>
     <li><strong>Reading voice.</strong> Stories are read by the device's built-in
       text-to-speech, governed by Apple's or Google's policies.</li>
+    <li><strong>Children.</strong> The app is operated by the parent; the child
+      only listens. It is not in the App Store Kids category or Google Play's
+      Families programme. The statistics contain nothing that identifies a
+      person.</li>
   </ul>
-  <p>Any future feature that sends data will be described here before it ships.</p>
+  <p>Any new statistic or feature that sends other data will be described here
+    before it ships.</p>
 
   <footer>
     <a href="index.html">← Hajánek</a> &nbsp;·&nbsp;

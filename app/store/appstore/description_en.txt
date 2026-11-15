@@ -12,4 +12,4 @@ BEDTIME RITUAL AND SLEEP TIMER
 First only the background plays, then the tale begins, then the background fades out slowly. The timer stops after 5 to 60 minutes or at the end of the tale, and never cuts off abruptly.
 
 DARK, NO ADS, NO ACCOUNT
-The whole app is dark with large buttons. No ads, no sign-up, no analytics.
+The whole app is dark with large buttons. No ads, no sign-up, no third-party analytics; anonymous usage statistics can be turned off.
