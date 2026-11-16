@@ -183,11 +183,18 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsPrivacy =>
-      'Bez konta, bez analityki. Sieć służy tylko do aktualizacji katalogu.';
+      'Bez konta, bez reklam, bez analityki firm trzecich. Sieć służy do aktualizacji katalogu i do anonimowych statystyk użycia, jeśli są włączone.';
 
   @override
   String get settingsPrivacyCloning =>
-      'Bez konta, bez analityki. Sieć służy tylko do aktualizacji katalogu i do Twojego nagranego głosu.';
+      'Bez konta, bez reklam, bez analityki firm trzecich. Sieć służy do aktualizacji katalogu, do Twojego nagranego głosu i do anonimowych statystyk użycia, jeśli są włączone.';
+
+  @override
+  String get settingsStats => 'Anonimowe statystyki użycia';
+
+  @override
+  String get settingsStatsSub =>
+      'Pomagają sprawdzić, co działa w aplikacji. Bez identyfikatora urządzenia, nic o dziecku ani o nagraniach.';
 
   @override
   String get voiceTitle => 'Głos';

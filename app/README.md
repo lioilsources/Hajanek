@@ -1,7 +1,9 @@
 # Hajánek — mobilní aplikace (Flutter MVP)
 
 Usínací pohádkové meditace pro děti: hlas + podkres přírodních zvuků, rituál
-„dobrou noc“, časovač, jukebox zvuků. Offline-first, žádný účet, žádná analytika.
+„dobrou noc“, časovač, jukebox zvuků. Offline-first, žádný účet, žádné reklamy,
+žádná analytika třetích stran. Anonymní statistiky používání jdou na vlastní
+server a dají se vypnout ([`docs/telemetry.md`](../docs/telemetry.md)).
 Bundle ID `com.ol1n.hajanek` (iOS i Android), iOS 15+, Android 8+ (minSdk 26).
 
 Architektura hlasu: [ADR-003](../docs/adr/ADR-003-voice-architecture.md).
@@ -32,9 +34,12 @@ flutter analyze
 | `API_URL` | `https://hajanek-api.ol1n.com` | hajanek-api (registrace zařízení, hlasy rodičů, klipy) |
 | `FORM_FACTOR` | – | `tv` vynutí TV rozhraní (např. na telefonním emulátoru), `phone` telefonní. Bez něj rozhoduje platforma: Android `UiModeManager` (kanál `com.ol1n.hajanek/device`, `isTv`). |
 | `VOICE_CLONING` | `false` | klonování hlasu rodiče a párování TV jako beta zdarma (`true` pro vývoj a TestFlight betu). Vypnuté = appka vůbec nemluví s `hajanek-api` a nenabízí nahrávání. Placená verze viz [`docs/IAP_PLAN.md`](../docs/IAP_PLAN.md). |
+| `TELEMETRY_KEY`, `TELEMETRY_HOST` | – | anonymní statistiky používání ([`docs/telemetry.md`](../docs/telemetry.md)). Bez nich appka nic nezaznamená ani neodešle a vypínač v nastavení se nezobrazí. Release workflowy je berou ze secrets. |
+| `TELEMETRY_DEBUG` | `false` | `true` vypíše události do konzole místo odeslání |
 | `INCLUDE_DRAFTS` | `true` | ukázat pohádky, jejichž skript v bundlu má `status: draft`. **Pro release musí být `false`** (`flutter build ipa --dart-define=INCLUDE_DRAFTS=false`). Drafty jsou zatím i v publikovaném katalogu (`forge publish --drafts`, kvůli testu s Alexkem); appka je pozná podle `status` skriptu. |
 
-Appka mluví jen s Pages (katalog) a, se zapnutým `VOICE_CLONING`, s `hajanek-api`; nikdy s `llm.ol1n.com`
+Appka mluví jen s Pages (katalog), se zapnutým `VOICE_CLONING` s `hajanek-api` a s klíčem
+`TELEMETRY_KEY` s příjemcem statistik (StoreMetrics); nikdy s `llm.ol1n.com`
 a nepotřebuje žádné CF Access tajnosti.
 
 ### Obsah v bundlu
@@ -60,6 +65,8 @@ lib/
                          sekcí a tónem, oslovení, NFC, utterance_key, odhad délky
     script/tone.dart     tabulka tónů + dojezd ramp + převod rychlosti pro platformu
     strings.dart         všechny české texty UI na jednom místě
+    telemetry.dart       slovník anonymních statistik (= docs/telemetry.md) a
+                         kAppVersion; test hlídá shodu s pubspec.yaml
     theme.dart, widgets.dart, providers.dart, content_ref.dart (bundle vs. soubor)
     db/database.dart     drift: oblíbené, historie, předvolby, key/value nastavení
   features/
@@ -179,6 +186,9 @@ pro telefon i TV; manifest má `LEANBACK_LAUNCHER`, banner
   český klonující engine s komerční licencí.
 
 ## Release
+
+Při zvednutí `version:` v `pubspec.yaml` zvedni i `kAppVersion`
+(`lib/core/telemetry.dart`), jinak spadne `test/telemetry_test.dart`.
 
 Tag `v*` spustí dva workflowy, oba vždy s `INCLUDE_DRAFTS=false`:
 

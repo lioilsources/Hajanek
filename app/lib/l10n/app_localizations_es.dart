@@ -184,11 +184,18 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsPrivacy =>
-      'Sin cuenta y sin analíticas. La red solo se usa para actualizar el catálogo.';
+      'Sin cuenta, sin anuncios y sin analíticas de terceros. La red se usa para actualizar el catálogo y para estadísticas de uso anónimas, si están activadas.';
 
   @override
   String get settingsPrivacyCloning =>
-      'Sin cuenta y sin analíticas. La red solo se usa para actualizar el catálogo y para tu voz grabada.';
+      'Sin cuenta, sin anuncios y sin analíticas de terceros. La red se usa para actualizar el catálogo, para tu voz grabada y para estadísticas de uso anónimas, si están activadas.';
+
+  @override
+  String get settingsStats => 'Estadísticas de uso anónimas';
+
+  @override
+  String get settingsStatsSub =>
+      'Ayudan a saber qué funciona en la app. Sin identificador del dispositivo, nada sobre tu hijo ni sobre tus grabaciones.';
 
   @override
   String get voiceTitle => 'Voz';

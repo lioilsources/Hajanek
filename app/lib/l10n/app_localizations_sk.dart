@@ -183,11 +183,18 @@ class AppLocalizationsSk extends AppLocalizations {
 
   @override
   String get settingsPrivacy =>
-      'Žiadny účet, žiadna analytika. Sieť sa používa len na aktualizáciu katalógu.';
+      'Žiadny účet, žiadne reklamy, žiadna analytika tretích strán. Sieť slúži na aktualizáciu katalógu a na anonymné štatistiky používania, ak sú zapnuté.';
 
   @override
   String get settingsPrivacyCloning =>
-      'Žiadny účet, žiadna analytika. Sieť sa používa len na aktualizáciu katalógu a pre tvoj nahraný hlas.';
+      'Žiadny účet, žiadne reklamy, žiadna analytika tretích strán. Sieť slúži na aktualizáciu katalógu, pre tvoj nahraný hlas a na anonymné štatistiky používania, ak sú zapnuté.';
+
+  @override
+  String get settingsStats => 'Anonymné štatistiky používania';
+
+  @override
+  String get settingsStatsSub =>
+      'Pomáhajú zistiť, čo v appke funguje. Bez identifikátora zariadenia, nič o dieťati ani o nahrávkach.';
 
   @override
   String get voiceTitle => 'Hlas';

@@ -63,6 +63,8 @@ class AppDatabase extends _$AppDatabase {
   Future<int> startHistory(String taleId, String voice, DateTime at) => into(history)
       .insert(HistoryCompanion.insert(taleId: taleId, voice: voice, startedAt: at));
 
+  Future<bool> hasHistory() async => (await (select(history)..limit(1)).get()).isNotEmpty;
+
   Future<void> finishHistory(int id, DateTime at) =>
       (update(history)..where((h) => h.id.equals(id)))
           .write(HistoryCompanion(finishedAt: Value(at)));

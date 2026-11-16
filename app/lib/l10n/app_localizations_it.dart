@@ -184,11 +184,18 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get settingsPrivacy =>
-      'Nessun account, nessuna statistica. La rete serve solo ad aggiornare il catalogo.';
+      'Nessun account, nessuna pubblicità, nessuna statistica di terze parti. La rete serve ad aggiornare il catalogo e per statistiche d’uso anonime, se attive.';
 
   @override
   String get settingsPrivacyCloning =>
-      'Nessun account, nessuna statistica. La rete serve solo ad aggiornare il catalogo e per la tua voce registrata.';
+      'Nessun account, nessuna pubblicità, nessuna statistica di terze parti. La rete serve ad aggiornare il catalogo, per la tua voce registrata e per statistiche d’uso anonime, se attive.';
+
+  @override
+  String get settingsStats => 'Statistiche d’uso anonime';
+
+  @override
+  String get settingsStatsSub =>
+      'Aiutano a capire cosa funziona nell’app. Nessun identificativo del dispositivo, niente sul bambino né sulle registrazioni.';
 
   @override
   String get voiceTitle => 'Voce';

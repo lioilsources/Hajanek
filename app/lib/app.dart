@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ol1n_telemetry/ol1n_telemetry.dart';
 
 import 'core/form_factor.dart';
 import 'core/strings.dart';
+import 'core/telemetry.dart';
 import 'core/theme.dart';
 import 'features/catalog/catalog_controller.dart';
 import 'features/catalog/home_screen.dart';
@@ -27,6 +29,8 @@ import 'features/voice/voice_screen.dart';
 GoRouter buildRouter([FormFactor formFactor = FormFactor.phone]) {
   final tv = formFactor == FormFactor.tv;
   return GoRouter(
+    // Reports kScreenRoutes names only; a path with a tale id never leaves.
+    observers: [TelemetryNavigatorObserver(kScreenRoutes)],
     routes: [
       GoRoute(path: '/', builder: (_, _) => tv ? const TvHomeScreen() : const HomeScreen()),
       GoRoute(
@@ -70,6 +74,13 @@ class _HajanekAppState extends ConsumerState<HajanekApp> {
     });
   }
 
+  /// Home shows a hint when the phone has no voice for the language.
+  void _reportMissingVoice(AsyncValue<bool?>? _, AsyncValue<bool?> next) {
+    if (next.value == false && !ref.read(settingsProvider).czechHintDismissed) {
+      Telemetry.errorShown('tts_missing');
+    }
+  }
+
   @override
   void dispose() {
     _router.dispose();
@@ -83,6 +94,7 @@ class _HajanekAppState extends ConsumerState<HajanekApp> {
       // plays, so after the tale (or the timer) it can go to standby.
       ref.listen(playerProvider.select((p) => p.playing), (_, playing) => ref.read(wakelockProvider)(playing));
     }
+    ref.listen(systemVoiceAvailableProvider, _reportMissingVoice);
     final lang = ref.watch(contentLangProvider);
     ref.listen(contentLangProvider, (_, next) {
       setStringsLang(next);
