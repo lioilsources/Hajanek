@@ -484,4 +484,8 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get playerChannel => 'Lecture';
+
+  @override
+  String get languageTalesFallback =>
+      'Les contes ne sont pas encore dans cette langue, ils sont lus en anglais.';
 }

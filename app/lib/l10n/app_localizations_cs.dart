@@ -480,4 +480,8 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get playerChannel => 'Přehrávání';
+
+  @override
+  String get languageTalesFallback =>
+      'Pohádky v tomto jazyce zatím nejsou, hrají anglicky.';
 }

@@ -95,9 +95,9 @@ class _HajanekAppState extends ConsumerState<HajanekApp> {
       ref.listen(playerProvider.select((p) => p.playing), (_, playing) => ref.read(wakelockProvider)(playing));
     }
     ref.listen(systemVoiceAvailableProvider, _reportMissingVoice);
-    final lang = ref.watch(contentLangProvider);
+    final lang = ref.watch(uiLangProvider);
+    ref.listen(uiLangProvider, (_, next) => setStringsLang(next));
     ref.listen(contentLangProvider, (_, next) {
-      setStringsLang(next);
       ref.read(systemTtsProvider)?.setLang(next);
       ref.read(catalogProvider.notifier).switchLang(next);
     });

@@ -87,7 +87,7 @@ Sent with every event.
 |---|---|---|
 | `app_version` | enum | the app version (`kAppVersion`, checked against `pubspec.yaml`) |
 | `platform` | enum | `ios`, `android`, `macos`, `windows`, `linux`, `other` |
-| `lang` | enum | the app's language: `cs`, `en`, `de`, `es`, `fr`, `pt-BR`, `it`, `pl`, `sk` |
+| `lang` | enum | the app's language (UI, `supportedLangs`): `cs`, `en`, `de`, `es`, `fr`, `pt-BR`, `it`, `pl`, `sk`, `ar`, `bn`, `ca`, `da`, `el`, `fi`, `gu`, `he`, `hi`, `hr`, `hu`, `id`, `ja`, `kn`, `ko`, `ml`, `mr`, `ms`, `nb`, `nl`, `or`, `pa`, `pt-PT`, `ro`, `ru`, `sl`, `sv`, `ta`, `te`, `th`, `tr`, `uk`, `ur`, `vi`, `zh-Hans`, `zh-Hant` |
 | `session_band` | band | session number: `1`, `2`, `3-5`, `6-10`, `11+` |
 | `days_band` | band | days since measuring began: `0`, `1`, `2-6`, `7-29`, `30+`, `pre` |
 | `first_session` | bool | the very first session of a new install |
