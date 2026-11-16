@@ -5,7 +5,7 @@ import 'strings.dart';
 
 /// The app version this build reports; `test/telemetry_test.dart` keeps it
 /// equal to `version:` in `pubspec.yaml`.
-const kAppVersion = '1.1.0';
+const kAppVersion = '1.1.1';
 
 /// The app's id in StoreMetrics (`apps.yaml`).
 const kTelemetryApp = 'hajanek';
