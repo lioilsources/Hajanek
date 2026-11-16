@@ -49,5 +49,7 @@ ToneParams toneFor(Utterance u) {
   );
 }
 
-/// flutter_tts speech rate: iOS AVSpeechUtterance 0.5 = normal, Android 1.0.
-double platformSpeechRate(double relative, {required bool ios}) => relative * (ios ? 0.5 : 1.0);
+/// flutter_tts speech rate: 0.5 = normal on both. iOS passes it to
+/// AVSpeechUtterance (0.5 = default); Android doubles it before
+/// TextToSpeech.setSpeechRate (1.0 = normal), so 1.0 here would be 2×.
+double platformSpeechRate(double relative, {required bool ios}) => relative * 0.5;
