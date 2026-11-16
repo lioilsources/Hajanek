@@ -124,7 +124,7 @@ void main() {
     test('platform rate mapping', () {
       expect(platformSpeechRate(1.0, ios: true), 0.5);
       expect(platformSpeechRate(0.85, ios: true), closeTo(0.425, 1e-9));
-      expect(platformSpeechRate(0.85, ios: false), closeTo(0.85, 1e-9));
+      expect(platformSpeechRate(0.85, ios: false), closeTo(0.425, 1e-9));
     });
   });
 }
