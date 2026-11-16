@@ -355,10 +355,14 @@ void main() {
     Directory('${tmp.path}/p1').createSync();
     fake.household.clear(); // the phone deleted it
     await ctrl.refresh();
-    await Future<void>.delayed(Duration.zero);
     expect(c.read(voiceProvider).voices, isEmpty);
     expect(c.read(settingsProvider).voiceId, 'system');
-    expect(Directory('${tmp.path}/p1').existsSync(), isFalse);
+    // The clips are deleted in the background (unawaited file I/O).
+    final dir = Directory('${tmp.path}/p1');
+    for (var i = 0; i < 100 && dir.existsSync(); i++) {
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+    }
+    expect(dir.existsSync(), isFalse);
   });
 
   test('recording text: consent first, name filled in, tips separate', () {
