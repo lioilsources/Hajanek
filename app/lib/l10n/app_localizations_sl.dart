@@ -183,11 +183,18 @@ class AppLocalizationsSl extends AppLocalizations {
 
   @override
   String get settingsPrivacy =>
-      'Brez računa, brez analitike. Omrežje se uporablja le za posodobitev kataloga.';
+      'Brez računa, brez oglasov, brez analitike tretjih oseb. Omrežje se uporablja za posodobitev kataloga in za anonimno statistiko uporabe, če je vklopljena.';
 
   @override
   String get settingsPrivacyCloning =>
-      'Brez računa, brez analitike. Omrežje se uporablja le za posodobitev kataloga in za tvoj posneti glas.';
+      'Brez računa, brez oglasov, brez analitike tretjih oseb. Omrežje se uporablja za posodobitev kataloga, za tvoj posneti glas in za anonimno statistiko uporabe, če je vklopljena.';
+
+  @override
+  String get settingsStats => 'Anonimna statistika uporabe';
+
+  @override
+  String get settingsStatsSub =>
+      'Pomaga videti, kaj v aplikaciji deluje. Brez identifikatorja naprave, nič o tvojem otroku ali tvojih posnetkih.';
 
   @override
   String get voiceTitle => 'Glas';

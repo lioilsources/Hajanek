@@ -180,10 +180,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsVocativeNone => '未设置';
 
   @override
-  String get settingsPrivacy => '无需账户，没有数据分析。网络只用于更新目录。';
+  String get settingsPrivacy => '无需账户，没有广告，没有第三方数据分析。网络用于更新目录，以及在开启时发送匿名使用统计。';
 
   @override
-  String get settingsPrivacyCloning => '无需账户，没有数据分析。网络只用于更新目录和你录制的声音。';
+  String get settingsPrivacyCloning =>
+      '无需账户，没有广告，没有第三方数据分析。网络用于更新目录、你录制的声音，以及在开启时发送匿名使用统计。';
+
+  @override
+  String get settingsStats => '匿名使用统计';
+
+  @override
+  String get settingsStatsSub => '帮助了解应用中哪些功能好用。不含设备标识符，也不涉及你的孩子或你的录音。';
 
   @override
   String get voiceTitle => '声音';
@@ -637,10 +644,17 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get settingsVocativeNone => '未设置';
 
   @override
-  String get settingsPrivacy => '无需账户，没有数据分析。网络只用于更新目录。';
+  String get settingsPrivacy => '无需账户，没有广告，没有第三方数据分析。网络用于更新目录，以及在开启时发送匿名使用统计。';
 
   @override
-  String get settingsPrivacyCloning => '无需账户，没有数据分析。网络只用于更新目录和你录制的声音。';
+  String get settingsPrivacyCloning =>
+      '无需账户，没有广告，没有第三方数据分析。网络用于更新目录、你录制的声音，以及在开启时发送匿名使用统计。';
+
+  @override
+  String get settingsStats => '匿名使用统计';
+
+  @override
+  String get settingsStatsSub => '帮助了解应用中哪些功能好用。不含设备标识符，也不涉及你的孩子或你的录音。';
 
   @override
   String get voiceTitle => '声音';
@@ -1094,10 +1108,17 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get settingsVocativeNone => '未設定';
 
   @override
-  String get settingsPrivacy => '不需帳號，沒有數據分析。網路只用於更新目錄。';
+  String get settingsPrivacy => '不需帳號，沒有廣告，沒有第三方數據分析。網路用於更新目錄，以及在開啟時傳送匿名使用統計。';
 
   @override
-  String get settingsPrivacyCloning => '不需帳號，沒有數據分析。網路只用於更新目錄和你錄製的聲音。';
+  String get settingsPrivacyCloning =>
+      '不需帳號，沒有廣告，沒有第三方數據分析。網路用於更新目錄、你錄製的聲音，以及在開啟時傳送匿名使用統計。';
+
+  @override
+  String get settingsStats => '匿名使用統計';
+
+  @override
+  String get settingsStatsSub => '幫助了解 App 中哪些功能好用。不含裝置識別碼，也不涉及你的孩子或你的錄音。';
 
   @override
   String get voiceTitle => '聲音';

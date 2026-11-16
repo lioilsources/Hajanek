@@ -184,11 +184,18 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get settingsPrivacy =>
-      'Nincs fiók, nincs analitika. A hálózatot csak a katalógus frissítésére használjuk.';
+      'Nincs fiók, nincs reklám, nincs harmadik féltől származó analitika. A hálózatot a katalógus frissítésére és a névtelen használati statisztikához használjuk, ha be van kapcsolva.';
 
   @override
   String get settingsPrivacyCloning =>
-      'Nincs fiók, nincs analitika. A hálózatot csak a katalógus frissítésére és a felvett hangodhoz használjuk.';
+      'Nincs fiók, nincs reklám, nincs harmadik féltől származó analitika. A hálózatot a katalógus frissítésére, a felvett hangodhoz és a névtelen használati statisztikához használjuk, ha be van kapcsolva.';
+
+  @override
+  String get settingsStats => 'Névtelen használati statisztika';
+
+  @override
+  String get settingsStatsSub =>
+      'Segít látni, mi működik az alkalmazásban. Nincs eszközazonosító, semmi a gyerekedről vagy a felvételeidről.';
 
   @override
   String get voiceTitle => 'Hang';

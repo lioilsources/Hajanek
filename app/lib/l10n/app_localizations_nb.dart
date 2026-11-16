@@ -184,11 +184,18 @@ class AppLocalizationsNb extends AppLocalizations {
 
   @override
   String get settingsPrivacy =>
-      'Ingen konto, ingen analyse. Nettet brukes bare til å oppdatere katalogen.';
+      'Ingen konto, ingen reklame, ingen analyse fra tredjeparter. Nettet brukes til å oppdatere katalogen og til anonym bruksstatistikk, hvis den er slått på.';
 
   @override
   String get settingsPrivacyCloning =>
-      'Ingen konto, ingen analyse. Nettet brukes bare til å oppdatere katalogen og til den innspilte stemmen din.';
+      'Ingen konto, ingen reklame, ingen analyse fra tredjeparter. Nettet brukes til å oppdatere katalogen, til den innspilte stemmen din og til anonym bruksstatistikk, hvis den er slått på.';
+
+  @override
+  String get settingsStats => 'Anonym bruksstatistikk';
+
+  @override
+  String get settingsStatsSub =>
+      'Den viser hva som fungerer i appen. Ingen enhets-ID, ingenting om barnet ditt eller opptakene dine.';
 
   @override
   String get voiceTitle => 'Stemme';

@@ -184,11 +184,18 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get settingsPrivacy =>
-      'Tanpa akun, tanpa analitik. Jaringan hanya dipakai untuk memperbarui katalog.';
+      'Tanpa akun, tanpa iklan, tanpa analitik pihak ketiga. Jaringan dipakai untuk memperbarui katalog dan untuk statistik penggunaan anonim, jika diaktifkan.';
 
   @override
   String get settingsPrivacyCloning =>
-      'Tanpa akun, tanpa analitik. Jaringan hanya dipakai untuk memperbarui katalog dan untuk suara rekaman Anda.';
+      'Tanpa akun, tanpa iklan, tanpa analitik pihak ketiga. Jaringan dipakai untuk memperbarui katalog, untuk suara rekaman Anda, dan untuk statistik penggunaan anonim, jika diaktifkan.';
+
+  @override
+  String get settingsStats => 'Statistik penggunaan anonim';
+
+  @override
+  String get settingsStatsSub =>
+      'Membantu melihat apa yang berhasil di aplikasi. Tanpa ID perangkat, tidak ada apa pun tentang anak Anda atau rekaman Anda.';
 
   @override
   String get voiceTitle => 'Suara';

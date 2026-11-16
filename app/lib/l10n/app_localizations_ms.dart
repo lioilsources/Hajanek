@@ -185,11 +185,18 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get settingsPrivacy =>
-      'Tiada akaun, tiada analitik. Rangkaian hanya digunakan untuk mengemas kini katalog.';
+      'Tiada akaun, tiada iklan, tiada analitik pihak ketiga. Rangkaian digunakan untuk mengemas kini katalog dan untuk statistik penggunaan tanpa nama, jika dihidupkan.';
 
   @override
   String get settingsPrivacyCloning =>
-      'Tiada akaun, tiada analitik. Rangkaian hanya digunakan untuk mengemas kini katalog dan untuk suara rakaman anda.';
+      'Tiada akaun, tiada iklan, tiada analitik pihak ketiga. Rangkaian digunakan untuk mengemas kini katalog, untuk suara rakaman anda dan untuk statistik penggunaan tanpa nama, jika dihidupkan.';
+
+  @override
+  String get settingsStats => 'Statistik penggunaan tanpa nama';
+
+  @override
+  String get settingsStatsSub =>
+      'Membantu menunjukkan apa yang berkesan dalam aplikasi. Tiada pengecam peranti, tiada apa-apa tentang anak anda atau rakaman anda.';
 
   @override
   String get voiceTitle => 'Suara';

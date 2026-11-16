@@ -180,11 +180,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsVocativeNone => '未設定';
 
   @override
-  String get settingsPrivacy => 'アカウントなし、解析なし。ネットワークはカタログの更新にのみ使います。';
+  String get settingsPrivacy =>
+      'アカウントなし、広告なし、第三者による解析なし。ネットワークはカタログの更新と、オンの場合は匿名の利用統計に使います。';
 
   @override
   String get settingsPrivacyCloning =>
-      'アカウントなし、解析なし。ネットワークはカタログの更新と、録音したあなたの声にのみ使います。';
+      'アカウントなし、広告なし、第三者による解析なし。ネットワークはカタログの更新、録音したあなたの声、オンの場合は匿名の利用統計に使います。';
+
+  @override
+  String get settingsStats => '匿名の利用統計';
+
+  @override
+  String get settingsStatsSub =>
+      'アプリのどこがうまく働いているかを知るのに役立ちます。端末の識別子は使わず、お子さんや録音についての情報も含みません。';
 
   @override
   String get voiceTitle => '声';

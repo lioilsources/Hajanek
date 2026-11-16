@@ -183,11 +183,18 @@ class AppLocalizationsFi extends AppLocalizations {
 
   @override
   String get settingsPrivacy =>
-      'Ei tiliä, ei analytiikkaa. Verkkoa käytetään vain luettelon päivittämiseen.';
+      'Ei tiliä, ei mainoksia, ei kolmansien osapuolten analytiikkaa. Verkkoa käytetään luettelon päivittämiseen ja nimettömiin käyttötilastoihin, jos ne ovat päällä.';
 
   @override
   String get settingsPrivacyCloning =>
-      'Ei tiliä, ei analytiikkaa. Verkkoa käytetään vain luettelon päivittämiseen ja nauhoitettuun ääneesi.';
+      'Ei tiliä, ei mainoksia, ei kolmansien osapuolten analytiikkaa. Verkkoa käytetään luettelon päivittämiseen, nauhoitettuun ääneesi ja nimettömiin käyttötilastoihin, jos ne ovat päällä.';
+
+  @override
+  String get settingsStats => 'Nimettömät käyttötilastot';
+
+  @override
+  String get settingsStatsSub =>
+      'Ne auttavat näkemään, mikä sovelluksessa toimii. Ei laitetunnistetta, ei mitään lapsestasi tai nauhoituksistasi.';
 
   @override
   String get voiceTitle => 'Ääni';

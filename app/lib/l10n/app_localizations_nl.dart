@@ -183,11 +183,18 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String get settingsPrivacy =>
-      'Geen account, geen analyse. Het netwerk wordt alleen gebruikt om de catalogus bij te werken.';
+      'Geen account, geen advertenties, geen analyse door derden. Het netwerk wordt gebruikt om de catalogus bij te werken en voor anonieme gebruiksstatistieken, als die aanstaan.';
 
   @override
   String get settingsPrivacyCloning =>
-      'Geen account, geen analyse. Het netwerk wordt alleen gebruikt om de catalogus bij te werken en voor je opgenomen stem.';
+      'Geen account, geen advertenties, geen analyse door derden. Het netwerk wordt gebruikt om de catalogus bij te werken, voor je opgenomen stem en voor anonieme gebruiksstatistieken, als die aanstaan.';
+
+  @override
+  String get settingsStats => 'Anonieme gebruiksstatistieken';
+
+  @override
+  String get settingsStatsSub =>
+      'Ze laten zien wat werkt in de app. Geen apparaat-ID, niets over je kind of je opnames.';
 
   @override
   String get voiceTitle => 'Stem';

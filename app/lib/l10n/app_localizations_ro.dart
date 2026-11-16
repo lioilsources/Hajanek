@@ -183,11 +183,18 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get settingsPrivacy =>
-      'Fără cont, fără analize. Rețeaua se folosește doar pentru actualizarea catalogului.';
+      'Fără cont, fără reclame, fără analize de la terți. Rețeaua se folosește pentru actualizarea catalogului și pentru statisticile anonime de utilizare, dacă sunt pornite.';
 
   @override
   String get settingsPrivacyCloning =>
-      'Fără cont, fără analize. Rețeaua se folosește doar pentru actualizarea catalogului și pentru vocea ta înregistrată.';
+      'Fără cont, fără reclame, fără analize de la terți. Rețeaua se folosește pentru actualizarea catalogului, pentru vocea ta înregistrată și pentru statisticile anonime de utilizare, dacă sunt pornite.';
+
+  @override
+  String get settingsStats => 'Statistici anonime de utilizare';
+
+  @override
+  String get settingsStatsSub =>
+      'Ne ajută să vedem ce funcționează în aplicație. Fără identificator de dispozitiv, nimic despre copilul tău sau înregistrările tale.';
 
   @override
   String get voiceTitle => 'Voce';

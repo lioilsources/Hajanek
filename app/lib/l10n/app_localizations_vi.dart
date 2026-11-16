@@ -184,11 +184,18 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get settingsPrivacy =>
-      'Không tài khoản, không phân tích. Mạng chỉ dùng để cập nhật danh mục.';
+      'Không tài khoản, không quảng cáo, không phân tích của bên thứ ba. Mạng được dùng để cập nhật danh mục và cho thống kê sử dụng ẩn danh, nếu đang bật.';
 
   @override
   String get settingsPrivacyCloning =>
-      'Không tài khoản, không phân tích. Mạng chỉ dùng để cập nhật danh mục và cho giọng bạn đã ghi âm.';
+      'Không tài khoản, không quảng cáo, không phân tích của bên thứ ba. Mạng được dùng để cập nhật danh mục, cho giọng bạn đã ghi âm và cho thống kê sử dụng ẩn danh, nếu đang bật.';
+
+  @override
+  String get settingsStats => 'Thống kê sử dụng ẩn danh';
+
+  @override
+  String get settingsStatsSub =>
+      'Giúp biết điều gì hiệu quả trong ứng dụng. Không có mã định danh thiết bị, không có gì về con bạn hay bản ghi âm của bạn.';
 
   @override
   String get voiceTitle => 'Giọng đọc';

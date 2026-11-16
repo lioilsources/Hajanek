@@ -180,11 +180,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String get settingsVocativeNone => '설정 안 함';
 
   @override
-  String get settingsPrivacy => '계정도 분석도 없어요. 네트워크는 카탈로그 업데이트에만 사용해요.';
+  String get settingsPrivacy =>
+      '계정도 광고도 제3자 분석도 없어요. 네트워크는 카탈로그 업데이트와, 켜져 있다면 익명 사용 통계에 사용해요.';
 
   @override
   String get settingsPrivacyCloning =>
-      '계정도 분석도 없어요. 네트워크는 카탈로그 업데이트와 녹음한 목소리에만 사용해요.';
+      '계정도 광고도 제3자 분석도 없어요. 네트워크는 카탈로그 업데이트, 녹음한 목소리, 그리고 켜져 있다면 익명 사용 통계에 사용해요.';
+
+  @override
+  String get settingsStats => '익명 사용 통계';
+
+  @override
+  String get settingsStatsSub =>
+      '앱에서 무엇이 잘 작동하는지 알 수 있게 도와줘요. 기기 식별자도, 아이나 녹음에 관한 정보도 없어요.';
 
   @override
   String get voiceTitle => '목소리';

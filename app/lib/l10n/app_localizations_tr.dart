@@ -183,11 +183,18 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settingsPrivacy =>
-      'Hesap yok, analiz yok. Ağ yalnızca kataloğu güncellemek için kullanılır.';
+      'Hesap yok, reklam yok, üçüncü taraf analiz yok. Ağ, kataloğu güncellemek ve açıksa anonim kullanım istatistikleri için kullanılır.';
 
   @override
   String get settingsPrivacyCloning =>
-      'Hesap yok, analiz yok. Ağ yalnızca kataloğu güncellemek ve kaydettiğiniz ses için kullanılır.';
+      'Hesap yok, reklam yok, üçüncü taraf analiz yok. Ağ, kataloğu güncellemek, kaydettiğiniz ses ve açıksa anonim kullanım istatistikleri için kullanılır.';
+
+  @override
+  String get settingsStats => 'Anonim kullanım istatistikleri';
+
+  @override
+  String get settingsStatsSub =>
+      'Uygulamada neyin işe yaradığını görmeye yardımcı olur. Cihaz kimliği yok, çocuğunuz ya da kayıtlarınız hakkında hiçbir şey yok.';
 
   @override
   String get voiceTitle => 'Ses';

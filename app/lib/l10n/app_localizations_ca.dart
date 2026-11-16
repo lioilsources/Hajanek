@@ -184,11 +184,18 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get settingsPrivacy =>
-      'Sense compte i sense analítica. La xarxa només s’utilitza per actualitzar el catàleg.';
+      'Sense compte, sense anuncis i sense analítica de tercers. La xarxa s’utilitza per actualitzar el catàleg i per a les estadístiques d’ús anònimes, si estan activades.';
 
   @override
   String get settingsPrivacyCloning =>
-      'Sense compte i sense analítica. La xarxa només s’utilitza per actualitzar el catàleg i per a la teva veu gravada.';
+      'Sense compte, sense anuncis i sense analítica de tercers. La xarxa s’utilitza per actualitzar el catàleg, per a la teva veu gravada i per a les estadístiques d’ús anònimes, si estan activades.';
+
+  @override
+  String get settingsStats => 'Estadístiques d’ús anònimes';
+
+  @override
+  String get settingsStatsSub =>
+      'Ajuden a veure què funciona a l’app. Cap identificador del dispositiu, res sobre el teu fill ni sobre les teves gravacions.';
 
   @override
   String get voiceTitle => 'Veu';
