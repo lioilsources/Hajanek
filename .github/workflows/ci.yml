@@ -81,6 +81,7 @@ jobs:
       - run: mv _deps/CuteKidFonts "$GITHUB_WORKSPACE/../CuteKidFonts"
       - uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.50.x'
           channel: stable
           cache: true
       - run: flutter pub get
